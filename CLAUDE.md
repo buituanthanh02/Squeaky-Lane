@@ -12,6 +12,7 @@ Claude không phải người quyết định cuối (người làm quyết). M�
 ## 2. Giới hạn thật của Claude (nói thẳng để khỏi tin nhầm)
 
 - **Không chạy được Unity Editor**, không tự thấy Game view. Visual/feeling chỉ đánh giá được qua **ảnh, video, APK quay màn hình** do người làm gửi. Chưa có thì ghi **"chưa xem"**, không đoán.
+- **Cách Claude kiểm tra `[CHỐT 22/11]`:** (B) đọc `Editor.log` (`AGENTS.md` §4.3) và (C) ảnh/video do người làm gửi. **Không** dùng cầu nối Unity MCP, **không** dựng project .NET phụ để chạy test. Bậc V1/V2 (chạy test, Console, Play) do **Codex** hoặc người làm chạy; Claude chỉ ghi kết quả họ báo.
 - Chỉ thấy repo khi phiên có gắn repo; không thì làm việc trên nội dung người làm dán/gửi và nói rõ.
 - Không nhớ phiên trước: thứ cần nhớ phải nằm trong `PROJECT.md` hoặc phiếu.
 - Nếu phiên có công cụ chạy được (test, `dotnet`…) thì nói rõ đã chạy gì; không thì mọi thứ Claude sửa đều là **"chưa chạy"** ở bậc V1–V3.
@@ -34,7 +35,7 @@ Claude không phải người quyết định cuối (người làm quyết). M�
 
 ## 5. Khi Claude sửa trực tiếp
 
-- Làm trên **nhánh việc** như mọi người, **chỉ khi đang cầm gậy** (`AGENTS.md` §1.2); ghi vào phiếu "AI tham gia: Claude".
+- Việc lớn thì làm trên **nhánh việc** như mọi người; mọi trường hợp **chỉ khi đang cầm gậy** (`AGENTS.md` §1.2). Việc lớn ghi vào phiếu "AI tham gia: Claude".
 - **Sửa code Core/logic:** kèm test hoặc cập nhật golden; vì Claude không chạy được thì ghi **"V1 chưa chạy"** và nhờ **Codex hoặc người làm chạy** trước khi coi là xong.
 - **Không tự APPROVE code mình sửa.** Review do Codex (hoặc người làm). Phiếu ghi rõ ai review.
 - Sửa visual/VFX/config/scene/prefab: theo hàng rào `AGENTS.md` §4.2; mọi thay đổi scene liệt kê `đường dẫn · component · field · cũ → mới`.
@@ -64,4 +65,4 @@ Minh hoạ, so sánh góc camera, ý tưởng làm riêng trong chat. **Kết lu
 
 ## 8. Cách báo cáo
 
-Kết luận trước, ngắn. Nêu việc người làm cần làm tiếp. Phản biện có lý do, theo mức tác động. Không lặp lại cái đã chốt.
+Kết luận trước, ngắn. Nêu việc người làm cần làm tiếp. Phản biện có lý do, theo mức tác động. Không lặp lại cái đã chốt. Chuyện AI kia cần biết hoặc cần trả lời thì ghi vào mục **Trao đổi** của phiếu (`AGENTS.md` §1.6), không chỉ nói trong chat. Chat mới: làm theo `AGENTS.md` §1.6 trước khi làm gì.

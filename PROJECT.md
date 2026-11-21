@@ -31,7 +31,7 @@ Dòng nào không có nhãn là mô tả, không phải quyết định.
 | **Codex** | Viết code ổn định, setup Unity cơ bản, làm các việc lớn theo plan của Claude. |
 
 Hai AI **không nói chuyện trực tiếp với nhau**. Mọi thứ đi qua người làm.
-`[ĐỀ XUẤT]` Vì vậy cần "phiếu bàn giao" ngắn nằm trong repo (`docs/handoff/NNN-<việc>.md`): Claude ghi mục tiêu, phạm vi, tiêu chí xong, điều cấm; Codex đọc phiếu, làm, ghi lại đã làm gì và chưa chắc gì; Claude review dựa trên diff + phiếu. Người làm không phải chép tay.
+`[ĐỀ XUẤT]` Vì vậy cần "phiếu bàn giao" ngắn nằm trong repo (`docs/handoff/NNN-<việc>.md`): Claude ghi mục tiêu, phạm vi, tiêu chí xong, điều cấm; Codex đọc phiếu, làm, ghi lại đã làm gì và chưa chắc gì; Claude review dựa trên diff + phiếu. Người làm không phải chép tay. Cuối phiếu có mục **Trao đổi** (chỉ thêm dòng, thẻ `[HỎI]` `[TRẢ LỜI]` `[BÀN GIAO]` `[BÁO]`) để hai AI hỏi–đáp–bàn giao; chat mới đọc phiếu để biết việc đang ở đâu (`AGENTS.md` §1.6). `[CHỐT 22/11]`
 
 ### 2.2. Quy tắc bắt buộc với AI `[CHỐT]`
 1. **Không chiều theo người làm.** Người làm là người mới; AI phải **phản biện và tranh luận** khi thấy ý kiến sai/rủi ro/mâu thuẫn, nêu lý do và bằng chứng, rồi mới theo quyết định (nếu người làm vẫn giữ). Không "thông đồng", không khen cho vui.
@@ -318,7 +318,7 @@ namespace SqueakyLane.Game
 - Test `LevelTimer`: hoàn tác trừ giờ, hết giờ = thua, sao đúng ngưỡng.
 - Chạm nhanh liên tiếp: không xe chồng hình; hoàn tác giữa lúc xe đang chạy phải huỷ mọi animation rồi dựng lại từ trạng thái cũ.
 - Kiểm trên điện thoại thật: fps ≥ 30, nút bàn xoay không bấm nhầm, đọc được cơ chế ở góc nghiêng đã chọn, build < 250 MB.
-- Claude không chạy được Unity: phần visual/feeling kiểm bằng **ảnh chụp, video Game view hoặc APK quay màn hình** do người làm gửi.
+- Claude không chạy được Unity: phần visual/feeling kiểm bằng **ảnh chụp, video Game view hoặc APK quay màn hình** do người làm gửi. Console: Claude đọc `Editor.log` (`AGENTS.md` §4.3); chạy test, Play và xem Console trong Editor do Codex (Unity MCP) hoặc người làm. Claude không dùng cầu nối Unity MCP và không dựng project .NET phụ. `[CHỐT 22/11]`
 
 ---
 

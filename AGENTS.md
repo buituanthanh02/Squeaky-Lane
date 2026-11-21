@@ -27,7 +27,7 @@
 Mọi **số cảm giác** (thời lượng, độ nảy, màu, góc camera, giờ, gợi ý) nằm trong `GameConfig` hoặc JSON màn, **không hard-code**, để chỉnh không cần sửa code.
 
 ### 1.2. "Người cầm gậy" `[ĐỀ XUẤT]`
-Mỗi việc lớn có **một nhánh** và **một AI đang cầm** tại một thời điểm (ghi ở đầu phiếu: `Đang cầm: Codex|Claude|Người làm`). Chỉ người cầm gậy được sửa file. Muốn trao gậy thì ghi vào phiếu rồi báo người làm. Nhờ đó hai AI **không bao giờ sửa cùng một file cùng lúc**.
+Mỗi việc lớn có **một nhánh** và **một AI đang cầm** tại một thời điểm (ghi ở đầu phiếu: `Đang cầm: Codex|Claude|Người làm`). Chỉ người cầm gậy được sửa file (ngoại lệ duy nhất: thêm dòng vào mục **Trao đổi** của phiếu, xem 1.6). Muốn trao gậy thì sửa `Đang cầm` ở đầu phiếu, thêm dòng `[BÀN GIAO]` vào mục Trao đổi rồi báo người làm. Nhờ đó hai AI **không bao giờ sửa cùng một file cùng lúc**.
 
 ### 1.3. Sửa trực tiếp `[CHỐT]`
 Vì hạn 30/11, **cả hai AI được sửa trực tiếp** code, config, scene, prefab (không cần xin từng lần), với các hàng rào ở mục 4.2. Chỉ những việc ở mục 2 "phải hỏi" mới cần xin.
@@ -56,7 +56,19 @@ Liên quan: (việc gốc nếu đây là bản sửa/làm lại, ví dụ 003) 
 ## Phản đối kế hoạch (nếu có) — viết SỚM, trước khi làm
 --- Người review điền ---
 ## Verdict: APPROVE | CHANGES | BLOCK — đã soi / chưa soi; phát hiện [CHẶN] [NÊN] [GỢI Ý]
+--- Trao đổi (mọi bên chỉ THÊM dòng ở cuối, không sửa/xóa dòng cũ; xem 1.6) ---
+## Trao đổi
+YYYY-MM-DD HH:mm · Ai → Ai · [HỎI|TRẢ LỜI|BÀN GIAO|BÁO]: nội dung ngắn
 ```
+
+### 1.6. Trao đổi giữa hai AI và khi mở chat mới `[CHỐT 22/11]`
+- Hai AI **không nói trực tiếp**; mọi thứ đi qua repo (phiếu, `PROJECT.md`). Người làm chỉ cần nói với AI kia: "xem phiếu NNN".
+- **Mục "Trao đổi" cuối phiếu:** bên nào (Claude, Codex, người làm) cũng được **thêm dòng mới ở cuối, kể cả khi không cầm gậy**; không sửa hay xóa dòng cũ. Mỗi dòng: `YYYY-MM-DD HH:mm · Ai → Ai · [thẻ]: nội dung ngắn`. Giờ lấy từ đồng hồ máy (lệnh `Get-Date`), không tự đoán.
+- **Thẻ:** `[HỎI]` bên nhận hoặc người làm phải trả lời trước khi làm tiếp phần liên quan · `[TRẢ LỜI]` · `[BÀN GIAO]` trao gậy (ghi: đã làm gì, còn gì, nhánh/commit hiện tại, đã kiểm / chưa kiểm) · `[BÁO]` thông tin, không cần trả lời.
+- **Trao gậy** = trong cùng một lượt: sửa dòng `Đang cầm` ở đầu phiếu **và** thêm dòng `[BÀN GIAO]`. Thiếu một trong hai thì chưa coi là đã trao.
+- **Chat mới không nhớ gì.** Thứ cần nhớ phải nằm trong `PROJECT.md` hoặc phiếu. Việc đầu tiên của AI trong chat mới: đọc theo thứ tự `PROJECT.md` → `AGENTS.md` → file riêng → **phiếu người làm nêu** (đọc cả mục Trao đổi); chạy `git status` và xem đang ở nhánh nào. Người làm chưa nêu phiếu thì **hỏi "đang làm việc nào?"**, không đoán.
+- **Cuối phiên có thay đổi:** thêm dòng `[BÁO]` hoặc `[BÀN GIAO]` để chat sau và AI kia đọc được việc đang ở đâu.
+- **Việc nhỏ (không có phiếu):** người làm nói trực tiếp; điều đáng nhớ và ảnh hưởng quyết định thì ghi vào `PROJECT.md`.
 
 ---
 
@@ -118,6 +130,7 @@ Luôn được phép (chỉ đọc): `git status/diff/log/show`, đọc file, xe
 | **V3** | Cảm giác / visual / hiệu năng | Ảnh hoặc video Game view, hoặc APK trên máy; đo fps nếu liên quan |
 
 - Phiếu nói bậc nào thì làm bậc đó; không nói thì **tự chọn và nêu**. Chỉ hỏi người làm về **kết quả chấp nhận được**, không đẩy việc chọn kiểm tra thường lệ cho họ.
+- **Ai kiểm bậc nào** `[CHỐT 22/11]`: bậc **V1 và V2** (chạy test, biên dịch, Console, Play) do **Codex** (Unity MCP/CLI) hoặc **người làm** chạy. **Claude** không chạy được Unity: chỉ đọc code, đọc `Editor.log` (4.3) và đánh giá **V3** qua ảnh/video. Code Claude sửa ghi **"chưa chạy"** cho tới khi Codex hoặc người làm chạy và ghi kết quả vào phiếu.
 - `git diff --stat` chỉ có file định sửa; mỗi asset mới có `.meta`.
 - Không có Editor/máy: nói rõ kiểm tra nào chưa chạy. **Đọc tĩnh không phải "đã test".**
 
@@ -173,6 +186,13 @@ Bạn thường **không tự mở/bấm Editor** được. Khi công cụ báo 
 3. **Sửa YAML tay** chỉ khi không có Editor kết nối và thay đổi **nhỏ, rõ** (thêm/bỏ một component, đổi một giá trị đã biết). Điều kiện: Editor **không đang mở** cảnh/prefab đó (hoặc người làm sẵn sàng nạp lại); `git status` **sạch** trước khi sửa; không tạo/đổi `guid`/`fileID` bằng tay; không tạo prefab/scene/asset **mới** bằng YAML; ghi rõ "sửa YAML trực tiếp" trong báo cáo; người làm mở lại Unity, đọc Console rồi mới commit.
 
 Luôn: **một người cầm gậy** (1.2); sửa nhỏ, ưu tiên prefab hơn scene; **không lưu scene kèm thay đổi ngẫu nhiên**; báo cáo liệt kê `đường dẫn object · component · field · cũ → mới`. **Không bao giờ sửa YAML khi Editor đang mở file đó** (lần lưu sau của Editor sẽ ghi đè).
+
+### 4.3. Đọc Console khi không có cầu nối Editor `[CHỐT 22/11]`
+Claude **không có cầu nối Editor** và không cài thêm package cho việc này. Thay vào đó:
+- **Đọc `Editor.log`** (chỉ đọc, không sửa/xóa): `%LOCALAPPDATA%\Unity\Editor\Editor.log`. Lọc theo `error CS`, `warning CS`, `Exception`, `NullReference`. Log của lần chạy trước thường nằm ở `Editor-prev.log` `[CHƯA KIỂM CHỨNG]`. Người làm nói rõ đã nạp lại hoặc Play lúc nào để biết đoạn nào là mới.
+- **Ảnh/video** Game view, ảnh chụp Console, APK quay màn hình do người làm gửi (bậc V3).
+- **Chạy test và Play trong Editor:** Codex (Unity MCP/CLI) hoặc người làm; kết quả ghi vào phiếu ("Test và kết quả") hoặc mục Trao đổi.
+- Đọc `Editor.log` **không thay** cho "đã Play thử": nhãn bằng chứng vẫn là "đã kiểm trong code/log", không phải "đã kiểm trong Editor/Play".
 
 ---
 

@@ -18,6 +18,7 @@
 2. Phiếu mơ hồ hoặc mâu thuẫn → **hỏi**, gộp câu, tách chặn/để sau (`AGENTS.md` §3.1).
 3. Thấy kế hoạch **sai hoặc rủi ro** → ghi **"Phản đối kế hoạch"** vào phiếu **trước khi làm**, kèm bằng chứng và phương án khác. **Không im lặng làm theo kế hoạch tệ**, cũng không tự đổi kế hoạch: người làm phân xử.
 4. Xác nhận mình **đang cầm gậy** (`AGENTS.md` §1.2) trước khi sửa file.
+5. Đọc mục **Trao đổi** của phiếu để biết Claude và người làm đã nói gì; chat mới thì làm theo `AGENTS.md` §1.6 (đọc phiếu, `git status`, không đoán việc đang làm).
 
 ## 3. Thứ tự làm
 
@@ -34,6 +35,7 @@
 - Sau khi sửa script: **refresh, chờ biên dịch xong, đọc Console** rồi mới nói "chạy được".
 - **Không sửa tay YAML scene/prefab/asset khi Editor đang kết nối** (Editor không thấy thay đổi đến khi import lại, và lần lưu sau có thể ghi đè). Khi buộc sửa YAML, theo điều kiện ở `AGENTS.md` §4.2.
 - Việc rà soát lớn (kiến trúc, lỗi tồn đọng, làm mới tài liệu): có thể chia theo khu vực, mỗi phần dẫn `file:line`, rồi gộp vào `PROJECT.md`.
+- **Codex là bên chạy kiểm Unity cho cả hai AI** `[CHỐT 22/11]`: Claude không có cầu nối Editor. Khi Claude sửa code hoặc cần xác nhận biên dịch/test/Console, Codex chạy rồi ghi kết quả (đã chạy gì, qua/hỏng, lỗi nguyên văn) vào "Test và kết quả" hoặc mục **Trao đổi** của phiếu. Không chạy được thì ghi rõ "chưa chạy" và vì sao.
 
 ## 5. Báo cáo
 
