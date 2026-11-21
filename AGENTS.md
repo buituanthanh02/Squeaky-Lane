@@ -66,7 +66,7 @@ YYYY-MM-DD HH:mm · Ai → Ai · [HỎI|TRẢ LỜI|BÀN GIAO|BÁO]: nội dung 
 - **Mục "Trao đổi" cuối phiếu:** bên nào (Claude, Codex, người làm) cũng được **thêm dòng mới ở cuối, kể cả khi không cầm gậy**; không sửa hay xóa dòng cũ. Mỗi dòng: `YYYY-MM-DD HH:mm · Ai → Ai · [thẻ]: nội dung ngắn`. Giờ lấy từ đồng hồ máy (lệnh `Get-Date`), không tự đoán.
 - **Thẻ:** `[HỎI]` bên nhận hoặc người làm phải trả lời trước khi làm tiếp phần liên quan · `[TRẢ LỜI]` · `[BÀN GIAO]` trao gậy (ghi: đã làm gì, còn gì, nhánh/commit hiện tại, đã kiểm / chưa kiểm) · `[BÁO]` thông tin, không cần trả lời.
 - **Trao gậy** = trong cùng một lượt: sửa dòng `Đang cầm` ở đầu phiếu **và** thêm dòng `[BÀN GIAO]`. Thiếu một trong hai thì chưa coi là đã trao.
-- **Chat mới không nhớ gì.** Thứ cần nhớ phải nằm trong `PROJECT.md` hoặc phiếu. Việc đầu tiên của AI trong chat mới: đọc theo thứ tự `PROJECT.md` → `AGENTS.md` → file riêng → **phiếu người làm nêu** (đọc cả mục Trao đổi); chạy `git status` và xem đang ở nhánh nào. Người làm chưa nêu phiếu thì **hỏi "đang làm việc nào?"**, không đoán.
+- **Chat mới không nhớ gì.** Thứ cần nhớ phải nằm trong `PROJECT.md` hoặc phiếu. Việc đầu tiên của AI trong chat mới: đọc theo thứ tự `PROJECT.md` → `AGENTS.md` → file riêng → **phiếu người làm nêu** (đọc cả mục Trao đổi); chạy `git status` và `git log --oneline -n 10` để biết đang ở nhánh nào và những gì vừa đổi (commit cho biết cái gì đã đổi; việc đang ở đâu thì đọc phiếu). Người làm chưa nêu phiếu thì **hỏi "đang làm việc nào?"**, không đoán.
 - **Cuối phiên có thay đổi:** thêm dòng `[BÁO]` hoặc `[BÀN GIAO]` để chat sau và AI kia đọc được việc đang ở đâu.
 - **Việc nhỏ (không có phiếu):** người làm nói trực tiếp; điều đáng nhớ và ảnh hưởng quyết định thì ghi vào `PROJECT.md`.
 

@@ -18,7 +18,7 @@
 2. Phiếu mơ hồ hoặc mâu thuẫn → **hỏi**, gộp câu, tách chặn/để sau (`AGENTS.md` §3.1).
 3. Thấy kế hoạch **sai hoặc rủi ro** → ghi **"Phản đối kế hoạch"** vào phiếu **trước khi làm**, kèm bằng chứng và phương án khác. **Không im lặng làm theo kế hoạch tệ**, cũng không tự đổi kế hoạch: người làm phân xử.
 4. Xác nhận mình **đang cầm gậy** (`AGENTS.md` §1.2) trước khi sửa file.
-5. Đọc mục **Trao đổi** của phiếu để biết Claude và người làm đã nói gì; chat mới thì làm theo `AGENTS.md` §1.6 (đọc phiếu, `git status`, không đoán việc đang làm).
+5. Đọc mục **Trao đổi** của phiếu để biết Claude và người làm đã nói gì; chat mới thì làm theo `AGENTS.md` §1.6 (đọc phiếu, `git status`, `git log --oneline -n 10`, không đoán việc đang làm).
 
 ## 3. Thứ tự làm
 
