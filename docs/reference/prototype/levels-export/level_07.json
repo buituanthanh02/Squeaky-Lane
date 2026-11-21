@@ -1,0 +1,111 @@
+{
+  "id": 7,
+  "name": "Bùn dày",
+  "tag": "Mới",
+  "cols": 5,
+  "rows": 6,
+  "splash": true,
+  "hint": "<b>Bùn dày</b> che mất màu xe. Lăn qua <b>bể rửa</b> để lộ màu.",
+  "gates": [
+    {
+      "side": "t",
+      "i": 2,
+      "color": "pink"
+    },
+    {
+      "side": "b",
+      "i": 2,
+      "color": "blue"
+    },
+    {
+      "side": "r",
+      "i": 1,
+      "color": "yellow"
+    },
+    {
+      "side": "l",
+      "i": 4,
+      "color": "green"
+    },
+    {
+      "side": "b",
+      "i": 4,
+      "color": "blue"
+    }
+  ],
+  "sprays": [
+    [
+      1,
+      2
+    ],
+    [
+      4,
+      1
+    ]
+  ],
+  "cars": [
+    {
+      "axis": "v",
+      "r": 3,
+      "c": 2,
+      "color": "pink",
+      "mud": 2
+    },
+    {
+      "axis": "h",
+      "r": 1,
+      "c": 0,
+      "color": "yellow",
+      "mud": 2
+    },
+    {
+      "axis": "h",
+      "r": 4,
+      "c": 3,
+      "color": "green",
+      "mud": 2
+    },
+    {
+      "axis": "v",
+      "r": 0,
+      "c": 4,
+      "color": "blue"
+    }
+  ],
+  "tutorial": [
+    {
+      "say": "Bùn dày che mất màu xe, chưa biết xe màu gì.",
+      "focus": [
+        {
+          "car": 0
+        }
+      ],
+      "tap": true
+    },
+    {
+      "say": "Chạm/vuốt lên qua bể rửa để lộ màu.",
+      "focus": [
+        {
+          "car": 0
+        },
+        {
+          "cell": [
+            1,
+            2
+          ]
+        },
+        {
+          "gate": "t:2"
+        }
+      ],
+      "do": [
+        "move",
+        0,
+        -1
+      ]
+    }
+  ],
+  "minMoves": 4,
+  "solveExhausted": true,
+  "explored": 49
+}

@@ -1,0 +1,91 @@
+{
+  "id": 10,
+  "name": "Đèn giao thông",
+  "tag": "Tap-away",
+  "cols": 5,
+  "rows": 5,
+  "hint": "<b>Đèn đỏ</b> chặn đường. Sau mỗi lượt đèn đổi màu.",
+  "gates": [
+    {
+      "side": "t",
+      "i": 0,
+      "color": "pink"
+    },
+    {
+      "side": "r",
+      "i": 3,
+      "color": "blue"
+    },
+    {
+      "side": "l",
+      "i": 0,
+      "color": "yellow"
+    },
+    {
+      "side": "b",
+      "i": 4,
+      "color": "green"
+    }
+  ],
+  "lights": [
+    {
+      "r": 1,
+      "c": 0,
+      "phase": 1
+    },
+    {
+      "r": 3,
+      "c": 3,
+      "phase": 0
+    }
+  ],
+  "cars": [
+    {
+      "axis": "v",
+      "r": 3,
+      "c": 0,
+      "color": "pink"
+    },
+    {
+      "axis": "h",
+      "r": 3,
+      "c": 1,
+      "color": "blue"
+    },
+    {
+      "axis": "h",
+      "r": 0,
+      "c": 2,
+      "color": "yellow"
+    },
+    {
+      "axis": "v",
+      "r": 0,
+      "c": 4,
+      "color": "green"
+    }
+  ],
+  "tutorial": [
+    {
+      "say": "Đèn đổi màu sau mỗi lượt. Đèn đỏ chặn đường.",
+      "focus": [
+        {
+          "cell": [
+            1,
+            0
+          ]
+        },
+        {
+          "cell": [
+            3,
+            3
+          ]
+        }
+      ],
+      "tap": true
+    }
+  ],
+  "minMoves": 4,
+  "solveExhausted": true,
+  "explored": 50
+}

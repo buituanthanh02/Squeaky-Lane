@@ -1,0 +1,120 @@
+{
+  "id": 27,
+  "name": "Hàng xe tải",
+  "cols": 6,
+  "rows": 6,
+  "gates": [
+    {
+      "side": "t",
+      "i": 3,
+      "color": "blue"
+    },
+    {
+      "side": "r",
+      "i": 0,
+      "color": "pink"
+    },
+    {
+      "side": "r",
+      "i": 1,
+      "color": "yellow"
+    },
+    {
+      "side": "t",
+      "i": 5,
+      "color": "green"
+    },
+    {
+      "side": "r",
+      "i": 5,
+      "color": "yellow"
+    },
+    {
+      "side": "b",
+      "i": 2,
+      "color": "green"
+    },
+    {
+      "side": "l",
+      "i": 5,
+      "color": "pink"
+    },
+    {
+      "side": "b",
+      "i": 1,
+      "color": "pink"
+    }
+  ],
+  "cars": [
+    {
+      "axis": "v",
+      "r": 2,
+      "c": 3,
+      "len": 3,
+      "color": "blue",
+      "mud": 0,
+      "truck": true
+    },
+    {
+      "axis": "h",
+      "r": 1,
+      "c": 1,
+      "len": 2,
+      "color": "pink",
+      "mud": 0
+    },
+    {
+      "axis": "h",
+      "r": 4,
+      "c": 4,
+      "len": 2,
+      "color": "yellow",
+      "mud": 0
+    },
+    {
+      "axis": "v",
+      "r": 2,
+      "c": 5,
+      "len": 2,
+      "color": "green",
+      "mud": 0
+    },
+    {
+      "axis": "h",
+      "r": 5,
+      "c": 3,
+      "len": 2,
+      "color": "yellow",
+      "mud": 0
+    },
+    {
+      "axis": "v",
+      "r": 2,
+      "c": 2,
+      "len": 2,
+      "color": "green",
+      "mud": 0
+    },
+    {
+      "axis": "h",
+      "r": 4,
+      "c": 0,
+      "len": 2,
+      "color": "pink",
+      "mud": 0
+    },
+    {
+      "axis": "h",
+      "r": 0,
+      "c": 0,
+      "len": 2,
+      "color": "pink",
+      "mud": 0
+    }
+  ],
+  "tag": "Rất khó",
+  "hint": "<b>Một xe tải, nhiều xe kẹt.</b> Xe tải phải đẩy đúng xe, đúng chiều, đúng lúc — đẩy nhầm là chặn luôn lối thoát.",
+  "minMoves": 18,
+  "solveExhausted": true,
+  "explored": 28234
+}

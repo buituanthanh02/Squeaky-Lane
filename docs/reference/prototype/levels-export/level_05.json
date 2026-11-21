@@ -1,0 +1,107 @@
+{
+  "id": 5,
+  "name": "Vũng bùn",
+  "tag": "Mới",
+  "cols": 5,
+  "rows": 5,
+  "splash": true,
+  "hint": "Xe đầu tiên qua <b>vũng bùn</b> sẽ dính hết bùn, rồi vũng biến mất.",
+  "gates": [
+    {
+      "side": "t",
+      "i": 2,
+      "color": "water"
+    },
+    {
+      "side": "b",
+      "i": 2,
+      "color": "green"
+    },
+    {
+      "side": "l",
+      "i": 2,
+      "color": "pink"
+    },
+    {
+      "side": "t",
+      "i": 0,
+      "color": "blue"
+    },
+    {
+      "side": "r",
+      "i": 4,
+      "color": "yellow"
+    }
+  ],
+  "muds": [
+    [
+      2,
+      2
+    ]
+  ],
+  "cars": [
+    {
+      "axis": "v",
+      "r": 3,
+      "c": 2,
+      "color": "green"
+    },
+    {
+      "axis": "h",
+      "r": 2,
+      "c": 3,
+      "color": "pink"
+    },
+    {
+      "axis": "v",
+      "r": 0,
+      "c": 0,
+      "color": "blue"
+    },
+    {
+      "axis": "h",
+      "r": 4,
+      "c": 3,
+      "color": "yellow"
+    }
+  ],
+  "tutorial": [
+    {
+      "say": "Vũng bùn: xe đầu tiên lăn qua sẽ dính hết bùn, rồi vũng biến mất.",
+      "focus": [
+        {
+          "cell": [
+            2,
+            2
+          ]
+        }
+      ],
+      "tap": true
+    },
+    {
+      "say": "Cho xe xanh lá hứng bùn: làn của nó có vòi phun để rửa lại.",
+      "focus": [
+        {
+          "car": 0
+        },
+        {
+          "cell": [
+            2,
+            2
+          ]
+        },
+        {
+          "gate": "t:2"
+        }
+      ],
+      "do": [
+        "move",
+        0,
+        -1
+      ]
+    }
+  ],
+  "minMoves": 4,
+  "solveExhausted": true,
+  "explored": 77
+}

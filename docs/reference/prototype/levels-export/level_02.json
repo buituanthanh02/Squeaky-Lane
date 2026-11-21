@@ -1,0 +1,105 @@
+{
+  "id": 2,
+  "name": "Bể rửa",
+  "tag": "Mới",
+  "cols": 4,
+  "rows": 6,
+  "hint": "Xe còn bùn phải lăn qua <b>bể rửa</b> trước khi vào đường hầm.",
+  "gates": [
+    {
+      "side": "t",
+      "i": 1,
+      "color": "pink"
+    },
+    {
+      "side": "b",
+      "i": 3,
+      "color": "blue"
+    },
+    {
+      "side": "r",
+      "i": 2,
+      "color": "green"
+    }
+  ],
+  "sprays": [
+    [
+      1,
+      1
+    ],
+    [
+      4,
+      3
+    ]
+  ],
+  "cars": [
+    {
+      "axis": "v",
+      "r": 3,
+      "c": 1,
+      "color": "pink",
+      "mud": 1
+    },
+    {
+      "axis": "v",
+      "r": 0,
+      "c": 3,
+      "color": "blue",
+      "mud": 1
+    },
+    {
+      "axis": "h",
+      "r": 2,
+      "c": 2,
+      "color": "green"
+    }
+  ],
+  "tutorial": [
+    {
+      "say": "Xe này còn bùn. Đường hầm không nhận xe bẩn.",
+      "focus": [
+        {
+          "car": 0
+        }
+      ],
+      "tap": true
+    },
+    {
+      "say": "Đây là bể rửa. Xe lăn qua là sạch bùn.",
+      "focus": [
+        {
+          "cell": [
+            1,
+            1
+          ]
+        }
+      ],
+      "tap": true
+    },
+    {
+      "say": "Chạm/vuốt xe hồng lên: qua bể rửa rồi ra đường hầm hồng.",
+      "focus": [
+        {
+          "car": 0
+        },
+        {
+          "cell": [
+            1,
+            1
+          ]
+        },
+        {
+          "gate": "t:1"
+        }
+      ],
+      "do": [
+        "move",
+        0,
+        -1
+      ]
+    }
+  ],
+  "minMoves": 3,
+  "solveExhausted": true,
+  "explored": 14
+}

@@ -1,0 +1,119 @@
+{
+  "id": 21,
+  "name": "Cổng trên tường",
+  "cols": 5,
+  "rows": 5,
+  "gates": [
+    {
+      "side": "r",
+      "i": 0,
+      "color": "blue"
+    },
+    {
+      "side": "r",
+      "i": 3,
+      "color": "blue"
+    },
+    {
+      "side": "r",
+      "i": 2,
+      "color": "blue"
+    },
+    {
+      "side": "b",
+      "i": 3,
+      "color": "pink"
+    }
+  ],
+  "cars": [
+    {
+      "axis": "h",
+      "r": 2,
+      "c": 1,
+      "len": 2,
+      "color": "blue",
+      "mud": 0
+    },
+    {
+      "axis": "v",
+      "r": 0,
+      "c": 4,
+      "len": 2,
+      "color": "blue",
+      "mud": 0
+    },
+    {
+      "axis": "v",
+      "r": 2,
+      "c": 4,
+      "len": 2,
+      "color": "blue",
+      "mud": 0
+    },
+    {
+      "axis": "v",
+      "r": 2,
+      "c": 3,
+      "len": 2,
+      "color": "pink",
+      "mud": 0
+    }
+  ],
+  "portals": [
+    [
+      [
+        0,
+        4,
+        "N"
+      ],
+      [
+        3,
+        0,
+        "W"
+      ]
+    ]
+  ],
+  "tag": "Mới: cổng dịch chuyển",
+  "hint": "<b>Cổng gắn trên tường, đi theo cặp cùng màu.</b> Xe chạy sát cổng thì chui vào, trồi ra ở cổng kia theo hướng vuông góc với tường đó, nên xe có thể đổi từ ngang sang dọc. Cần đủ chỗ trống cho cả thân xe.",
+  "tutorial": [
+    {
+      "say": "Chạm đầu TRÊN xe xanh: lao vào cổng trên tường.",
+      "focus": [
+        {
+          "car": 1
+        },
+        {
+          "face": [
+            0,
+            4,
+            "N"
+          ]
+        }
+      ],
+      "do": [
+        "move",
+        1,
+        -1
+      ]
+    },
+    {
+      "say": "Xe trồi ra ở cổng bên trái và đổi sang chạy NGANG.",
+      "focus": [
+        {
+          "car": 1
+        },
+        {
+          "face": [
+            3,
+            0,
+            "W"
+          ]
+        }
+      ],
+      "tap": true
+    }
+  ],
+  "minMoves": 6,
+  "solveExhausted": true,
+  "explored": 156
+}

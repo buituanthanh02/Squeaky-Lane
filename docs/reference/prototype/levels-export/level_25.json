@@ -1,0 +1,126 @@
+{
+  "id": 25,
+  "name": "Bàn xoay và xe tải",
+  "cols": 6,
+  "rows": 6,
+  "gates": [
+    {
+      "side": "l",
+      "i": 0,
+      "color": "green"
+    },
+    {
+      "side": "t",
+      "i": 1,
+      "color": "blue"
+    },
+    {
+      "side": "b",
+      "i": 5,
+      "color": "yellow"
+    },
+    {
+      "side": "t",
+      "i": 3,
+      "color": "pink"
+    },
+    {
+      "side": "t",
+      "i": 2,
+      "color": "yellow"
+    },
+    {
+      "side": "r",
+      "i": 5,
+      "color": "blue"
+    },
+    {
+      "side": "l",
+      "i": 1,
+      "color": "yellow"
+    },
+    {
+      "side": "l",
+      "i": 2,
+      "color": "blue"
+    }
+  ],
+  "cars": [
+    {
+      "axis": "h",
+      "r": 0,
+      "c": 1,
+      "len": 3,
+      "color": "green",
+      "mud": 0,
+      "truck": true
+    },
+    {
+      "axis": "v",
+      "r": 2,
+      "c": 5,
+      "len": 2,
+      "color": "blue",
+      "mud": 0
+    },
+    {
+      "axis": "v",
+      "r": 0,
+      "c": 5,
+      "len": 2,
+      "color": "yellow",
+      "mud": 0
+    },
+    {
+      "axis": "v",
+      "r": 3,
+      "c": 3,
+      "len": 2,
+      "color": "pink",
+      "mud": 0
+    },
+    {
+      "axis": "v",
+      "r": 3,
+      "c": 2,
+      "len": 2,
+      "color": "yellow",
+      "mud": 0
+    },
+    {
+      "axis": "h",
+      "r": 5,
+      "c": 2,
+      "len": 2,
+      "color": "blue",
+      "mud": 0
+    },
+    {
+      "axis": "h",
+      "r": 1,
+      "c": 0,
+      "len": 2,
+      "color": "yellow",
+      "mud": 0
+    },
+    {
+      "axis": "v",
+      "r": 1,
+      "c": 2,
+      "len": 2,
+      "color": "blue",
+      "mud": 0
+    }
+  ],
+  "tables": [
+    [
+      4,
+      4
+    ]
+  ],
+  "tag": "Khó",
+  "hint": "<b>Xe tải + bàn xoay.</b> Xe tải đẩy cả hàng xe; bàn xoay đổi hướng xe để thoát bằng cổng khác — phối hợp hai thứ.",
+  "minMoves": 13,
+  "solveExhausted": true,
+  "explored": 48236
+}

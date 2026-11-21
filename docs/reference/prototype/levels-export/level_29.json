@@ -1,0 +1,119 @@
+{
+  "id": 29,
+  "name": "Trụ xoay",
+  "cols": 5,
+  "rows": 5,
+  "gates": [
+    {
+      "side": "t",
+      "i": 3,
+      "color": "pink"
+    },
+    {
+      "side": "r",
+      "i": 3,
+      "color": "pink"
+    }
+  ],
+  "cars": [
+    {
+      "axis": "v",
+      "r": 3,
+      "c": 2,
+      "len": 2,
+      "color": "pink",
+      "mud": 0
+    },
+    {
+      "axis": "h",
+      "r": 3,
+      "c": 0,
+      "len": 2,
+      "color": "pink",
+      "mud": 0
+    }
+  ],
+  "pylons": [
+    {
+      "r": 1,
+      "c": 2,
+      "o": "h",
+      "to": [
+        [
+          4,
+          3,
+          "S"
+        ],
+        [
+          3,
+          0,
+          "W"
+        ]
+      ]
+    }
+  ],
+  "tag": "Mới: trụ xoay",
+  "hint": "<b>Trụ xoay có 2 mặt cổng.</b> Mỗi lần chạm trụ xoay thêm 90° (luôn cùng một chiều, tính 1 lượt): mặt cổng đổi sang hướng khác, xe nào vào được và ra hướng nào cũng đổi theo.",
+  "tutorial": [
+    {
+      "say": "Chạm vào TRỤ: nó xoay 90°.",
+      "focus": [
+        {
+          "pylon": 0
+        }
+      ],
+      "do": [
+        "pyl",
+        0
+      ]
+    },
+    {
+      "say": "Chạm thêm lần nữa: mỗi lần xoay 90° cùng chiều.",
+      "focus": [
+        {
+          "pylon": 0
+        }
+      ],
+      "do": [
+        "pyl",
+        0
+      ]
+    },
+    {
+      "say": "Mặt cổng giờ quay xuống. Chạm đầu TRÊN xe hồng đứng.",
+      "focus": [
+        {
+          "car": 0
+        },
+        {
+          "face": [
+            2,
+            2,
+            "N"
+          ]
+        }
+      ],
+      "do": [
+        "move",
+        0,
+        -1
+      ]
+    },
+    {
+      "say": "Xe đã chui qua mặt trụ. Giờ chạm đầu PHẢI xe hồng nằm để nó chạy ra.",
+      "focus": [
+        {
+          "car": 1
+        }
+      ],
+      "do": [
+        "move",
+        1,
+        1
+      ]
+    }
+  ],
+  "minMoves": 4,
+  "solveExhausted": true,
+  "explored": 22
+}

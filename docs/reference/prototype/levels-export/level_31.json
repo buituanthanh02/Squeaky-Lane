@@ -1,0 +1,100 @@
+{
+  "id": 31,
+  "name": "Trụ và xe tải",
+  "cols": 5,
+  "rows": 5,
+  "gates": [
+    {
+      "side": "l",
+      "i": 4,
+      "color": "yellow"
+    },
+    {
+      "side": "r",
+      "i": 1,
+      "color": "pink"
+    },
+    {
+      "side": "r",
+      "i": 0,
+      "color": "pink"
+    },
+    {
+      "side": "l",
+      "i": 3,
+      "color": "yellow"
+    },
+    {
+      "side": "b",
+      "i": 0,
+      "color": "pink"
+    }
+  ],
+  "cars": [
+    {
+      "axis": "h",
+      "r": 4,
+      "c": 2,
+      "len": 3,
+      "color": "yellow",
+      "mud": 0,
+      "truck": true
+    },
+    {
+      "axis": "v",
+      "r": 3,
+      "c": 1,
+      "len": 2,
+      "color": "pink",
+      "mud": 0
+    },
+    {
+      "axis": "h",
+      "r": 3,
+      "c": 3,
+      "len": 2,
+      "color": "pink",
+      "mud": 0
+    },
+    {
+      "axis": "h",
+      "r": 2,
+      "c": 2,
+      "len": 2,
+      "color": "yellow",
+      "mud": 0
+    },
+    {
+      "axis": "v",
+      "r": 0,
+      "c": 1,
+      "len": 2,
+      "color": "pink",
+      "mud": 0
+    }
+  ],
+  "pylons": [
+    {
+      "r": 2,
+      "c": 1,
+      "o": "h",
+      "to": [
+        [
+          2,
+          4,
+          "E"
+        ],
+        [
+          3,
+          4,
+          "E"
+        ]
+      ]
+    }
+  ],
+  "tag": "Rất khó",
+  "hint": "<b>Trụ xoay + xe tải + cổng.</b> Xoay trụ để mở đúng cổng, rồi húc xe vào chỗ cần.",
+  "minMoves": 17,
+  "solveExhausted": true,
+  "explored": 9402
+}

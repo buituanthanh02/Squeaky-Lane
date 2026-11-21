@@ -1,0 +1,137 @@
+{
+  "id": 20,
+  "name": "Xe tải húc",
+  "cols": 5,
+  "rows": 5,
+  "gates": [
+    {
+      "side": "r",
+      "i": 2,
+      "color": "blue"
+    },
+    {
+      "side": "t",
+      "i": 1,
+      "color": "yellow"
+    },
+    {
+      "side": "b",
+      "i": 2,
+      "color": "blue"
+    },
+    {
+      "side": "b",
+      "i": 4,
+      "color": "yellow"
+    },
+    {
+      "side": "l",
+      "i": 0,
+      "color": "yellow"
+    }
+  ],
+  "cars": [
+    {
+      "axis": "h",
+      "r": 2,
+      "c": 1,
+      "len": 3,
+      "color": "blue",
+      "mud": 0,
+      "truck": true
+    },
+    {
+      "axis": "v",
+      "r": 0,
+      "c": 3,
+      "len": 2,
+      "color": "yellow",
+      "mud": 0
+    },
+    {
+      "axis": "v",
+      "r": 3,
+      "c": 2,
+      "len": 2,
+      "color": "blue",
+      "mud": 0
+    },
+    {
+      "axis": "v",
+      "r": 3,
+      "c": 3,
+      "len": 2,
+      "color": "yellow",
+      "mud": 0
+    },
+    {
+      "axis": "h",
+      "r": 0,
+      "c": 1,
+      "len": 2,
+      "color": "yellow",
+      "mud": 0
+    }
+  ],
+  "tag": "Mới: xe tải",
+  "hint": "<b>Xe tải (sọc vàng đen, dài 3 ô).</b> Gặp xe khác thì <b>đẩy</b> nó đi 1 ô nếu phía sau còn chỗ, rồi dừng. Dùng để dọn đường cho xe bị kẹt.",
+  "tutorial": [
+    {
+      "say": "Chạm đầu TRÁI xe tải: lùi lại lấy đà.",
+      "focus": [
+        {
+          "car": 0
+        }
+      ],
+      "do": [
+        "move",
+        0,
+        -1
+      ]
+    },
+    {
+      "say": "Chạm đầu DƯỚI xe vàng: trượt xuống, sát xe tải.",
+      "focus": [
+        {
+          "car": 1
+        }
+      ],
+      "do": [
+        "move",
+        1,
+        1
+      ]
+    },
+    {
+      "say": "Chạm đầu PHẢI xe tải: húc xe vàng!",
+      "focus": [
+        {
+          "car": 0
+        },
+        {
+          "car": 1
+        }
+      ],
+      "do": [
+        "move",
+        0,
+        1
+      ]
+    },
+    {
+      "say": "Xe tải đẩy xe vàng đi 1 ô rồi dừng. Xe tải dài 3 ô, sọc vàng đen.",
+      "focus": [
+        {
+          "car": 0
+        },
+        {
+          "car": 1
+        }
+      ],
+      "tap": true
+    }
+  ],
+  "minMoves": 12,
+  "solveExhausted": true,
+  "explored": 393
+}

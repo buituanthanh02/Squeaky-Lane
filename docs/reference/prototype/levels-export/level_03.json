@@ -1,0 +1,117 @@
+{
+  "id": 3,
+  "name": "Vòi phun",
+  "tag": "Mới",
+  "cols": 5,
+  "rows": 6,
+  "hint": "<b>Vòi phun</b> ở mép bãi xịt sạch bùn rồi <b>đẩy xe lại</b> — không phải lối ra.",
+  "gates": [
+    {
+      "side": "t",
+      "i": 1,
+      "color": "water"
+    },
+    {
+      "side": "b",
+      "i": 1,
+      "color": "pink"
+    },
+    {
+      "side": "r",
+      "i": 2,
+      "color": "blue"
+    },
+    {
+      "side": "l",
+      "i": 2,
+      "color": "water"
+    },
+    {
+      "side": "b",
+      "i": 3,
+      "color": "green"
+    },
+    {
+      "side": "l",
+      "i": 4,
+      "color": "yellow"
+    }
+  ],
+  "cars": [
+    {
+      "axis": "v",
+      "r": 2,
+      "c": 1,
+      "color": "pink",
+      "mud": 1
+    },
+    {
+      "axis": "h",
+      "r": 2,
+      "c": 3,
+      "color": "blue",
+      "mud": 1
+    },
+    {
+      "axis": "v",
+      "r": 3,
+      "c": 3,
+      "color": "green"
+    },
+    {
+      "axis": "h",
+      "r": 4,
+      "c": 1,
+      "color": "yellow"
+    }
+  ],
+  "tutorial": [
+    {
+      "say": "Đây là vòi phun: xịt sạch bùn rồi đẩy xe ngược lại. Sau lưng nó là tường, không có đường ra.",
+      "focus": [
+        {
+          "gate": "t:1"
+        }
+      ],
+      "tap": true
+    },
+    {
+      "say": "Dọn đường trước: vuốt xe vàng sang trái.",
+      "focus": [
+        {
+          "car": 3
+        },
+        {
+          "gate": "l:4"
+        }
+      ],
+      "do": [
+        "move",
+        3,
+        -1
+      ]
+    },
+    {
+      "say": "Chạm/vuốt xe hồng lên vòi phun. Sạch bùn, bị đẩy xuống và ra luôn đường hầm hồng.",
+      "focus": [
+        {
+          "car": 0
+        },
+        {
+          "gate": "t:1"
+        },
+        {
+          "gate": "b:1"
+        }
+      ],
+      "do": [
+        "move",
+        0,
+        -1
+      ]
+    }
+  ],
+  "minMoves": 4,
+  "solveExhausted": true,
+  "explored": 43
+}

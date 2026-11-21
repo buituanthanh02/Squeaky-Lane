@@ -1,0 +1,94 @@
+{
+  "id": 12,
+  "name": "Thứ tự rửa",
+  "tag": "Khó",
+  "cols": 6,
+  "rows": 6,
+  "splash": true,
+  "hint": "<b>Màn khó.</b> Xe bùn lao vào xe sạch là hỏng cả hai. Nghĩ xem xe nào phải đi trước.",
+  "gates": [
+    {
+      "side": "t",
+      "i": 0,
+      "color": "water"
+    },
+    {
+      "side": "b",
+      "i": 0,
+      "color": "pink"
+    },
+    {
+      "side": "r",
+      "i": 1,
+      "color": "yellow"
+    },
+    {
+      "side": "b",
+      "i": 3,
+      "color": "blue"
+    },
+    {
+      "side": "r",
+      "i": 4,
+      "color": "water"
+    },
+    {
+      "side": "l",
+      "i": 4,
+      "color": "green"
+    },
+    {
+      "side": "l",
+      "i": 5,
+      "color": "orange"
+    },
+    {
+      "side": "t",
+      "i": 5,
+      "color": "purple"
+    }
+  ],
+  "cars": [
+    {
+      "axis": "v",
+      "r": 3,
+      "c": 0,
+      "color": "pink",
+      "mud": 1
+    },
+    {
+      "axis": "h",
+      "r": 1,
+      "c": 0,
+      "color": "yellow"
+    },
+    {
+      "axis": "v",
+      "r": 0,
+      "c": 3,
+      "color": "blue"
+    },
+    {
+      "axis": "h",
+      "r": 4,
+      "c": 2,
+      "color": "green",
+      "mud": 1
+    },
+    {
+      "axis": "h",
+      "r": 5,
+      "c": 3,
+      "color": "orange"
+    },
+    {
+      "axis": "v",
+      "r": 4,
+      "c": 5,
+      "color": "purple"
+    }
+  ],
+  "minMoves": 7,
+  "solveExhausted": true,
+  "explored": 5397
+}

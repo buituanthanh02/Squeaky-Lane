@@ -1,0 +1,80 @@
+{
+  "id": 9,
+  "name": "Barie",
+  "tag": "Tap-away",
+  "cols": 5,
+  "rows": 5,
+  "hint": "<b>Barie</b> mở khi rửa đủ số xe ghi trên biển.",
+  "gates": [
+    {
+      "side": "t",
+      "i": 2,
+      "color": "pink"
+    },
+    {
+      "side": "l",
+      "i": 4,
+      "color": "blue"
+    },
+    {
+      "side": "r",
+      "i": 0,
+      "color": "yellow"
+    },
+    {
+      "side": "b",
+      "i": 0,
+      "color": "green"
+    }
+  ],
+  "barriers": [
+    {
+      "r": 1,
+      "c": 2,
+      "need": 2
+    }
+  ],
+  "cars": [
+    {
+      "axis": "v",
+      "r": 2,
+      "c": 2,
+      "color": "pink"
+    },
+    {
+      "axis": "h",
+      "r": 4,
+      "c": 3,
+      "color": "blue"
+    },
+    {
+      "axis": "h",
+      "r": 0,
+      "c": 0,
+      "color": "yellow"
+    },
+    {
+      "axis": "v",
+      "r": 2,
+      "c": 0,
+      "color": "green"
+    }
+  ],
+  "tutorial": [
+    {
+      "say": "Barie mở khi rửa đủ số xe ghi trên biển.",
+      "focus": [
+        {
+          "cell": [
+            1,
+            2
+          ]
+        }
+      ],
+      "tap": true
+    }
+  ],
+  "minMoves": 4,
+  "solveExhausted": true,
+  "explored": 33
+}

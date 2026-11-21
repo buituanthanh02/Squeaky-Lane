@@ -1,0 +1,162 @@
+{
+  "id": 22,
+  "name": "Một chốt, hai barie",
+  "cols": 5,
+  "rows": 5,
+  "gates": [
+    {
+      "side": "t",
+      "i": 0,
+      "color": "blue"
+    },
+    {
+      "side": "l",
+      "i": 4,
+      "color": "yellow"
+    },
+    {
+      "side": "l",
+      "i": 0,
+      "color": "yellow"
+    },
+    {
+      "side": "l",
+      "i": 2,
+      "color": "blue"
+    },
+    {
+      "side": "l",
+      "i": 1,
+      "color": "blue"
+    }
+  ],
+  "cars": [
+    {
+      "axis": "h",
+      "r": 2,
+      "c": 3,
+      "len": 2,
+      "color": "blue",
+      "mud": 0
+    },
+    {
+      "axis": "h",
+      "r": 4,
+      "c": 3,
+      "len": 2,
+      "color": "yellow",
+      "mud": 0
+    },
+    {
+      "axis": "h",
+      "r": 0,
+      "c": 2,
+      "len": 2,
+      "color": "yellow",
+      "mud": 0
+    },
+    {
+      "axis": "v",
+      "r": 2,
+      "c": 0,
+      "len": 2,
+      "color": "blue",
+      "mud": 0
+    },
+    {
+      "axis": "h",
+      "r": 1,
+      "c": 3,
+      "len": 2,
+      "color": "blue",
+      "mud": 0
+    }
+  ],
+  "switches": [
+    {
+      "r": 0,
+      "c": 4,
+      "a": [
+        [
+          3,
+          1
+        ]
+      ],
+      "b": [
+        [
+          4,
+          2
+        ]
+      ]
+    }
+  ],
+  "tag": "Mới: barie liên động",
+  "hint": "<b>Chốt A|B.</b> Không xe nào đè chốt: barie A mở, barie B đóng. Có xe đứng trên chốt: A đóng, B mở.",
+  "tutorial": [
+    {
+      "say": "Chạm đầu PHẢI xe vàng: đưa nó lên chốt.",
+      "focus": [
+        {
+          "car": 2
+        },
+        {
+          "cell": [
+            0,
+            4
+          ]
+        }
+      ],
+      "do": [
+        "move",
+        2,
+        1
+      ]
+    },
+    {
+      "say": "Xe đè chốt: barie A đóng, barie B mở. Nhả chốt thì ngược lại.",
+      "focus": [
+        {
+          "cell": [
+            0,
+            4
+          ]
+        },
+        {
+          "cell": [
+            3,
+            1
+          ]
+        },
+        {
+          "cell": [
+            4,
+            2
+          ]
+        }
+      ],
+      "tap": true
+    },
+    {
+      "say": "Barie B đã mở. Chạm đầu TRÁI xe vàng dưới.",
+      "focus": [
+        {
+          "car": 1
+        },
+        {
+          "cell": [
+            4,
+            2
+          ]
+        }
+      ],
+      "do": [
+        "move",
+        1,
+        -1
+      ]
+    }
+  ],
+  "minMoves": 6,
+  "solveExhausted": true,
+  "explored": 102
+}

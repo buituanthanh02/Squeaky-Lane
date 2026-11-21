@@ -1,0 +1,144 @@
+{
+  "id": 26,
+  "name": "Đèn đỏ và chốt",
+  "cols": 6,
+  "rows": 6,
+  "gates": [
+    {
+      "side": "r",
+      "i": 0,
+      "color": "blue"
+    },
+    {
+      "side": "b",
+      "i": 2,
+      "color": "pink"
+    },
+    {
+      "side": "l",
+      "i": 2,
+      "color": "yellow"
+    },
+    {
+      "side": "t",
+      "i": 4,
+      "color": "green"
+    },
+    {
+      "side": "b",
+      "i": 3,
+      "color": "blue"
+    },
+    {
+      "side": "t",
+      "i": 1,
+      "color": "green"
+    },
+    {
+      "side": "l",
+      "i": 3,
+      "color": "green"
+    },
+    {
+      "side": "t",
+      "i": 2,
+      "color": "pink"
+    }
+  ],
+  "cars": [
+    {
+      "axis": "h",
+      "r": 0,
+      "c": 3,
+      "len": 2,
+      "color": "blue",
+      "mud": 0
+    },
+    {
+      "axis": "v",
+      "r": 3,
+      "c": 2,
+      "len": 2,
+      "color": "pink",
+      "mud": 0
+    },
+    {
+      "axis": "h",
+      "r": 2,
+      "c": 4,
+      "len": 2,
+      "color": "yellow",
+      "mud": 0
+    },
+    {
+      "axis": "v",
+      "r": 4,
+      "c": 4,
+      "len": 2,
+      "color": "green",
+      "mud": 0
+    },
+    {
+      "axis": "v",
+      "r": 2,
+      "c": 3,
+      "len": 2,
+      "color": "blue",
+      "mud": 0
+    },
+    {
+      "axis": "v",
+      "r": 4,
+      "c": 1,
+      "len": 2,
+      "color": "green",
+      "mud": 0
+    },
+    {
+      "axis": "h",
+      "r": 3,
+      "c": 4,
+      "len": 2,
+      "color": "green",
+      "mud": 0
+    },
+    {
+      "axis": "v",
+      "r": 1,
+      "c": 2,
+      "len": 2,
+      "color": "pink",
+      "mud": 0
+    }
+  ],
+  "switches": [
+    {
+      "r": 0,
+      "c": 1,
+      "a": [
+        [
+          1,
+          3
+        ]
+      ],
+      "b": [
+        [
+          2,
+          0
+        ]
+      ]
+    }
+  ],
+  "lights": [
+    {
+      "r": 3,
+      "c": 0,
+      "phase": 1
+    }
+  ],
+  "tag": "Khó",
+  "hint": "<b>Đèn giao thông + chốt.</b> Đèn đổi xanh/đỏ sau mỗi lượt, chốt đổi barie theo xe đè — tính cả nhịp đèn lẫn vị trí xe.",
+  "minMoves": 9,
+  "solveExhausted": true,
+  "explored": 2762
+}

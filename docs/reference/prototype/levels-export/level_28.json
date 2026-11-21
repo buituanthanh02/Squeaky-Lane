@@ -1,0 +1,116 @@
+{
+  "id": 28,
+  "name": "Tổng hợp xe tải",
+  "cols": 5,
+  "rows": 5,
+  "gates": [
+    {
+      "side": "l",
+      "i": 4,
+      "color": "yellow"
+    },
+    {
+      "side": "t",
+      "i": 2,
+      "color": "yellow"
+    },
+    {
+      "side": "b",
+      "i": 0,
+      "color": "blue"
+    },
+    {
+      "side": "b",
+      "i": 3,
+      "color": "pink"
+    }
+  ],
+  "cars": [
+    {
+      "axis": "h",
+      "r": 4,
+      "c": 0,
+      "len": 3,
+      "color": "yellow",
+      "mud": 0,
+      "truck": true
+    },
+    {
+      "axis": "v",
+      "r": 2,
+      "c": 2,
+      "len": 2,
+      "color": "yellow",
+      "mud": 0
+    },
+    {
+      "axis": "v",
+      "r": 3,
+      "c": 4,
+      "len": 2,
+      "color": "blue",
+      "mud": 0
+    },
+    {
+      "axis": "v",
+      "r": 1,
+      "c": 3,
+      "len": 2,
+      "color": "pink",
+      "mud": 0
+    },
+    {
+      "axis": "v",
+      "r": 0,
+      "c": 4,
+      "len": 2,
+      "color": "blue",
+      "mud": 0
+    },
+    {
+      "axis": "v",
+      "r": 0,
+      "c": 1,
+      "len": 2,
+      "color": "blue",
+      "mud": 0
+    }
+  ],
+  "portals": [
+    [
+      [
+        0,
+        4,
+        "N"
+      ],
+      [
+        0,
+        1,
+        "N"
+      ]
+    ]
+  ],
+  "switches": [
+    {
+      "r": 3,
+      "c": 3,
+      "a": [
+        [
+          0,
+          3
+        ]
+      ],
+      "b": [
+        [
+          3,
+          1
+        ]
+      ]
+    }
+  ],
+  "tag": "Rất khó",
+  "hint": "<b>Xe tải + cổng + chốt.</b> Ba cơ chế cùng lúc: đẩy xe vào chỗ cần, chui cổng sang bên kia, đè chốt để mở lối.",
+  "minMoves": 17,
+  "solveExhausted": true,
+  "explored": 2535
+}

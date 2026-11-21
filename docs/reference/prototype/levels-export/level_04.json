@@ -1,0 +1,109 @@
+{
+  "id": 4,
+  "name": "Bùn văng",
+  "tag": "Mới",
+  "cols": 5,
+  "rows": 5,
+  "splash": true,
+  "hint": "Xe bùn đâm vào xe sạch là <b>văng bùn</b> sang xe kia.",
+  "gates": [
+    {
+      "side": "l",
+      "i": 1,
+      "color": "pink"
+    },
+    {
+      "side": "r",
+      "i": 1,
+      "color": "water"
+    },
+    {
+      "side": "t",
+      "i": 3,
+      "color": "blue"
+    },
+    {
+      "side": "b",
+      "i": 1,
+      "color": "green"
+    },
+    {
+      "side": "r",
+      "i": 4,
+      "color": "yellow"
+    },
+    {
+      "side": "t",
+      "i": 4,
+      "color": "water"
+    },
+    {
+      "side": "b",
+      "i": 4,
+      "color": "blue"
+    }
+  ],
+  "cars": [
+    {
+      "axis": "h",
+      "r": 1,
+      "c": 0,
+      "color": "pink",
+      "mud": 1
+    },
+    {
+      "axis": "v",
+      "r": 0,
+      "c": 3,
+      "color": "blue"
+    },
+    {
+      "axis": "v",
+      "r": 2,
+      "c": 1,
+      "color": "green"
+    },
+    {
+      "axis": "h",
+      "r": 4,
+      "c": 3,
+      "color": "yellow"
+    },
+    {
+      "axis": "v",
+      "r": 1,
+      "c": 4,
+      "color": "blue",
+      "mud": 1
+    }
+  ],
+  "tutorial": [
+    {
+      "say": "Xe còn bùn lao vào xe sạch thì bùn văng sang xe kia!",
+      "focus": [
+        {
+          "car": 4
+        },
+        {
+          "car": 3
+        }
+      ],
+      "tap": true
+    },
+    {
+      "say": "Làn của xe vàng không có vòi phun hay bể rửa: dính bùn là kẹt. Tính thứ tự cho khéo.",
+      "focus": [
+        {
+          "car": 3
+        },
+        {
+          "gate": "r:4"
+        }
+      ],
+      "tap": true
+    }
+  ],
+  "minMoves": 5,
+  "solveExhausted": true,
+  "explored": 777
+}

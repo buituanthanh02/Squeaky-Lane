@@ -1,0 +1,137 @@
+{
+  "id": 23,
+  "name": "Chốt hai chiều",
+  "cols": 6,
+  "rows": 6,
+  "gates": [
+    {
+      "side": "l",
+      "i": 1,
+      "color": "yellow"
+    },
+    {
+      "side": "b",
+      "i": 4,
+      "color": "blue"
+    },
+    {
+      "side": "r",
+      "i": 3,
+      "color": "blue"
+    },
+    {
+      "side": "b",
+      "i": 1,
+      "color": "pink"
+    },
+    {
+      "side": "l",
+      "i": 0,
+      "color": "green"
+    },
+    {
+      "side": "b",
+      "i": 5,
+      "color": "yellow"
+    },
+    {
+      "side": "b",
+      "i": 0,
+      "color": "yellow"
+    },
+    {
+      "side": "b",
+      "i": 3,
+      "color": "blue"
+    }
+  ],
+  "cars": [
+    {
+      "axis": "v",
+      "r": 2,
+      "c": 5,
+      "len": 2,
+      "color": "yellow",
+      "mud": 0
+    },
+    {
+      "axis": "v",
+      "r": 3,
+      "c": 4,
+      "len": 2,
+      "color": "blue",
+      "mud": 0
+    },
+    {
+      "axis": "v",
+      "r": 4,
+      "c": 3,
+      "len": 2,
+      "color": "blue",
+      "mud": 0
+    },
+    {
+      "axis": "v",
+      "r": 4,
+      "c": 1,
+      "len": 2,
+      "color": "pink",
+      "mud": 0
+    },
+    {
+      "axis": "h",
+      "r": 0,
+      "c": 1,
+      "len": 2,
+      "color": "green",
+      "mud": 0
+    },
+    {
+      "axis": "h",
+      "r": 1,
+      "c": 3,
+      "len": 2,
+      "color": "yellow",
+      "mud": 0
+    },
+    {
+      "axis": "v",
+      "r": 3,
+      "c": 0,
+      "len": 2,
+      "color": "yellow",
+      "mud": 0
+    },
+    {
+      "axis": "h",
+      "r": 3,
+      "c": 2,
+      "len": 2,
+      "color": "blue",
+      "mud": 0
+    }
+  ],
+  "switches": [
+    {
+      "r": 1,
+      "c": 5,
+      "a": [
+        [
+          0,
+          3
+        ]
+      ],
+      "b": [
+        [
+          0,
+          0
+        ]
+      ]
+    }
+  ],
+  "tag": "Khó vừa",
+  "hint": "<b>Barie liên động.</b> Xe đè chốt thì mở lối B nhưng đóng lối A — chọn xe nào đè chốt và đè lúc nào.",
+  "minMoves": 9,
+  "solveExhausted": true,
+  "explored": 30787
+}

@@ -1,0 +1,113 @@
+{
+  "id": 30,
+  "name": "Hai mặt cổng",
+  "cols": 5,
+  "rows": 5,
+  "gates": [
+    {
+      "side": "t",
+      "i": 3,
+      "color": "yellow"
+    },
+    {
+      "side": "l",
+      "i": 0,
+      "color": "yellow"
+    },
+    {
+      "side": "b",
+      "i": 0,
+      "color": "blue"
+    },
+    {
+      "side": "b",
+      "i": 2,
+      "color": "blue"
+    },
+    {
+      "side": "r",
+      "i": 2,
+      "color": "pink"
+    }
+  ],
+  "cars": [
+    {
+      "axis": "h",
+      "r": 3,
+      "c": 1,
+      "len": 2,
+      "color": "yellow",
+      "mud": 0
+    },
+    {
+      "axis": "v",
+      "r": 2,
+      "c": 0,
+      "len": 2,
+      "color": "yellow",
+      "mud": 0
+    },
+    {
+      "axis": "h",
+      "r": 4,
+      "c": 0,
+      "len": 2,
+      "color": "blue",
+      "mud": 0
+    },
+    {
+      "axis": "v",
+      "r": 0,
+      "c": 0,
+      "len": 2,
+      "color": "blue",
+      "mud": 0
+    },
+    {
+      "axis": "h",
+      "r": 2,
+      "c": 3,
+      "len": 2,
+      "color": "pink",
+      "mud": 0
+    }
+  ],
+  "portals": [
+    [
+      [
+        3,
+        0,
+        "W"
+      ],
+      [
+        4,
+        0,
+        "W"
+      ]
+    ]
+  ],
+  "pylons": [
+    {
+      "r": 3,
+      "c": 3,
+      "o": "v",
+      "to": [
+        [
+          0,
+          0,
+          "N"
+        ],
+        [
+          4,
+          1,
+          "S"
+        ]
+      ]
+    }
+  ],
+  "tag": "Khó",
+  "hint": "<b>Trụ + cổng tường.</b> Mỗi mặt trụ nối với một cổng ngoài tường. Xoay trụ đúng lúc để xe đi đúng đường.",
+  "minMoves": 18,
+  "solveExhausted": true,
+  "explored": 7607
+}

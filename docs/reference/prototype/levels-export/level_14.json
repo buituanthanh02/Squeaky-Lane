@@ -1,0 +1,78 @@
+{
+  "id": 14,
+  "name": "Xoay sau khi rửa",
+  "tag": "Khó",
+  "cols": 5,
+  "rows": 6,
+  "splash": true,
+  "hint": "<b>Màn khó.</b> Rửa xong xe bị đẩy về đâu? Phải giữ được nó trên bàn xoay.",
+  "gates": [
+    {
+      "side": "l",
+      "i": 2,
+      "color": "water"
+    },
+    {
+      "side": "t",
+      "i": 2,
+      "color": "yellow"
+    },
+    {
+      "side": "b",
+      "i": 3,
+      "color": "blue"
+    },
+    {
+      "side": "r",
+      "i": 4,
+      "color": "green"
+    },
+    {
+      "side": "t",
+      "i": 4,
+      "color": "water"
+    },
+    {
+      "side": "b",
+      "i": 4,
+      "color": "pink"
+    }
+  ],
+  "tables": [
+    [
+      2,
+      1
+    ]
+  ],
+  "cars": [
+    {
+      "axis": "h",
+      "r": 2,
+      "c": 1,
+      "color": "yellow",
+      "mud": 1
+    },
+    {
+      "axis": "v",
+      "r": 2,
+      "c": 3,
+      "color": "blue"
+    },
+    {
+      "axis": "h",
+      "r": 4,
+      "c": 3,
+      "color": "green"
+    },
+    {
+      "axis": "v",
+      "r": 0,
+      "c": 4,
+      "color": "pink",
+      "mud": 1
+    }
+  ],
+  "minMoves": 6,
+  "solveExhausted": true,
+  "explored": 897
+}

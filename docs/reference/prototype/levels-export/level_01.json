@@ -1,0 +1,83 @@
+{
+  "id": 1,
+  "name": "Chạm cho xe chạy",
+  "tag": "Cơ bản",
+  "cols": 4,
+  "rows": 5,
+  "hint": "<b>Chạm đầu xe</b> muốn đi (hoặc vuốt dọc thân). Xe ra ở <b>đường hầm cùng màu</b>.",
+  "gates": [
+    {
+      "side": "t",
+      "i": 1,
+      "color": "pink"
+    },
+    {
+      "side": "r",
+      "i": 1,
+      "color": "blue"
+    }
+  ],
+  "cars": [
+    {
+      "axis": "h",
+      "r": 1,
+      "c": 0,
+      "color": "blue"
+    },
+    {
+      "axis": "v",
+      "r": 2,
+      "c": 1,
+      "color": "pink"
+    }
+  ],
+  "tutorial": [
+    {
+      "say": "Mỗi xe phải ra đúng đường hầm cùng màu với nó.",
+      "focus": [
+        {
+          "car": 1
+        },
+        {
+          "gate": "t:1"
+        }
+      ],
+      "tap": true
+    },
+    {
+      "say": "Xe xanh đang chắn đường. Vuốt xe xanh sang phải.",
+      "focus": [
+        {
+          "car": 0
+        },
+        {
+          "gate": "r:1"
+        }
+      ],
+      "do": [
+        "move",
+        0,
+        1
+      ]
+    },
+    {
+      "say": "Giờ vuốt xe hồng lên.",
+      "focus": [
+        {
+          "car": 1
+        },
+        {
+          "gate": "t:1"
+        }
+      ],
+      "do": [
+        "move",
+        1,
+        -1
+      ]
+    }
+  ],
+  "minMoves": 2,
+  "solveExhausted": true,
+  "explored": 4
+}

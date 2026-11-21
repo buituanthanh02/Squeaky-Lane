@@ -1,0 +1,211 @@
+{
+  "id": 17,
+  "name": "Giờ cao điểm",
+  "cols": 7,
+  "rows": 7,
+  "splash": true,
+  "gates": [
+    {
+      "side": "l",
+      "i": 3,
+      "color": "water"
+    },
+    {
+      "side": "b",
+      "i": 5,
+      "color": "water"
+    },
+    {
+      "side": "b",
+      "i": 6,
+      "color": "water"
+    },
+    {
+      "side": "b",
+      "i": 1,
+      "color": "water"
+    },
+    {
+      "side": "l",
+      "i": 5,
+      "color": "water"
+    },
+    {
+      "side": "t",
+      "i": 1,
+      "color": "pink"
+    },
+    {
+      "side": "r",
+      "i": 1,
+      "color": "blue"
+    },
+    {
+      "side": "t",
+      "i": 4,
+      "color": "yellow"
+    },
+    {
+      "side": "r",
+      "i": 5,
+      "color": "green"
+    },
+    {
+      "side": "b",
+      "i": 2,
+      "color": "orange"
+    },
+    {
+      "side": "l",
+      "i": 6,
+      "color": "purple"
+    },
+    {
+      "side": "r",
+      "i": 3,
+      "color": "pink"
+    },
+    {
+      "side": "t",
+      "i": 6,
+      "color": "blue"
+    },
+    {
+      "side": "b",
+      "i": 0,
+      "color": "green"
+    },
+    {
+      "side": "t",
+      "i": 5,
+      "color": "blue"
+    },
+    {
+      "side": "r",
+      "i": 0,
+      "color": "yellow"
+    },
+    {
+      "side": "r",
+      "i": 6,
+      "color": "orange"
+    },
+    {
+      "side": "t",
+      "i": 3,
+      "color": "purple"
+    }
+  ],
+  "cars": [
+    {
+      "axis": "h",
+      "r": 1,
+      "c": 2,
+      "color": "blue",
+      "mud": 0
+    },
+    {
+      "axis": "v",
+      "r": 0,
+      "c": 1,
+      "color": "pink",
+      "mud": 0
+    },
+    {
+      "axis": "v",
+      "r": 2,
+      "c": 1,
+      "color": "pink",
+      "mud": 1
+    },
+    {
+      "axis": "v",
+      "r": 2,
+      "c": 2,
+      "color": "orange",
+      "mud": 0
+    },
+    {
+      "axis": "v",
+      "r": 1,
+      "c": 4,
+      "color": "yellow",
+      "mud": 0
+    },
+    {
+      "axis": "h",
+      "r": 3,
+      "c": 5,
+      "color": "pink",
+      "mud": 1
+    },
+    {
+      "axis": "v",
+      "r": 4,
+      "c": 2,
+      "color": "orange",
+      "mud": 0
+    },
+    {
+      "axis": "h",
+      "r": 5,
+      "c": 3,
+      "color": "green",
+      "mud": 1
+    },
+    {
+      "axis": "v",
+      "r": 4,
+      "c": 5,
+      "color": "blue",
+      "mud": 0
+    },
+    {
+      "axis": "h",
+      "r": 6,
+      "c": 0,
+      "color": "purple",
+      "mud": 0
+    },
+    {
+      "axis": "v",
+      "r": 4,
+      "c": 0,
+      "color": "green",
+      "mud": 0
+    },
+    {
+      "axis": "v",
+      "r": 0,
+      "c": 6,
+      "color": "blue",
+      "mud": 1
+    },
+    {
+      "axis": "h",
+      "r": 0,
+      "c": 2,
+      "color": "yellow",
+      "mud": 0
+    },
+    {
+      "axis": "h",
+      "r": 6,
+      "c": 4,
+      "color": "orange",
+      "mud": 0
+    },
+    {
+      "axis": "v",
+      "r": 2,
+      "c": 3,
+      "color": "purple",
+      "mud": 0
+    }
+  ],
+  "tag": "Rất khó",
+  "hint": "<b>Bãi lớn 15 xe.</b> Xe bùn lao vào xe sạch là văng bùn — dọn đường đúng thứ tự trước khi đưa xe bùn đi rửa.",
+  "minMoves": null,
+  "solveExhausted": false,
+  "explored": 300001
+}

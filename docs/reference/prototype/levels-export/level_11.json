@@ -1,0 +1,96 @@
+{
+  "id": 11,
+  "name": "Tổng hợp",
+  "tag": "Tổng hợp",
+  "cols": 6,
+  "rows": 7,
+  "splash": true,
+  "hint": "Gộp vòi phun, bùn văng, vũng bùn và bể rửa. Mẹo: để xe <b>đã bẩn</b> hút vũng bùn.",
+  "gates": [
+    {
+      "side": "t",
+      "i": 1,
+      "color": "water"
+    },
+    {
+      "side": "b",
+      "i": 1,
+      "color": "pink"
+    },
+    {
+      "side": "l",
+      "i": 3,
+      "color": "water"
+    },
+    {
+      "side": "r",
+      "i": 3,
+      "color": "blue"
+    },
+    {
+      "side": "t",
+      "i": 4,
+      "color": "yellow"
+    },
+    {
+      "side": "b",
+      "i": 4,
+      "color": "green"
+    },
+    {
+      "side": "b",
+      "i": 2,
+      "color": "orange"
+    }
+  ],
+  "muds": [
+    [
+      3,
+      2
+    ]
+  ],
+  "sprays": [
+    [
+      4,
+      4
+    ]
+  ],
+  "cars": [
+    {
+      "axis": "v",
+      "r": 4,
+      "c": 1,
+      "color": "pink",
+      "mud": 1
+    },
+    {
+      "axis": "h",
+      "r": 3,
+      "c": 3,
+      "color": "blue",
+      "mud": 1
+    },
+    {
+      "axis": "v",
+      "r": 0,
+      "c": 4,
+      "color": "yellow"
+    },
+    {
+      "axis": "v",
+      "r": 5,
+      "c": 4,
+      "color": "green",
+      "mud": 1
+    },
+    {
+      "axis": "v",
+      "r": 0,
+      "c": 2,
+      "color": "orange"
+    }
+  ],
+  "minMoves": 6,
+  "solveExhausted": true,
+  "explored": 372
+}

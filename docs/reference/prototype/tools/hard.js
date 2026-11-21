@@ -1,0 +1,72 @@
+// Màn khó đang thiết kế (thử nghiệm bằng tools/check.js trước khi đưa vào game)
+module.exports = [
+  {
+    name: 'Thứ tự rửa', cols: 6, rows: 6, splash: true,
+    gates: [{ side: 't', i: 0, color: 'water' }, { side: 'b', i: 0, color: 'pink' }, { side: 'r', i: 1, color: 'yellow' },
+      { side: 'b', i: 3, color: 'blue' }, { side: 'r', i: 4, color: 'water' }, { side: 'l', i: 4, color: 'green' },
+      { side: 'l', i: 5, color: 'orange' }, { side: 't', i: 5, color: 'purple' }],
+    cars: [
+      { axis: 'v', r: 3, c: 0, color: 'pink', mud: 1 },
+      { axis: 'h', r: 1, c: 0, color: 'yellow' },
+      { axis: 'v', r: 0, c: 3, color: 'blue' },
+      { axis: 'h', r: 4, c: 2, color: 'green', mud: 1 },
+      { axis: 'h', r: 5, c: 3, color: 'orange' },
+      { axis: 'v', r: 4, c: 5, color: 'purple' },
+    ],
+  },
+  {
+    name: 'Xe hy sinh', cols: 5, rows: 6, splash: true,
+    gates: [{ side: 't', i: 2, color: 'pink' }, { side: 'l', i: 2, color: 'green' }, { side: 'r', i: 2, color: 'water' },
+      { side: 'r', i: 0, color: 'yellow' }, { side: 'b', i: 4, color: 'blue' }],
+    muds: [[2, 2]],
+    cars: [
+      { axis: 'v', r: 3, c: 2, color: 'pink' },
+      { axis: 'h', r: 2, c: 3, color: 'green' },
+      { axis: 'h', r: 0, c: 1, color: 'yellow' },
+      { axis: 'v', r: 0, c: 4, color: 'blue' },
+    ],
+  },
+  {
+    name: 'Xoay sau khi rửa', cols: 5, rows: 6, splash: true,
+    gates: [{ side: 'l', i: 2, color: 'water' }, { side: 't', i: 2, color: 'yellow' }, { side: 'b', i: 3, color: 'blue' },
+      { side: 'r', i: 4, color: 'green' }, { side: 't', i: 4, color: 'water' }, { side: 'b', i: 4, color: 'pink' }],
+    tables: [[2, 1]],
+    cars: [
+      { axis: 'h', r: 2, c: 1, color: 'yellow', mud: 1 },
+      { axis: 'v', r: 2, c: 3, color: 'blue' },
+      { axis: 'h', r: 4, c: 3, color: 'green' },
+      { axis: 'v', r: 0, c: 4, color: 'pink', mud: 1 },
+    ],
+  },
+  {
+    name: 'Đổi màu đúng lúc', cols: 5, rows: 6, splash: true,
+    gates: [{ side: 'r', i: 3, color: 'pink' }, { side: 't', i: 1, color: 'water' }, { side: 'b', i: 1, color: 'green' },
+      { side: 'r', i: 5, color: 'water' }, { side: 'l', i: 5, color: 'yellow' }, { side: 't', i: 0, color: 'pink' }, { side: 'b', i: 4, color: 'blue' }],
+    paints: [{ r: 3, c: 0, color: 'pink' }],
+    barriers: [{ r: 3, c: 4, need: 2 }],
+    cars: [
+      { axis: 'h', r: 3, c: 2, color: 'purple' },
+      { axis: 'v', r: 0, c: 1, color: 'green', mud: 1 },
+      { axis: 'h', r: 5, c: 2, color: 'yellow', mud: 1 },
+      { axis: 'v', r: 4, c: 0, color: 'orange' },
+      { axis: 'v', r: 0, c: 4, color: 'blue' },
+    ],
+  },
+  {
+    name: 'Tổng lực', cols: 6, rows: 6, splash: true,
+    gates: [{ side: 't', i: 0, color: 'water' }, { side: 'b', i: 0, color: 'pink' }, { side: 'r', i: 1, color: 'yellow' },
+      { side: 'b', i: 3, color: 'blue' }, { side: 'r', i: 4, color: 'water' }, { side: 'l', i: 4, color: 'green' },
+      { side: 'l', i: 5, color: 'orange' }, { side: 't', i: 5, color: 'purple' }, { side: 't', i: 2, color: 'blue' }],
+    tables: [[2, 1]],
+    muds: [[3, 4]],
+    cars: [
+      { axis: 'v', r: 3, c: 0, color: 'pink', mud: 1 },
+      { axis: 'h', r: 1, c: 0, color: 'yellow' },
+      { axis: 'v', r: 0, c: 3, color: 'blue' },
+      { axis: 'h', r: 4, c: 2, color: 'green', mud: 1 },
+      { axis: 'h', r: 5, c: 3, color: 'orange' },
+      { axis: 'v', r: 4, c: 5, color: 'purple' },
+      { axis: 'h', r: 2, c: 1, color: 'blue' },
+    ],
+  },
+];

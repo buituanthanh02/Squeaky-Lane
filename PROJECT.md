@@ -1,7 +1,7 @@
 # PROJECT.md — SQUEAKY LANE (bản Unity 3D)
 
 > Game puzzle mobile: **chạm cho xe lăn ra khỏi bãi, qua đúng cổng rửa cùng màu**.
-> Tài liệu này dành cho AI (Claude, Codex) đọc trước khi làm việc. Ngày cập nhật: 2026-11-21.
+> Tài liệu này dành cho AI (Claude, Codex) đọc trước khi làm việc. Ngày cập nhật: 2026-11-22.
 > Prototype HTML v10 (31 màn) chỉ là **tham chiếu luật và công cụ sinh/kiểm màn**, không phải đặc tả cuối. Khi tài liệu này và prototype lệch nhau, tài liệu này (đã được người làm xác nhận) thắng, trừ phần "luật lõi" ở mục 5 mà prototype (`logic.js`) là nguồn đối chiếu.
 
 **Nhãn bằng chứng dùng trong file:**
@@ -15,7 +15,7 @@ Dòng nào không có nhãn là mô tả, không phải quyết định.
 - **Người làm:** sinh viên PTIT, thực tập sinh Unity dev, **làm một mình**. `[CHỐT]`
 - **Mục đích:** bài kiểm tra để qua vòng thực tập. Không kiếm tiền, không phát hành. Mục tiêu chính: cho các anh lead thấy **game này làm được gì và thắng người chơi bằng cái gì**. `[CHỐT]`
 - **Người duyệt:** anh lead của công ty game puzzle. Góp ý đã có: mỗi màu xe một dáng riêng, thao tác chạm mượt hơn vuốt, nên làm 3D để xe là nhân vật IP, level design cần hấp dẫn hơn, **ít blocker hơn**, cơ chế phải ghép được với nhau. `[CHỐT]`
-- **Hạn chót: 30/11/2026** (còn ~9 ngày tính từ 21/11). `[CHỐT]`
+- **Hạn chót: 30/11/2026** (tính từ 22/11 còn 8 ngày). `[CHỐT]`
 - **Phạm vi bản này:** lõi chơi + visual + VFX + SFX + cảm giác (feeling). **Chưa làm:** menu, cài đặt, shop, meta, quảng cáo, analytics. `[CHỐT]`
 - **Nội dung:** **25 màn** (gồm tutorial), làm thủ công từng màn (không sinh ngẫu nhiên lúc chạy). Ưu tiên hiện tại: **làm đủ 25 màn trước**; tool dựng màn trong Editor và phần setup nâng cao **làm sau**. Màn định nghĩa bằng JSON + file config (mục 7.5). `[CHỐT]`
 
@@ -47,7 +47,7 @@ Hai AI **không nói chuyện trực tiếp với nhau**. Mọi thứ đi qua ng
 
 ### 2.4. Git `[CHỐT]` + `[ĐỀ XUẤT]` phần chi tiết
 - **Việc nhỏ** (cỡ S, ≤ 2 file code/config/tài liệu, không đụng luật/asset/scene/prefab/package/settings): **sửa và commit thẳng**, không nhánh riêng. `[CHỐT]`
-- **Việc lớn**: **một nhánh mới**, đặt theo **mã việc**, không theo AI: `NNN-<mô-tả>` (ví dụ `004-hint-button`). `NNN` tăng theo thứ tự mở việc để xem lại nhánh cũ theo trình tự; cả hai AI cùng commit lên nhánh của việc đó theo luật "người cầm gậy". `[CHỐT]` AI nào tham gia ghi ở phiếu và dòng cuối commit.
+- **Việc lớn**: **một nhánh mới**, đặt theo **mã việc**, không theo AI: `NNN-<mô-tả>` (ví dụ `004-hint-button`). `NNN` tăng theo thứ tự mở việc để xem lại nhánh cũ theo trình tự; cả hai AI cùng commit lên nhánh của việc đó theo luật "người cầm gậy". `[CHỐT]` Sửa lỗi/làm lại một việc đã có thì đặt `NNN-MM-<mô-tả>` (ví dụ `003-01-fix-undo-timer`), đi bằng nhánh riêng từ `main` để nhánh việc đang làm bỏ được mà không mất bản sửa; chi tiết ở `AGENTS.md` §8. `[CHỐT]` AI nào tham gia ghi ở phiếu và dòng cuối commit.
 - AI **không tự commit/push**; chỉ đưa sẵn nội dung commit để người làm dán. Commit message kết thúc bằng dòng ghi AI tham gia (theo cấu hình của công cụ).
 - Không merge vào `main` khi Claude chưa review. `[ĐỀ XUẤT]` review = đọc diff + đối chiếu phiếu bàn giao + người làm gửi ảnh/video Game view (Claude không chạy được Unity Editor).
 - Khi phiên làm việc có repo, người làm sẽ mở chat riêng gắn repo để Claude xem nhánh/diff. `[CHỐT]` (chat này chỉ để lấy ý tưởng và kết luận tổng thể).
@@ -58,8 +58,8 @@ Hai AI **không nói chuyện trực tiếp với nhau**. Mọi thứ đi qua ng
 - Nếu một sửa đổi phải đợi người làm chạy Play mới kiểm được thì AI ghi rõ "chưa kiểm chứng" thay vì khẳng định.
 - Khi sự thật của dự án đổi (luật, thư mục, tool…), **sửa PROJECT.md trong cùng commit**.
 
-### 2.6. Tài liệu đang hoãn
-Người làm nói **chưa cần `CLAUDE.md` / `CODEX.md`** lúc này, tập trung vào PROJECT.md. Mục 2 này đóng vai trò đó tạm thời; sau này tách ra nếu cần. `[CHỐT]`
+### 2.6. Tài liệu quy tắc
+Đã tách xong (22/11): quy tắc làm việc chung ở `AGENTS.md`, phần riêng ở `CLAUDE.md` và `CODEX.md`. Mục 2 này chỉ giữ bản tóm tắt; hai file mâu thuẫn nhau thì dừng và hỏi người làm (đầu `AGENTS.md`). `[CHỐT]`
 
 ---
 
@@ -73,7 +73,7 @@ Người làm nói **chưa cần `CLAUDE.md` / `CODEX.md`** lúc này, tập tru
 | Màn hình | Điện thoại, **màn dọc**, chơi một tay một ngón. `[CHỐT]` |
 | Hiệu năng | Tối thiểu **30 fps**, mục tiêu **60 fps**. `[CHỐT]` |
 | Dung lượng build | **< 250 MB**. `[CHỐT]` |
-| Input | Input System mới hay cũ: đọc từ project, điền ở 3.1. |
+| Input | **Input Manager cũ** (xem 3.1). Dự án chưa có package Input System; đổi sang Input System là đổi package, phải hỏi trước. |
 | Công nghệ visual thêm (shader, post-processing…) | Chưa quyết, người làm nhờ AI chỉnh nếu sai. `[CHỐT]` — AI nên bắt đầu đơn giản (low-poly, vật liệu phẳng, bóng mềm) và chỉ thêm khi cần. |
 | Asset | Tìm trên mạng hoặc dùng AI tạo; linh hoạt vì chỉ một người làm. `[CHỐT]` |
 
@@ -83,14 +83,14 @@ Người làm đã tạo project 3D trống và sẽ bổ sung thông tin sau. *
 
 | Mục | Giá trị |
 |---|---|
-| Phiên bản Unity | `[CHƯA ĐIỀN]` |
-| Template / render pipeline (3D Built-in hay URP) | `[CHƯA ĐIỀN]` |
-| Input (Input Manager cũ hay Input System) | `[CHƯA ĐIỀN]` |
-| Repo / remote Git, nhánh chính | `[CHƯA ĐIỀN]` |
-| Tên thư mục gốc project, tên scene chính | `[CHƯA ĐIỀN]` |
-| Package đã thêm (ngoài mặc định) | `[CHƯA ĐIỀN]` |
-| Android: package name, scripting backend, min API | `[CHƯA ĐIỀN]` |
-| Quy ước đặt tên / ghi chú khác | `[CHƯA ĐIỀN]` |
+| Phiên bản Unity | `2022.3.62f2` `[FILE: ProjectSettings/ProjectVersion.txt]` |
+| Template / render pipeline (3D Built-in hay URP) | **3D Built-in**: `Packages/manifest.json` không có URP/HDRP, `GraphicsSettings.asset` có `m_CustomRenderPipeline: {fileID: 0}` `[FILE]` |
+| Input (Input Manager cũ hay Input System) | **Input Manager cũ**: `activeInputHandler: 0` trong `ProjectSettings/ProjectSettings.asset`; không có package Input System `[FILE]` |
+| Repo / remote Git, nhánh chính | `https://github.com/buituanthanh02/Squeaky-Lane.git`, nhánh chính `main` `[FILE: git remote -v]`. **Không dùng Git LFS** (`.gitattributes` chỉ có `* text=auto`); chỉ bật khi có asset 3D/âm thanh nặng `[CHỐT 22/11]` |
+| Tên thư mục gốc project, tên scene chính | Thư mục gốc `Squeaky Lane`; scene `Assets/Scenes/SampleScene.unity` (chỉ có Main Camera + Directional Light; chưa nằm trong Build Settings: `EditorBuildSettings.asset` có `m_Scenes: []`) `[FILE]` |
+| Package đã thêm (ngoài mặc định) | **Không có.** Chỉ có package mặc định của template (`com.unity.feature.development`, TextMeshPro, Timeline, ugui, Visual Scripting…). `com.unity.test-framework 1.1.33` có sẵn trong `packages-lock.json` nên dùng được EditMode test `[FILE: Packages/manifest.json, packages-lock.json]` |
+| Android: package name, scripting backend, min API | `companyName: DefaultCompany`, `productName: Squeaky Lane`. **Package name chưa đặt** (`applicationIdentifier: {}`, đang mặc định) `[CHƯA ĐIỀN]`. **Scripting backend chưa đặt** (`scriptingBackend: {}`, đang mặc định) `[CHƯA ĐIỀN]`. Min API 22, target API 0 (tự động). Kiến trúc `AndroidTargetArchitectures: 1` (hiểu là chỉ ARMv7) `[CHƯA KIỂM CHỨNG]`. Xoay màn hình `defaultScreenOrientation: 4` (tự xoay, **chưa khóa dọc**). `[FILE: ProjectSettings/ProjectSettings.asset]`. Cần quyết trước khi build APK đầu tiên: package name, khóa Portrait, ARM64 (đổi Project Settings là việc phải hỏi) |
+| Quy ước đặt tên / ghi chú khác | Cây thư mục và đặt tên: theo mục 8. Mã nguồn prototype để đối chiếu nằm ở `docs/reference/prototype/` (ngoài `Assets`, Unity không biên dịch). `.gitignore` đã có (bỏ `Library`, `Logs`, `UserSettings`, `.vscode`, `*.sln`, `*.apk`, keystore…) `[FILE]` |
 
 **Ghi chú về asset và IP** `[ĐỀ XUẤT, cần bàn]`: người làm nghiêng về IP nhân vật kiểu phim *Cars*. Dùng nhân vật/asset thật của *Cars* thì vi phạm bản quyền; cho bài thực tập nội bộ có thể chấp nhận để minh hoạ, nhưng **không nên đưa vào build chính thức**. Nên làm nhân vật riêng "lấy cảm hứng" (xe có tính cách qua chuyển động). Hiện chưa có cốt truyện, làm lõi trước. `[CHỐT]` Quyết định cũ "không vẽ mặt lên kính xe" (bị đánh giá creepy) **vẫn giữ**: chỉ dùng ngôn ngữ cơ thể (nhún, chúi, nảy, rũ bùn). `[CHỐT]`
 
@@ -112,7 +112,7 @@ Người làm đã tạo project 3D trống và sẽ bổ sung thông tin sau. *
 - **Bãi** là lưới `cols × rows`. Mép bãi có **cổng**. Xe dài 2 ô (xe tải dài 3), nằm ngang hoặc dọc, **chỉ chạy dọc thân (tới/lùi) và chạy tới khi vướng**.
 - **Cổng màu X:** xe màu X **và sạch bùn** thì chạy xuyên qua → được rửa, rời bãi. Không thì dừng sát mép.
 - **Thắng** khi mọi xe ra khỏi bãi. **Kẹt xe** = không còn đường thắng từ trạng thái hiện tại.
-- **Trạng thái bất biến:** `Move()` trả trạng thái mới + danh sách sự kiện (`step, paint, mud, spray, water, exit, stop, splash, push, tele`). Hoàn tác = giữ lại trạng thái cũ. Phần hình ảnh chỉ đọc sự kiện, không tự suy luận lại luật.
+- **Trạng thái bất biến:** `Move()` trả trạng thái mới + danh sách sự kiện (`step, paint, mud, spray, water, exit, stop, splash, push, tele`; bàn xoay và trụ xoay có sự kiện riêng `rotate`, `pyl` do `rotate()`, `rotatePylon()` trả về). Hoàn tác = giữ lại trạng thái cũ. Phần hình ảnh chỉ đọc sự kiện, không tự suy luận lại luật.
 - Mọi lệnh có thể ra ngay (nhiều xe chạy song song); luật tính ô trống tại lúc ra lệnh, phần hình ảnh đặt chỗ đường đi để xe không chồng hình.
 
 ### 5.1. Bộ cơ chế cho bản 25 màn
@@ -129,9 +129,9 @@ Người làm đã tạo project 3D trống và sẽ bổ sung thông tin sau. *
 | **Cổng tường (portal)** | **Giữ** `[CHỐT — nói từ vòng trước]` | Xe trồi nguyên thân ở cổng B vuông góc mặt tường B; tối đa 1 lần chui mỗi lượt. |
 | **Xe tải đẩy** | **Giữ** `[CHỐT — từ vòng trước]` | Đẩy cả hàng phía trước đúng 1 ô nếu có chỗ. |
 | **Xoay 90°** | **Giữ** `[CHỐT]` | Gồm trụ xoay (chạm = xoay thêm 90° một chiều, 4 chạm về chỗ cũ) và bàn xoay. Nếu người làm muốn chỉ một trong hai thì báo lại. |
-| Bùn dày "?" (che màu) | **Bỏ khỏi 25 màn** `[CHỐT — lead muốn ít blocker]` | Khó đọc trong 3D. Người làm chưa nhắc lại ở vòng sau; muốn giữ thì báo. |
+| Bùn dày "?" (che màu) | **Bỏ khỏi 25 màn** `[CHỐT — lead muốn ít blocker]` | Khó đọc trong 3D. Người làm xác nhận lại 22/11: bỏ. Trong luật, bùn dày chỉ là dữ liệu `mud: 2` (luật chỉ xét `mud > 0`; "che màu" là việc của hiển thị), nên bỏ khỏi màn không tốn gì ở Core. |
 | Ô vòi xịt trong bãi · Bùn văng · Vũng sơn | **Tạm giữ, bỏ sau nếu cần** `[CHỐT — "cứ để lại, sẽ bỏ sau"]` | Xem quy tắc ưu tiên bên dưới. |
-| Barie đếm xe · Barie liên động (chốt A/B) | `[CHƯA CHỐT]` — "suy nghĩ thêm" | `[ĐỀ XUẤT]` **chưa đưa vào 25 màn**: đèn giao thông và cọc đã đóng vai blocker; barie liên động cần thêm nhiều visual (chốt, hai barie, trạng thái) và khó đọc trong 3D. Thêm lại nếu còn thời gian. |
+| Barie đếm xe · Barie liên động (chốt A/B) | **Chưa đưa vào 25 màn**; còn thời gian thì có thể thêm `[CHỐT 22/11]`. Core vẫn port đủ (prototype đã có `barriers`, `switches`) | `[ĐỀ XUẤT]` **chưa đưa vào 25 màn**: đèn giao thông và cọc đã đóng vai blocker; barie liên động cần thêm nhiều visual (chốt, hai barie, trạng thái) và khó đọc trong 3D. Thêm lại nếu còn thời gian. |
 
 **Hệ quả:** 25 màn mới được sinh/kiểm lại với bộ cơ chế ở bảng trên (mục 7), không dùng lại nguyên 31 màn cũ (thừa cơ chế, nhiều màn bãi lớn).
 
@@ -166,7 +166,7 @@ Raycast vào xe → lấy điểm trúng → chiếu lên **trục thân xe tron
 - **Ghi chú tranh luận:** nguyên tắc cũ của người làm là "khó do luật, không do giờ". Bản này đổi sang có giờ. Rủi ro: câu đố cần nghĩ (cổng tường, trụ xoay) sẽ bị áp lực giờ làm mất vui. Cách giảm: giờ rộng, không tính giờ ở màn học cơ chế mới, chỉnh theo thời gian người thật chơi chứ không theo số nước.
 - **Chấp nhận thua khi hết giờ** (đã xác nhận lại). `[CHỐT]`
 - **Gợi ý: có**, và phải tốn kém: trừ giờ **hoặc** giới hạn số lần như booster. `[CHỐT]` `[ĐỀ XUẤT]` mặc định nhẹ cả hai: tối đa 3 lần/màn, mỗi lần trừ ~5 s; cả hai là biến trong file config (7.5) để chỉnh hoặc tắt. Dùng solver sẵn có. Màn tutorial không giới hạn.
-- `[CHƯA CHỐT]` **"Kẹt xe"**: hộp thoại báo khi hết đường thắng (đồng hồ vẫn chạy, người chơi biết cần hoàn tác sớm). Đề xuất giữ.
+- **"Kẹt xe"**: hộp thoại báo khi hết đường thắng (đồng hồ vẫn chạy, người chơi biết cần hoàn tác sớm). **Giữ** `[CHỐT 22/11]`.
 
 ---
 
@@ -198,7 +198,7 @@ Màn 1–6: tutorial từng cơ chế (cổng màu → cổng nước + bùn →
   "tutorial": [{ "say": "...", "focus": [...], "do": ["move", 0, -1] }]
 }
 ```
-`(r,c)` = ô trên-trái của xe; `sign` ±1 = đầu TRÁI/TRÊN (−1) hoặc PHẢI/DƯỚI (+1). Trường mới cho bản Unity: `timeLimit` (giây, hoặc `null` cho màn không tính giờ), `minMoves` (từ solver).
+`(r,c)` = ô trên-trái của xe; `sign` ±1 = đầu TRÁI/TRÊN (−1) hoặc PHẢI/DƯỚI (+1). Trường mới cho bản Unity: `timeLimit` (giây, hoặc `null` cho màn không tính giờ), `minMoves` (từ solver). Định dạng thật của prototype (`docs/reference/prototype/levels-export/level_NN.json`) còn có `id`, `tag`, `hint` (chuỗi có thẻ `<b>`), `solveExhausted`, `explored`, các khóa `barriers`, `switches`, `sprays`, `paints`, `splash` (bool), `lights[].phase`, `pylons[].fixed`; phần `tutorial` dùng `focus`/`tap`/`do`. Bộ nạp C# theo định dạng thật này, không theo mẫu rút gọn ở trên.
 
 ### 7.5. Dữ liệu màn và file config `[CHỐT: dùng JSON + file config]`, chi tiết `[ĐỀ XUẤT]`
 
@@ -357,10 +357,10 @@ namespace SqueakyLane.Game
 **Đã chốt vòng 21/11 (tối):** hạn 30/11 · thua khi hết giờ · gợi ý có chi phí · project 3D trống đã tạo · JSON + file config · tạm giữ các cơ chế bậc B · ưu tiên 25 màn, tool để sau.
 
 **Còn mở:**
-1. Điền mục 3.1 (phiên bản Unity, pipeline, Input System, repo).
-2. Giữ hộp thoại "Kẹt xe" không (đề xuất giữ).
-3. Barie (đếm xe, liên động): đưa vào hay không (đề xuất chưa).
-4. Bùn dày "?": bỏ hẳn hay giữ.
+1. Mục 3.1 còn thiếu: package name, scripting backend, khóa Portrait, ARM64 (quyết trước khi build APK đầu tiên).
+2. (Đã chốt 22/11: giữ "Kẹt xe".)
+3. (Đã chốt 22/11: barie chưa đưa vào 25 màn, còn thời gian thì thêm.)
+4. (Đã chốt 22/11: bùn dày "?" bỏ khỏi 25 màn.)
 5. Con số giờ/gợi ý mặc định ở mục 6.4 có ổn không.
 6. Tên "Squeaky Lane" (chưa tra nhãn hiệu); có cần iOS; lead xem qua APK, có cần thêm video không.
 
@@ -370,7 +370,7 @@ namespace SqueakyLane.Game
 
 | NNN | Việc lớn | Nhánh | AI | Trạng thái | Verdict | Liên quan |
 |---|---|---|---|---|---|---|
-| — | Tài liệu: `PROJECT.md`, `AGENTS.md`, `CLAUDE.md`, `CODEX.md` (làm trong chat, 21/11) | — | Claude | Chờ người làm xem | — | — |
+| — | Tài liệu: `PROJECT.md`, `AGENTS.md`, `CLAUDE.md`, `CODEX.md` (làm trong chat, 21/11) | — | Claude | Xong (đã commit 22/11) | — | — |
 
 (Một dòng mỗi **việc lớn**, `NNN` theo thứ tự mở việc; việc nhỏ không ghi. Không cần ghi hash commit. Cột `Liên quan` nối việc sửa với việc gốc, ví dụ `004`.)
 
@@ -382,3 +382,4 @@ namespace SqueakyLane.Game
 - `claude/tram-rua-xe-v9-co-che-moi.md` — xe tải, barie liên động, lý do chọn cơ chế.
 - `claude/tram-rua-xe-noi-dung-se-sua.md` — dáng xe theo màu, điều khiển chạm, ngôn ngữ cơ thể, theme, góp ý của lead.
 - Prototype: `tram-rua-xe-v10.html`; nguồn ở `/home/claude/proto` (`src/logic.js`, `tools/`, `test/`).
+- **Bản chép trong repo:** `docs/reference/prototype/` (`src/logic.js`, `tools/`, `test/`, `levels-export/` là 31 màn cũ kèm `minMoves`). Chỉ để đối chiếu, không nằm trong `Assets`. Lưu ý: màn 17–19 chưa có `minMoves` (vượt 300.000 trạng thái), màn 16 cần `maxStates` > 60.000; 25 màn mới theo bộ cơ chế mục 5.1 **chưa được sinh**.

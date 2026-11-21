@@ -1,0 +1,123 @@
+{
+  "id": 6,
+  "name": "Vũng sơn",
+  "tag": "Giữ lại",
+  "cols": 5,
+  "rows": 5,
+  "hint": "Lăn qua <b>vũng sơn</b> thì xe đổi màu. Có xe phải qua vũng rồi quay lại.",
+  "gates": [
+    {
+      "side": "r",
+      "i": 2,
+      "color": "blue"
+    },
+    {
+      "side": "t",
+      "i": 1,
+      "color": "yellow"
+    },
+    {
+      "side": "r",
+      "i": 4,
+      "color": "yellow"
+    },
+    {
+      "side": "t",
+      "i": 3,
+      "color": "blue"
+    }
+  ],
+  "paints": [
+    {
+      "r": 2,
+      "c": 0,
+      "color": "blue"
+    },
+    {
+      "r": 1,
+      "c": 1,
+      "color": "yellow"
+    }
+  ],
+  "cars": [
+    {
+      "axis": "h",
+      "r": 2,
+      "c": 1,
+      "color": "pink"
+    },
+    {
+      "axis": "v",
+      "r": 3,
+      "c": 1,
+      "color": "green"
+    },
+    {
+      "axis": "h",
+      "r": 4,
+      "c": 3,
+      "color": "yellow"
+    },
+    {
+      "axis": "v",
+      "r": 0,
+      "c": 3,
+      "color": "blue"
+    }
+  ],
+  "tutorial": [
+    {
+      "say": "Lăn qua vũng sơn thì xe đổi sang màu của vũng.",
+      "focus": [
+        {
+          "car": 0
+        },
+        {
+          "cell": [
+            2,
+            0
+          ]
+        }
+      ],
+      "tap": true
+    },
+    {
+      "say": "Chạm/vuốt xe hồng sang trái để nhúng sơn xanh.",
+      "focus": [
+        {
+          "car": 0
+        },
+        {
+          "cell": [
+            2,
+            0
+          ]
+        }
+      ],
+      "do": [
+        "move",
+        0,
+        -1
+      ]
+    },
+    {
+      "say": "Xe đã thành màu xanh. Vuốt sang phải ra đường hầm xanh.",
+      "focus": [
+        {
+          "car": 0
+        },
+        {
+          "gate": "r:2"
+        }
+      ],
+      "do": [
+        "move",
+        0,
+        1
+      ]
+    }
+  ],
+  "minMoves": 5,
+  "solveExhausted": true,
+  "explored": 86
+}

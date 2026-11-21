@@ -1,0 +1,112 @@
+{
+  "id": 8,
+  "name": "Bàn xoay",
+  "tag": "Mới",
+  "cols": 5,
+  "rows": 5,
+  "hint": "Xe đứng gọn trên <b>bàn xoay</b>: vuốt ngang thân xe để xoay 90°.",
+  "gates": [
+    {
+      "side": "t",
+      "i": 2,
+      "color": "yellow"
+    },
+    {
+      "side": "l",
+      "i": 2,
+      "color": "blue"
+    },
+    {
+      "side": "r",
+      "i": 2,
+      "color": "pink"
+    },
+    {
+      "side": "l",
+      "i": 0,
+      "color": "blue"
+    },
+    {
+      "side": "r",
+      "i": 4,
+      "color": "green"
+    }
+  ],
+  "tables": [
+    [
+      2,
+      1
+    ]
+  ],
+  "cars": [
+    {
+      "axis": "h",
+      "r": 2,
+      "c": 1,
+      "color": "yellow"
+    },
+    {
+      "axis": "h",
+      "r": 2,
+      "c": 3,
+      "color": "pink"
+    },
+    {
+      "axis": "h",
+      "r": 0,
+      "c": 0,
+      "color": "blue"
+    },
+    {
+      "axis": "h",
+      "r": 4,
+      "c": 1,
+      "color": "green"
+    }
+  ],
+  "tutorial": [
+    {
+      "say": "Bàn xoay: xe đứng gọn trên bàn thì xoay được.",
+      "focus": [
+        {
+          "table": [
+            2,
+            1
+          ]
+        }
+      ],
+      "tap": true
+    },
+    {
+      "say": "Vuốt ngang thân xe để xoay 90°.",
+      "focus": [
+        {
+          "car": 0
+        }
+      ],
+      "do": [
+        "rot",
+        0
+      ]
+    },
+    {
+      "say": "Giờ vuốt lên, ra đường hầm vàng.",
+      "focus": [
+        {
+          "car": 0
+        },
+        {
+          "gate": "t:2"
+        }
+      ],
+      "do": [
+        "move",
+        0,
+        -1
+      ]
+    }
+  ],
+  "minMoves": 5,
+  "solveExhausted": true,
+  "explored": 210
+}

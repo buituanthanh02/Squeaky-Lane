@@ -1,0 +1,312 @@
+[
+  {
+    "id": 1,
+    "name": "Chạm cho xe chạy",
+    "minMoves": 2,
+    "exhausted": true,
+    "explored": 4,
+    "thickMud": false,
+    "mech": "",
+    "ms": 6
+  },
+  {
+    "id": 2,
+    "name": "Bể rửa",
+    "minMoves": 3,
+    "exhausted": true,
+    "explored": 14,
+    "thickMud": false,
+    "mech": "sprays",
+    "ms": 0
+  },
+  {
+    "id": 3,
+    "name": "Vòi phun",
+    "minMoves": 4,
+    "exhausted": true,
+    "explored": 43,
+    "thickMud": false,
+    "mech": "",
+    "ms": 3
+  },
+  {
+    "id": 4,
+    "name": "Bùn văng",
+    "minMoves": 5,
+    "exhausted": true,
+    "explored": 777,
+    "thickMud": false,
+    "mech": "splash",
+    "ms": 39
+  },
+  {
+    "id": 5,
+    "name": "Vũng bùn",
+    "minMoves": 4,
+    "exhausted": true,
+    "explored": 77,
+    "thickMud": false,
+    "mech": "splash,muds",
+    "ms": 2
+  },
+  {
+    "id": 6,
+    "name": "Vũng sơn",
+    "minMoves": 5,
+    "exhausted": true,
+    "explored": 86,
+    "thickMud": false,
+    "mech": "paints",
+    "ms": 5
+  },
+  {
+    "id": 7,
+    "name": "Bùn dày",
+    "minMoves": 4,
+    "exhausted": true,
+    "explored": 49,
+    "thickMud": true,
+    "mech": "sprays,splash",
+    "ms": 3
+  },
+  {
+    "id": 8,
+    "name": "Bàn xoay",
+    "minMoves": 5,
+    "exhausted": true,
+    "explored": 210,
+    "thickMud": false,
+    "mech": "tables",
+    "ms": 9
+  },
+  {
+    "id": 9,
+    "name": "Barie",
+    "minMoves": 4,
+    "exhausted": true,
+    "explored": 33,
+    "thickMud": false,
+    "mech": "barriers",
+    "ms": 1
+  },
+  {
+    "id": 10,
+    "name": "Đèn giao thông",
+    "minMoves": 4,
+    "exhausted": true,
+    "explored": 50,
+    "thickMud": false,
+    "mech": "lights",
+    "ms": 2
+  },
+  {
+    "id": 11,
+    "name": "Tổng hợp",
+    "minMoves": 6,
+    "exhausted": true,
+    "explored": 372,
+    "thickMud": false,
+    "mech": "sprays,splash,muds",
+    "ms": 19
+  },
+  {
+    "id": 12,
+    "name": "Thứ tự rửa",
+    "minMoves": 7,
+    "exhausted": true,
+    "explored": 5397,
+    "thickMud": false,
+    "mech": "splash",
+    "ms": 92
+  },
+  {
+    "id": 13,
+    "name": "Xe hy sinh",
+    "minMoves": 5,
+    "exhausted": true,
+    "explored": 103,
+    "thickMud": false,
+    "mech": "splash,muds",
+    "ms": 2
+  },
+  {
+    "id": 14,
+    "name": "Xoay sau khi rửa",
+    "minMoves": 6,
+    "exhausted": true,
+    "explored": 897,
+    "thickMud": false,
+    "mech": "splash,tables",
+    "ms": 10
+  },
+  {
+    "id": 15,
+    "name": "Đổi màu đúng lúc",
+    "minMoves": 6,
+    "exhausted": true,
+    "explored": 805,
+    "thickMud": false,
+    "mech": "barriers,paints,splash",
+    "ms": 21
+  },
+  {
+    "id": 16,
+    "name": "Tổng lực",
+    "minMoves": 9,
+    "exhausted": true,
+    "explored": 79056,
+    "thickMud": false,
+    "mech": "splash,tables",
+    "ms": 1321
+  },
+  {
+    "id": 17,
+    "name": "Giờ cao điểm",
+    "minMoves": null,
+    "exhausted": false,
+    "explored": 300001,
+    "thickMud": false,
+    "mech": "splash",
+    "ms": 9173
+  },
+  {
+    "id": 18,
+    "name": "Bàn xoay đôi",
+    "minMoves": null,
+    "exhausted": false,
+    "explored": 300001,
+    "thickMud": false,
+    "mech": "barriers,paints,splash,tables",
+    "ms": 7503
+  },
+  {
+    "id": 19,
+    "name": "Tổng lực lớn",
+    "minMoves": null,
+    "exhausted": false,
+    "explored": 300001,
+    "thickMud": true,
+    "mech": "sprays,paints,splash,tables,muds",
+    "ms": 7968
+  },
+  {
+    "id": 20,
+    "name": "Xe tải húc",
+    "minMoves": 12,
+    "exhausted": true,
+    "explored": 393,
+    "thickMud": false,
+    "mech": "",
+    "ms": 9
+  },
+  {
+    "id": 21,
+    "name": "Cổng trên tường",
+    "minMoves": 6,
+    "exhausted": true,
+    "explored": 156,
+    "thickMud": false,
+    "mech": "portals",
+    "ms": 2
+  },
+  {
+    "id": 22,
+    "name": "Một chốt, hai barie",
+    "minMoves": 6,
+    "exhausted": true,
+    "explored": 102,
+    "thickMud": false,
+    "mech": "switches",
+    "ms": 3
+  },
+  {
+    "id": 23,
+    "name": "Chốt hai chiều",
+    "minMoves": 9,
+    "exhausted": true,
+    "explored": 30787,
+    "thickMud": false,
+    "mech": "switches",
+    "ms": 795
+  },
+  {
+    "id": 24,
+    "name": "Húc qua cổng",
+    "minMoves": 13,
+    "exhausted": true,
+    "explored": 729,
+    "thickMud": false,
+    "mech": "portals",
+    "ms": 14
+  },
+  {
+    "id": 25,
+    "name": "Bàn xoay và xe tải",
+    "minMoves": 13,
+    "exhausted": true,
+    "explored": 48236,
+    "thickMud": false,
+    "mech": "tables",
+    "ms": 1250
+  },
+  {
+    "id": 26,
+    "name": "Đèn đỏ và chốt",
+    "minMoves": 9,
+    "exhausted": true,
+    "explored": 2762,
+    "thickMud": false,
+    "mech": "switches,lights",
+    "ms": 64
+  },
+  {
+    "id": 27,
+    "name": "Hàng xe tải",
+    "minMoves": 18,
+    "exhausted": true,
+    "explored": 28234,
+    "thickMud": false,
+    "mech": "",
+    "ms": 932
+  },
+  {
+    "id": 28,
+    "name": "Tổng hợp xe tải",
+    "minMoves": 17,
+    "exhausted": true,
+    "explored": 2535,
+    "thickMud": false,
+    "mech": "switches,portals",
+    "ms": 72
+  },
+  {
+    "id": 29,
+    "name": "Trụ xoay",
+    "minMoves": 4,
+    "exhausted": true,
+    "explored": 22,
+    "thickMud": false,
+    "mech": "pylons",
+    "ms": 1
+  },
+  {
+    "id": 30,
+    "name": "Hai mặt cổng",
+    "minMoves": 18,
+    "exhausted": true,
+    "explored": 7607,
+    "thickMud": false,
+    "mech": "portals,pylons",
+    "ms": 176
+  },
+  {
+    "id": 31,
+    "name": "Trụ và xe tải",
+    "minMoves": 17,
+    "exhausted": true,
+    "explored": 9402,
+    "thickMud": false,
+    "mech": "pylons",
+    "ms": 176
+  }
+]

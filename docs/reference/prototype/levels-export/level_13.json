@@ -1,0 +1,71 @@
+{
+  "id": 13,
+  "name": "Xe hy sinh",
+  "tag": "Khó",
+  "cols": 5,
+  "rows": 6,
+  "splash": true,
+  "hint": "<b>Màn khó.</b> Phải có xe chịu hứng vũng bùn. Xe nào có vòi phun trong làn?",
+  "gates": [
+    {
+      "side": "t",
+      "i": 2,
+      "color": "pink"
+    },
+    {
+      "side": "l",
+      "i": 2,
+      "color": "green"
+    },
+    {
+      "side": "r",
+      "i": 2,
+      "color": "water"
+    },
+    {
+      "side": "r",
+      "i": 0,
+      "color": "yellow"
+    },
+    {
+      "side": "b",
+      "i": 4,
+      "color": "blue"
+    }
+  ],
+  "muds": [
+    [
+      2,
+      2
+    ]
+  ],
+  "cars": [
+    {
+      "axis": "v",
+      "r": 3,
+      "c": 2,
+      "color": "pink"
+    },
+    {
+      "axis": "h",
+      "r": 2,
+      "c": 3,
+      "color": "green"
+    },
+    {
+      "axis": "h",
+      "r": 0,
+      "c": 1,
+      "color": "yellow"
+    },
+    {
+      "axis": "v",
+      "r": 0,
+      "c": 4,
+      "color": "blue"
+    }
+  ],
+  "minMoves": 5,
+  "solveExhausted": true,
+  "explored": 103
+}

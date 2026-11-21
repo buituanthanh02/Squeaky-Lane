@@ -1,0 +1,168 @@
+{
+  "id": 18,
+  "name": "Bàn xoay đôi",
+  "cols": 7,
+  "rows": 7,
+  "splash": true,
+  "tables": [
+    [
+      1,
+      1
+    ],
+    [
+      3,
+      4
+    ]
+  ],
+  "paints": [
+    {
+      "r": 5,
+      "c": 2,
+      "color": "green"
+    },
+    {
+      "r": 0,
+      "c": 4,
+      "color": "purple"
+    }
+  ],
+  "barriers": [
+    {
+      "r": 3,
+      "c": 0,
+      "need": 2
+    }
+  ],
+  "gates": [
+    {
+      "side": "t",
+      "i": 2,
+      "color": "yellow"
+    },
+    {
+      "side": "r",
+      "i": 3,
+      "color": "blue"
+    },
+    {
+      "side": "l",
+      "i": 1,
+      "color": "pink"
+    },
+    {
+      "side": "b",
+      "i": 4,
+      "color": "orange"
+    },
+    {
+      "side": "l",
+      "i": 5,
+      "color": "water"
+    },
+    {
+      "side": "t",
+      "i": 6,
+      "color": "water"
+    },
+    {
+      "side": "r",
+      "i": 5,
+      "color": "green"
+    },
+    {
+      "side": "t",
+      "i": 0,
+      "color": "purple"
+    },
+    {
+      "side": "b",
+      "i": 2,
+      "color": "pink"
+    },
+    {
+      "side": "r",
+      "i": 0,
+      "color": "blue"
+    },
+    {
+      "side": "b",
+      "i": 6,
+      "color": "yellow"
+    },
+    {
+      "side": "l",
+      "i": 3,
+      "color": "orange"
+    }
+  ],
+  "cars": [
+    {
+      "axis": "h",
+      "r": 1,
+      "c": 1,
+      "color": "yellow",
+      "mud": 0
+    },
+    {
+      "axis": "v",
+      "r": 3,
+      "c": 4,
+      "color": "blue",
+      "mud": 0
+    },
+    {
+      "axis": "h",
+      "r": 5,
+      "c": 3,
+      "color": "purple",
+      "mud": 0
+    },
+    {
+      "axis": "v",
+      "r": 4,
+      "c": 6,
+      "color": "yellow",
+      "mud": 1
+    },
+    {
+      "axis": "v",
+      "r": 1,
+      "c": 0,
+      "color": "purple",
+      "mud": 0
+    },
+    {
+      "axis": "h",
+      "r": 1,
+      "c": 4,
+      "color": "pink",
+      "mud": 0
+    },
+    {
+      "axis": "v",
+      "r": 4,
+      "c": 1,
+      "color": "pink",
+      "mud": 0
+    },
+    {
+      "axis": "h",
+      "r": 3,
+      "c": 2,
+      "color": "orange",
+      "mud": 0
+    },
+    {
+      "axis": "v",
+      "r": 4,
+      "c": 0,
+      "color": "purple",
+      "mud": 0
+    }
+  ],
+  "tag": "Rất khó",
+  "hint": "<b>Hai bàn xoay + vũng sơn.</b> Có xe phải xoay đúng lúc, có xe phải đổi màu mới ra được.",
+  "minMoves": null,
+  "solveExhausted": false,
+  "explored": 300001
+}

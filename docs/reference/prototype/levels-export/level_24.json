@@ -1,0 +1,95 @@
+{
+  "id": 24,
+  "name": "Húc qua cổng",
+  "cols": 5,
+  "rows": 5,
+  "gates": [
+    {
+      "side": "t",
+      "i": 0,
+      "color": "yellow"
+    },
+    {
+      "side": "r",
+      "i": 4,
+      "color": "pink"
+    },
+    {
+      "side": "l",
+      "i": 1,
+      "color": "blue"
+    },
+    {
+      "side": "b",
+      "i": 2,
+      "color": "yellow"
+    },
+    {
+      "side": "t",
+      "i": 4,
+      "color": "yellow"
+    }
+  ],
+  "cars": [
+    {
+      "axis": "v",
+      "r": 2,
+      "c": 0,
+      "len": 3,
+      "color": "yellow",
+      "mud": 0,
+      "truck": true
+    },
+    {
+      "axis": "h",
+      "r": 4,
+      "c": 2,
+      "len": 2,
+      "color": "pink",
+      "mud": 0
+    },
+    {
+      "axis": "h",
+      "r": 1,
+      "c": 3,
+      "len": 2,
+      "color": "blue",
+      "mud": 0
+    },
+    {
+      "axis": "v",
+      "r": 2,
+      "c": 3,
+      "len": 2,
+      "color": "yellow",
+      "mud": 0
+    },
+    {
+      "axis": "v",
+      "r": 3,
+      "c": 1,
+      "len": 2,
+      "color": "yellow",
+      "mud": 0
+    }
+  ],
+  "portals": [
+    [
+      [
+        4,
+        0,
+        "S"
+      ],
+      [
+        2,
+        4,
+        "E"
+      ]
+    ]
+  ],
+  "tag": "Xe tải + cổng",
+  "hint": "<b>Xe tải cũng chui được cổng.</b> Trồi ra rồi vẫn húc được xe trước mặt, theo hướng mới.",
+  "minMoves": 13,
+  "solveExhausted": true,
+  "explored": 729
+}
