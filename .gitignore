@@ -1,0 +1,59 @@
+# Thư mục Unity tự sinh (rất nặng, không bao giờ commit)
+/[Ll]ibrary/
+/[Tt]emp/
+/[Oo]bj/
+/[Bb]uild/
+/[Bb]uilds/
+/[Ll]ogs/
+/[Uu]ser[Ss]ettings/
+/[Mm]emoryCaptures/
+/[Rr]ecordings/
+
+# Bản build và file APK
+*.apk
+*.aab
+*.unitypackage
+*.app
+*.exe
+
+# Khóa ký Android (KHÔNG commit, giữ riêng)
+*.keystore
+*.jks
+
+# Dữ liệu IDE
+/.vs/
+/.idea/
+/.vscode/
+*.csproj
+*.unityproj
+*.sln
+*.suo
+*.tmp
+*.user
+*.userprefs
+*.pidb
+*.booproj
+*.svd
+*.pdb
+*.mdb
+*.opendb
+*.VC.db
+
+# Tệp sinh khi build
+sysinfo.txt
+crashlytics-build.properties
+
+# Thư mục Gradle/Android Studio nếu export project
+/[Aa]ndroid/
+*.gradle
+local.properties
+
+# Hệ điều hành
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Cache của Addressables/Burst (nếu dùng)
+/[Aa]ssets/[Aa]ddressable[Aa]ssets[Dd]ata/*/*.bin*
+/[Aa]ssets/[Ss]treamingAssets/aa.meta
+/[Aa]ssets/[Ss]treamingAssets/aa/*
