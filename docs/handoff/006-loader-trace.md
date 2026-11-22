@@ -1,5 +1,5 @@
-# 006 — Nạp JSON và kiểm khớp Core với trace     Cỡ: M (≤ nửa ngày)     Trạng thái: Chờ review
-Đang cầm: Claude        AI tham gia: Codex
+# 006 — Nạp JSON và kiểm khớp Core với trace     Cỡ: M (≤ nửa ngày)     Trạng thái: Chờ merge
+Đang cầm: Người làm        AI tham gia: Codex, Claude (review)
 Liên quan: 003–005; core-plan.md §5; review 005     Chờ nhận: —
 
 ## Mục tiêu
@@ -75,10 +75,16 @@ C# nạp được dữ liệu màn và diễn lại cùng nước đi/sự kiệ
 - Chưa có phản đối chặn thực hiện. Rủi ro độ phủ random đã được review 005 nêu; bổ sung chuỗi solution theo yêu cầu đó trước khi kiểm C#.
 
 --- Người review điền ---
-## Verdict
-Chưa review. Codex không tự APPROVE code mình viết.
+## Verdict: APPROVE (Claude, 2026-11-22)
+**Đã soi và đã chạy:** Claude chạy lại `node docs/golden/tools/verify.js` → **QUA 31/31** (28 `minMoves` khớp, 276 chuỗi/4754 nước, 3.207.205 byte). Claude quét 28 chuỗi `solution` trong trace: **cả 28 kết thúc thắng**. Đọc `LevelJsonLoader` (validate tên nguồn + đường dẫn trường, màu/trục/cạnh lạ báo lỗi rõ, trụ đúng 2 mặt đích, kiểm ô trong bãi, giao việc chồng xe/bàn 2×2 cho `Build`). Đọc phần phát lại trong `GoldenTraceTests`: chạy Core thật qua `MoveResolver.Move`/`TableRule.Rotate`/`PylonRule.RotatePylon`, so `moved`, `exited`, **từng sự kiện** (loại + trường), **toàn bộ trạng thái** (xe, vũng bùn, trụ, `moves`), kiểm trạng thái cũ **không bị sửa** sau mỗi nước, lời giải phải đúng độ dài `minMoves` và thắng, có fixture riêng cho `push.fx`. Bằng chứng V2 do Codex báo: Unity EditMode **229 xanh/0 đỏ**, Console 0/0/0.
+**Kết luận về Core:** phát lại 4754 nước khớp 100% mà Core **không phải sửa** → luật phần 1 và 2 giống `logic.js` trong phạm vi corpus này.
+**Chưa soi:** từng dòng các DTO phụ trong loader; kết quả Editor là lời Codex báo; `solver` (007), Play/APK/hiệu năng.
+- [GỢI Ý] `Corpus_ContainsAllSequencesAndSteps` đóng cứng 276/4754: đúng ý để bắt trace bị đổi âm thầm, nhưng mỗi lần sinh lại trace phải sửa số này. Ghi vào README.
+- [GỢI Ý] Fixture `push.fx` được tạo bằng tay từ `CW.move` trên một màn nhỏ vì corpus chưa có `fx` không rỗng; đúng cách giải quyết, giữ nguyên.
+- [GỢI Ý] Phạm vi kiểm vẫn là "giống prototype", không phải "chứng minh mọi tổ hợp". Đủ cho lõi.
 
 ## Trao đổi
 2026-11-22 21:19 · Codex → Người làm · [BÁO]: Nhận 006, main sạch, 005 APPROVE đã merge; main/origin/main cùng 85a5391 sau fetch. Tạo 006-loader-trace --no-track. Nhận bổ sung 28 chuỗi solution theo review 005 (~≤3,6 MB), chỉ làm loader/replay/kiểm luật; chưa làm 007.
 2026-11-22 21:35 · Codex → Người làm, Claude · [BÁO]: 006 đã nạp đủ 31 màn qua JsonUtility và replay C# khớp 276 chuỗi/4754 nước, không cần sửa Core. Thêm 28 solution nhưng giữ nguyên 248 random/4533 bước cũ, trace schema=2; Node verify qua 31/31, 3.207.205 byte; sinh lại 31 trace y hệt. Unity EditMode 229 xanh/0 đỏ/0 chưa chạy, Console Log 0/Warning 0/Error 0, không Clear. 42 file đúng phạm vi/đủ meta; Core/prototype/level JSON/scene/package/settings không đổi. Fixture Push.fx riêng cũng qua; chưa làm solver C#/007.
 2026-11-22 21:35 · Codex → Claude · [BÀN GIAO]: Gậy Claude, review 006 trên 006-loader-trace, HEAD 85a5391, thay đổi chưa commit. Đã có loader + validator có tên nguồn, 31 golden replay so mọi trường/state/bất biến, test JsonUtility và Push.fx; Node 31/31, Unity 229 xanh, Console 0/0/0. Corpus 276 chuỗi/4754 nước, 28 solution mới theo review 005; không thay Core/nguồn/minMoves. Đề nghị soi DTO Pyl.k/fx.k, gate null, len bắt buộc và comparator từng event. Chưa solver C#/Play/Android/hiệu năng hoặc chứng minh mọi tổ hợp; chờ verdict, không tự APPROVE/commit/push/merge, không bắt đầu 007.
+2026-11-22 21:51 · Claude → Người làm · [BÀN GIAO]: Review 006 xong, verdict APPROVE (Claude chạy lại verify.js QUA 31/31, 28 lời giải đều thắng; replay C# khớp 276 chuỗi/4754 nước, Core không phải sửa; V2 là kết quả Codex báo: 229 xanh, Console 0). Việc của bạn: commit phần review, merge 006 vào main, giao 007 (solver) cho Codex.
