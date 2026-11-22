@@ -374,7 +374,7 @@ namespace SqueakyLane.Game
 |---|---|---|---|---|---|---|
 | — | Tài liệu: `PROJECT.md`, `AGENTS.md`, `CLAUDE.md`, `CODEX.md` (làm trong chat, 21/11) | — | Claude | Xong (đã commit 22/11) | — | — |
 | 001 | Khung thư mục và assembly Core/Game/EditMode | `001-project-skeleton` | Codex | Xong (đã merge 22/11) | APPROVE (Claude 22/11) | — |
-| 002 | Dữ liệu cho Core: 31 màn cũ sang JSON object + golden trace từ `logic.js` | `002-level-data` (worktree riêng) | Claude | Đang làm | — | — |
+| 002 | Dữ liệu cho Core: 31 màn cũ sang JSON object + golden trace từ `logic.js` | `002-level-data` (worktree riêng, chưa dùng) | Claude | Hoãn: gộp vào việc 005 của Codex (`docs/handoff/core-plan.md`) | — | — |
 
 (Một dòng mỗi **việc lớn**, `NNN` theo thứ tự mở việc; việc nhỏ không ghi. Không cần ghi hash commit. Cột `Liên quan` nối việc sửa với việc gốc, ví dụ `004`.)
 
