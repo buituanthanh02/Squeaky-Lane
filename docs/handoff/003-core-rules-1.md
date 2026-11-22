@@ -1,5 +1,5 @@
-# 003 — Core luật phần 1     Cỡ: L (≤ 1 ngày)     Trạng thái: Chờ review
-Đang cầm: Claude        AI tham gia: Codex, Claude
+# 003 — Core luật phần 1     Cỡ: L (≤ 1 ngày)     Trạng thái: Chờ merge
+Đang cầm: Người làm        AI tham gia: Codex, Claude (review)
 Liên quan: 001; core-plan.md §1–2     Chờ nhận: —
 
 ## Mục tiêu
@@ -87,8 +87,13 @@ Luật xe chạy, rửa, hiệu ứng ô, đẩy và xoay hoạt động bằng 
 - Chưa có phản đối chặn việc. Rủi ro đã nêu trong kế hoạch được xử lý bằng thiết kế bất biến và test; chưa phát hiện mâu thuẫn cần đổi luật/phạm vi.
 
 --- Người review điền ---
-## Verdict
-Chưa review. Codex không tự APPROVE code mình viết.
+## Verdict: APPROVE (Claude, 2026-11-22)
+**Đã soi:** `MoveResolver`, `GateRule`, `TileEffects`, `PushRule`, `Occupancy`, `LightRule`, `TableRule` đối chiếu từng nhánh với `logic.js`: cổng nước dội 1 lần/lượt, thoát khi đúng màu và sạch bùn, lý do `Stop` (edge/muddy/wrongGate/wall/car/push), điều kiện `moved` và `Moves++`, đẩy chuỗi xe kể cả xe vuông góc và chặn bởi tường/cọc/xe tải, hiệu ứng ô cho xe bị đẩy chỉ ở ô mới phủ, thứ tự sơn → bùn → vòi xịt, bùn văng (đâm cần đã chạy; đẩy thì không), đèn `(Moves+Phase)&1`, bản đồ chiếm chỗ lấy từ đầu lượt, ánh xạ bàn xoay `(dr,dc)→(dc,1−dr)`. Không có `UnityEngine` trong Core. 74 test (tên test phủ đủ cơ chế). Bằng chứng V2 do Codex báo: Test Runner 74 xanh/0 đỏ, Console 0 log/0 cảnh báo/0 lỗi, trong Editor.
+**Chưa soi:** nội dung từng test (chỉ đọc tên), Play/APK/hiệu năng, golden trace (việc 005–006 sẽ so từng nước đi với `logic.js`), tương tác với portal/trụ/barie (004). Kết quả V2 là lời báo của Codex, Claude không tự chạy.
+- [GỢI Ý] Mỗi `Move` cấp phát bản đồ chiếm chỗ (`int[]`) và 3 mảng khi `Copy()`; `TryChain` cấp phát khi đẩy. Chấp nhận ở 003; đo ở 007 (Codex đã ghi).
+- [GỢI Ý] `MoveEvent` struct còn 15 trường; không ảnh hưởng solver vì `recordEvents=false`.
+- [GỢI Ý] Dòng `the GUIStateObj is deleted` trong `Editor.log` là nhiễu của Editor, Console vẫn 0; không cần xử lý.
+- Cổng đúng/sai thật sự của luật là việc 006 (phát lại trace). Nếu lệch ở đó thì sửa Core, không coi 003 là sai.
 
 ## Trao đổi
 2026-11-22 15:21 · Codex → Người làm · [BÁO]: Đã đọc PROJECT/AGENTS/CODEX/core-plan theo thứ tự; Git sạch, main và origin/main cùng 1d05dc2 sau fetch. Mở nhánh 003-core-rules-1 từ main, nhận gậy Codex; chỉ triển khai 003, không bắt đầu 004.
@@ -98,3 +103,4 @@ Chưa review. Codex không tự APPROVE code mình viết.
 2026-11-22 19:52 · Codex → Người làm, Claude · [BÁO]: Nhánh 003-core-rules-1, HEAD 1d05dc2, chưa commit. Core/test biên dịch bằng Roslyn + reference Mono của Unity, NUnit qua Mono CLI: Passed=74, Failed=0, Skipped=0, Inconclusive=0. Runner/DLL tạm ngoài repo. Đây là V1, chưa phải kết quả Unity Test Runner; Console/Editor V2 chưa kiểm sau sửa. Giữ gậy Codex, chưa bàn giao hoàn tất; không bắt đầu 004, không tự commit/push/merge. Không dùng điều khiển GUI trong lúc người làm đang dùng máy.
 2026-11-22 20:07 · Codex → Người làm, Claude · [BÁO]: Người làm cho phép điều khiển máy trở lại để hoàn tất 003. Đã sửa PROJECT §8 theo review (bỏ trạng thái tạm, cây Model 8 file/Rules 8 file), giữ §2.2 mục 5 và dòng 003 §13; thêm hai lưu ý cấp phát cần đo ở 007 và bảng đối chiếu logic.js vào phiếu. Đã Refresh trong Unity 2022.3.62f2 và chạy Test Runner EditMode: tổng 74, xanh 74, đỏ 0, chưa chạy 0; Console trước/sau: Log 0, Warning 0, Error 0, không Clear. Đây là kết quả kiểm Editor, không phải Mono CLI.
 2026-11-22 20:07 · Codex → Claude · [BÀN GIAO]: Nhận review việc 003 trên nhánh 003-core-rules-1, HEAD vẫn 1d05dc2, chưa commit. Đã có model 8 file, luật phần 1, 74 test; đã xử lý review sớm và đối chiếu các nhánh logic.js được ghi ở bảng. Đã kiểm V1 và biên dịch/Console/Test Runner trong Editor: 74 xanh, 0 đỏ, 0 lỗi/cảnh báo Console mới; git status 46 file chỉ thuộc phiếu, đủ meta. Chưa kiểm Play/Android/hiệu năng/golden trace và tương tác luật 004; hai điểm cấp phát để 007 đo. Gậy chuyển Claude, chờ verdict; không bắt đầu 004, không commit/push/merge.
+2026-11-22 20:10 · Claude → Người làm · [BÀN GIAO]: Review 003 xong, verdict APPROVE (đã đối chiếu luật với logic.js; V2 là kết quả Codex báo: 74 xanh, Console 0). Việc còn lại của bạn: xem Test Runner xanh lần cuối nếu muốn, commit phần review này, merge 003 vào main. Sau đó giao 004 cho Codex (rẽ từ main mới nhất).
