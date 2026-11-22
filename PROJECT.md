@@ -38,7 +38,7 @@ Hai AI **không nói chuyện trực tiếp với nhau**. Mọi thứ đi qua ng
 2. **Hỏi người làm để duyệt** trước các thay đổi ở danh sách "phải hỏi" (2.3). Sửa lỗi nhỏ có thể sửa thẳng hoặc hỏi cách sửa.
 3. **Quy tắc trong tài liệu này có thể sai hoặc rườm.** Người làm là người mới, AI thấy quy tắc nào vô lý/thừa/mâu thuẫn thì **nói ra và bàn lại**, không im lặng làm theo.
 4. **Việc thất bại hoặc vượt giới hạn → dừng lại và nói chuyện với người làm**, không tự vòng vèo/làm tắt phá hoại.
-5. Luôn trả lời bằng **tiếng Việt**. Code sạch, chia nhỏ class, comment tiếng Việt giải thích rõ; khi giao code mẫu thì kèm cấu trúc thư mục. `[CHỐT — sở thích đã lưu]`
+5. Luôn trả lời bằng **tiếng Việt**. Code sạch, chia class theo trách nhiệm, comment tiếng Việt giải thích rõ; khi giao code mẫu thì kèm cấu trúc thư mục. Viết vừa sức junior đọc và giải thích; **không chia vụn thành một file cho mọi kiểu dữ liệu**. Enum/struct và kiểu nhỏ liên quan được gom chung; component Unity vẫn một class một file. `[CHỐT — người làm nhắc lại 22/11]`
 
 ### 2.3. Ranh giới tự làm / phải hỏi `[CHỐT]`
 - **Tự làm trên nhánh riêng:** sửa/viết code, chạy test, viết tài liệu trong nhánh đó.
@@ -217,7 +217,7 @@ Màn 1–6: tutorial từng cơ chế (cổng màu → cổng nước + bùn →
 
 ## 8. Kiến trúc đề xuất `[ĐỀ XUẤT]`
 
-**Hiện trạng việc 001:** đã có `Scripts/Core/SqueakyLane.Core.asmdef` (`noEngineReferences = true`), `Scripts/Game/SqueakyLane.Game.asmdef` (tham chiếu Core) và `Tests/EditMode/SqueakyLane.Tests.EditMode.asmdef` (chỉ Editor; tham chiếu Core, Game, TestRunner và NUnit). Core/Game có marker rỗng để Unity tạo DLL; một EditMode test reflection kiểm Core không tham chiếu `UnityEngine*` đã qua trong Test Runner. Các đường dẫn này nằm dưới `Assets/_Project/`; các thư mục/hệ thống còn lại trong cây bên dưới vẫn là dự kiến, chưa dựng. Game marker là bổ sung được người làm duyệt trong việc 001 để khắc phục cảnh báo asmdef không có script. `[FILE; CHỐT 22/11]`
+**Hiện trạng việc 001:** đã có `Scripts/Core/SqueakyLane.Core.asmdef` (`noEngineReferences = true`), `Scripts/Game/SqueakyLane.Game.asmdef` (tham chiếu Core) và `Tests/EditMode/SqueakyLane.Tests.EditMode.asmdef` (chỉ Editor; tham chiếu Core, Game, TestRunner và NUnit). Core/Game có marker rỗng để Unity tạo DLL; một EditMode test reflection kiểm Core không tham chiếu `UnityEngine*` đã qua trong Test Runner. Các đường dẫn này nằm dưới `Assets/_Project/`. Game marker là bổ sung được người làm duyệt trong việc 001 để khắc phục cảnh báo asmdef không có script. `[FILE; CHỐT 22/11]`
 
 **Nguyên tắc:** 3 tầng, tầng trên gọi tầng dưới, không ngược lại.
 `Core` (luật thuần C#, không dùng `UnityEngine`) ← `Game` (phiên chơi, input, đồng hồ, tutorial) ← `Presentation/UI` (hình, âm, hiệu ứng).
@@ -227,10 +227,26 @@ Lợi ích: hoàn tác chỉ là giữ lại trạng thái cũ; solver dùng chu
 Assets/_Project/
 ├─ Scripts/
 │  ├─ Core/                     # asmdef "SqueakyLane.Core" (noEngineReferences = true)
-│  │  ├─ Model/                 # LevelDef, CarDef, GameState (bất biến), MoveEvent
-│  │  ├─ Rules/                 # MoveResolver, GateRule, PushRule, PortalRule, PylonRule,
-│  │  │                         #   TurntableRule, LightRule, TileEffects (bùn)
-│  │  └─ Solver/                # Solver (BFS), StuckDetector
+│  │  ├─ CoreAssemblyMarker.cs
+│  │  ├─ Model/
+│  │  │  ├─ Enums.cs            # các enum dùng chung
+│  │  │  ├─ LevelObjects.cs     # ô/cổng/sơn/đèn/barie/chốt/portal/trụ
+│  │  │  ├─ CarDef.cs           # CarDef + CarState
+│  │  │  ├─ LevelDef.cs         # màn bất biến + helper ReadOnlyData
+│  │  │  ├─ LevelDefBuilder.cs
+│  │  │  ├─ GameState.cs        # trạng thái bất biến từ bên ngoài
+│  │  │  ├─ MoveEvent.cs        # MoveEvent + PushedCarEvent
+│  │  │  └─ MoveResult.cs
+│  │  ├─ Rules/
+│  │  │  ├─ MoveResolver.cs
+│  │  │  ├─ GateRule.cs
+│  │  │  ├─ PushRule.cs
+│  │  │  ├─ TableRule.cs
+│  │  │  ├─ LightRule.cs
+│  │  │  ├─ TileEffects.cs
+│  │  │  ├─ Occupancy.cs
+│  │  │  └─ GameRules.cs        # IsWin, WashedCount
+│  │  └─ Solver/                # dự kiến: Solver (BFS), StuckDetector
 │  ├─ Game/                     # asmdef "SqueakyLane.Game" → tham chiếu Core
 │  │  ├─ GameSession.cs         # trạng thái hiện tại, lịch sử hoàn tác, bắn sự kiện
 │  │  ├─ LevelTimer.cs          # đếm ngược, trừ giờ hoàn tác, tính sao
@@ -375,6 +391,7 @@ namespace SqueakyLane.Game
 | — | Tài liệu: `PROJECT.md`, `AGENTS.md`, `CLAUDE.md`, `CODEX.md` (làm trong chat, 21/11) | — | Claude | Xong (đã commit 22/11) | — | — |
 | 001 | Khung thư mục và assembly Core/Game/EditMode | `001-project-skeleton` | Codex | Xong (đã merge 22/11) | APPROVE (Claude 22/11) | — |
 | 002 | Dữ liệu cho Core: 31 màn cũ sang JSON object + golden trace từ `logic.js` | `002-level-data` (worktree riêng, chưa dùng) | Claude | Hoãn: gộp vào việc 005 của Codex (`docs/handoff/core-plan.md`) | — | — |
+| 003 | Model và luật Core phần 1 + EditMode tests | `003-core-rules-1` | Codex | Đang làm | Chưa review | 001 |
 
 (Một dòng mỗi **việc lớn**, `NNN` theo thứ tự mở việc; việc nhỏ không ghi. Không cần ghi hash commit. Cột `Liên quan` nối việc sửa với việc gốc, ví dụ `004`.)
 
