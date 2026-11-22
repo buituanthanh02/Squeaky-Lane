@@ -18,7 +18,7 @@ namespace SqueakyLane.Core.Rules
             var map = Occupancy.Build(level, state, car);
             var events = recordEvents ? new List<MoveEvent>() : null;
             int dir = sign, steps = 0;
-            bool bounced = false, exited = false;
+            bool bounced = false, exited = false, teleported = false;
 
             for (int guard = 0; guard < MaxIterations; guard++)
             {
@@ -27,6 +27,13 @@ namespace SqueakyLane.Core.Rules
                 int nc = moving.Axis == Axis.Vertical ? moving.C : dir > 0 ? moving.C + definition.Len : moving.C - 1;
                 if (!level.Contains(nr, nc))
                 {
+                    var portal = PortalRule.TryMove(level, next, car, map, teleported, ref dir, events);
+                    if (portal == PortalMoveResult.Teleported) { teleported = true; steps++; continue; }
+                    if (portal == PortalMoveResult.Blocked)
+                    {
+                        events?.Add(new MoveEvent(MoveEventKind.Stop, sign: dir, reason: StopReason.Wall));
+                        break;
+                    }
                     var edge = GateRule.EdgeOf(moving.Axis, dir);
                     var gate = level.GateAt(edge, moving.Axis == Axis.Horizontal ? moving.R : moving.C);
                     if (GateRule.CanBounce(gate, bounced))
@@ -66,6 +73,11 @@ namespace SqueakyLane.Core.Rules
                 }
                 if (obstacle == Occupancy.Obstacle)
                 {
+                    if (PylonRule.IsPylonCell(level, nr, nc))
+                    {
+                        var portal = PortalRule.TryMove(level, next, car, map, teleported, ref dir, events);
+                        if (portal == PortalMoveResult.Teleported) { teleported = true; steps++; continue; }
+                    }
                     events?.Add(new MoveEvent(MoveEventKind.Stop, sign: dir, reason: StopReason.Wall));
                     break;
                 }

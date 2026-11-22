@@ -42,6 +42,7 @@ namespace SqueakyLane.Core.Model
         internal GameState Copy() => new GameState((CarState[])cars.Clone(), (bool[])muds.Clone(), (int[])pyl.Clone(), Moves);
         internal void SetCar(int index, CarState car) { cars[index] = car; }
         internal void ConsumeMud(int index) { muds[index] = false; }
+        internal void SetPylonTurns(int index, int turns) { pyl[index] = turns; }
         internal void AdvanceMove() { Moves++; }
     }
 }
