@@ -396,7 +396,7 @@ namespace SqueakyLane.Game
 | 002 | Dữ liệu cho Core: 31 màn cũ sang JSON object + golden trace từ `logic.js` | `002-level-data` (worktree riêng, chưa dùng) | Claude | Hoãn: gộp vào việc 005 của Codex (`docs/handoff/core-plan.md`) | — | — |
 | 003 | Model và luật Core phần 1 + EditMode tests | `003-core-rules-1` | Codex | Xong (đã merge 22/11) | APPROVE (Claude 22/11) | 001 |
 | 004 | Core luật phần 2: portal, trụ xoay, barie/chốt + EditMode tests | `004-core-rules-2` | Codex | Xong (đã merge 22/11) | APPROVE (Claude 22/11) | 003 |
-| 005 | Dữ liệu chuẩn: 31 JSON object + golden trace và tool Node | `005-golden-data` | Codex | Chờ review | Chưa review | 002, 004 |
+| 005 | Dữ liệu chuẩn: 31 JSON object + golden trace và tool Node | `005-golden-data` | Codex | Chờ merge | APPROVE (Claude 22/11) | 002, 004 |
 
 (Một dòng mỗi **việc lớn**, `NNN` theo thứ tự mở việc; việc nhỏ không ghi. Không cần ghi hash commit. Cột `Liên quan` nối việc sửa với việc gốc, ví dụ `004`.)
 

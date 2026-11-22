@@ -1,5 +1,5 @@
-# 005 — Dữ liệu chuẩn prototype     Cỡ: M (≤ nửa ngày)     Trạng thái: Chờ review
-Đang cầm: Claude        AI tham gia: Codex
+# 005 — Dữ liệu chuẩn prototype     Cỡ: M (≤ nửa ngày)     Trạng thái: Chờ merge
+Đang cầm: Người làm        AI tham gia: Codex, Claude (review)
 Liên quan: 002 (hoãn/gộp); 003–004; core-plan.md §4     Chờ nhận: —
 
 ## Mục tiêu
@@ -73,10 +73,15 @@ Có bộ dữ liệu và nước đi chuẩn từ prototype để việc 006 ki�
 - Chưa có phản đối chặn thực hiện. Chọn kiểm 28 minMoves đã biết, giữ 17–19 chưa kết luận đúng như plan; không tiêu thêm hàng trăm nghìn trạng thái cho 3 màn chưa biết trong bước verify thường lệ.
 
 --- Người review điền ---
-## Verdict
-Chưa review. Codex không tự APPROVE dữ liệu/công cụ mình viết.
+## Verdict: APPROVE (Claude, 2026-11-22)
+**Đã soi và đã chạy:** Claude chạy `node docs/golden/tools/verify.js` → **QUA 31/31** (28 `minMoves` khớp, 3 màn `-1` chưa kết luận, 248 chuỗi/4533 nước khớp, 3.059.936 byte). Đọc README (định dạng khớp phiếu). Quét JSON: không mảng lồng, không mảng lẫn kiểu (thỏa `JsonUtility`); có 1435 `null`, toàn bộ trong sự kiện (vd `gate:null` ở `stop edge`), không ở dữ liệu màn. Độ phủ sự kiện: step 10485, stop 3367, exit 954, water 264, tele 167, pyl 148, splash 95, rotate 64, paint 50, spray 49, mud 24, push 14.
+**Chưa soi:** từng dòng của 3 script `tools/`; việc C# đọc được JSON và phát lại (006); `null` trong sự kiện có làm `JsonUtility` lỗi không `[CHƯA KIỂM CHỨNG]`.
+- [NÊN] **Độ phủ của chuỗi ngẫu nhiên mỏng ở vài cơ chế.** Chuỗi ngẫu nhiên 25 nước thường chỉ chạm `exit`: màn 2, 6, 9, 10, 22, 23, 26, 28 hầu như không có sự kiện đặc trưng (vòi xịt, sơn, barie, đèn, chốt chỉ hiện gián tiếp qua trạng thái). `push` chỉ 14 lần ở 3 màn và chưa có `fx` không rỗng (xe bị đẩy nhận sơn/bùn). Đây là điểm yếu do kế hoạch của Claude (chuỗi ngẫu nhiên), không phải lỗi của Codex. Cách sửa rẻ: thêm một chuỗi **theo đường lời giải ngắn nhất** (`CW.solve`) cho mỗi màn đã có `minMoves`; chuỗi này đi qua các cơ chế mà màn được thiết kế để dùng. Xin làm ở bước đầu của 006 (chạy lại `make-traces.js`, vẫn phải xác định, tổng ≤ ~3,6 MB).
+- [GỢI Ý] Trace chỉ có nước **có hiệu lực** (`moved=true` cả 4533), vì sinh từ `nextMoves`; các nước không hiệu lực (bị chặn) chỉ có test đơn vị của 003/004 chứ không có trace. Chấp nhận.
+- [GỢI Ý] Chuỗi ngẫu nhiên và `verify.js` đều dựa vào chính `logic.js`, nên chứng minh C# **giống prototype**, không chứng minh prototype đúng. Đúng với mục tiêu của lõi.
 
 ## Trao đổi
 2026-11-22 20:45 · Codex → Người làm · [BÁO]: Nhận 005; main sạch, sau fetch main/origin/main cùng 997ae60, đã có 004 APPROVE và merge. Tạo 005-golden-data --no-track, Node v24.14.1 sẵn có. Chỉ làm dữ liệu/tool ngoài Assets, không điều khiển Unity, không bắt đầu 006.
 2026-11-22 20:54 · Codex → Người làm, Claude · [BÁO]: Sinh đủ 31 level + 31 trace, 248 chuỗi/4533 nước. Verify Node qua 31/31: 28 minMoves khớp, 17–19 giữ -1/chưa kết luận; 3.059.936 byte (~2,92 MiB). Chạy lại export/make-traces cho 62/62 JSON byte-identical; 10/10 mẫu sửa sai trong bộ nhớ bị bắt. Không đổi prototype/Assets/C#/package/settings, không cần V2 Unity. Trace có đủ 12 sự kiện chính nhưng chưa có push.fx không rỗng, đã ghi giới hạn.
 2026-11-22 20:54 · Codex → Claude · [BÀN GIAO]: Gậy Claude, review 005 trên nhánh 005-golden-data, HEAD 997ae60, dữ liệu/tool/docs mới chưa commit. Đã làm đúng plan 8 chuỗi × tối đa 25 nước/màn, 3 tools và README schema. V1 Node: verify 31/31, 248 chuỗi/4533 nước khớp, 28 minMoves đã so; 62 JSON sinh lại y hệt; Git 68 file đúng phạm vi, dữ liệu ~3,06 MB. Chưa replay C#/JsonUtility/solver C#/Android; lưu ý gate object/null, fx.k, car là chỉ số trụ khi pyl, seed uint32, chưa có push.fx không rỗng. Chờ verdict; không tự APPROVE/commit/push/merge, không bắt đầu 006.
+2026-11-22 20:57 · Claude → Người làm, Codex · [BÀN GIAO]: Review 005 xong, verdict APPROVE (Claude đã chạy verify.js: QUA 31/31). Người làm: commit phần review, merge 005 vào main. Codex: ở bước đầu của 006, thêm cho mỗi màn đã có minMoves một chuỗi theo đường lời giải ngắn nhất (CW.solve) vào trace (sửa make-traces.js, chạy lại, giữ xác định, tổng dung lượng ≤ ~3,6 MB), vì chuỗi ngẫu nhiên phủ mỏng vòi xịt, sơn, barie, đèn, chốt và push.fx; ghi vào phiếu 006.
