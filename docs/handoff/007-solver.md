@@ -1,5 +1,5 @@
-# 007 — Solver     Cỡ: L (≤ 1 ngày)     Trạng thái: Chờ review
-Đang cầm: Claude        AI tham gia: Codex
+# 007 — Solver     Cỡ: L (≤ 1 ngày)     Trạng thái: Chờ merge
+Đang cầm: Người làm        AI tham gia: Codex, Claude (review)
 Liên quan: 003–006; core-plan.md §6     Chờ nhận: —
 
 ## Mục tiêu
@@ -77,10 +77,15 @@ Tìm số lượt ít nhất để kiểm màn, tìm đường thắng/gợi ý 
 - Chưa có phản đối chặn thực hiện. Chọn mảng byte (phương án có trong plan) vì 128 bit không đủ cho màn lớn; rủi ro cấp phát được ghi và sẽ đo thay vì tự tuyên bố hiệu năng tốt.
 
 --- Người review điền ---
-## Verdict
-Chưa review. Codex không tự APPROVE code mình viết.
+## Verdict: APPROVE CÓ ĐIỀU KIỆN (Claude, 2026-11-22) — điều kiện: chạy Test Runner EditMode toàn bộ một lần trước khi merge; nếu `SolverPerformanceTests` đỏ thì xử lý theo [NÊN] bên dưới
+**Đã soi:** `StateKey`/`StateKeyEncoder` (đóng gói bit theo kích thước bãi; xe đã ra bãi không ghi thuộc tính; chỉ thêm bit tính chẵn lẻ `Moves` khi màn có đèn, đúng như `stateKey` prototype; so sánh đầy đủ byte chứ không chỉ hash 32 bit), `SearchEngine` (BFS lấy nút ở đầu hàng và kiểm thắng khi lấy ra nên ra lời giải ngắn nhất; `WinSearch`/`PathSearch` ưu tiên ngăn xếp ít xe còn lại; đếm xe còn sống qua `Exited`; giải phóng `seen/nodes` khi xong; không giữ `GameState` của nút đã mở rộng), `MoveCursor` (thứ tự lệnh giống `nextMoves`: mỗi xe `+`, `−`, bàn xoay; sau đó trụ không `fixed`). Không có `UnityEngine` trong Core. Codex báo (V2 lượt trước bản sửa bộ đo): 314 test xanh; 28 `minMoves` khớp; 31 đường `PathSearch` đều thắng. Số đo (Editor/Mono, một máy): BFS màn 16 median **1587 ms**, 79.056 trạng thái mới; `WinSearch.Step(1)` lớn nhất **0,044 ms**.
+**Chưa soi / chưa có bằng chứng:** nội dung từng test; **cấp phát byte không có số hợp lệ** (bộ đo cũ trả 0; bộ đo mới sửa bằng `ProfilerRecorder` chưa chạy lại, người làm duyệt hoãn); số đo trên Android; chưa có số cho `PathSearch` (gợi ý).
+- [NÊN] `SolverPerformanceTests` là bài **đo**, đã sửa sau lần chạy xanh cuối và **chưa chạy lại**. Nó phụ thuộc bộ đếm Profiler (`GC Allocated In Frame`), mất khoảng 5 giây mỗi lần chạy (3 lần BFS màn 16), ghi file vào `Logs/` và có `Assert` về bộ đếm có hoạt động hay không → dễ đỏ vì lý do không liên quan đến luật. Đề nghị: nếu đỏ hoặc chập chờn, đổi sang `[Explicit]` (chỉ chạy khi bấm tay) và giữ các `Assert` về kết quả solver; đây là chuyển bài đo thủ công, không phải làm yếu test đúng/sai.
+- [GỢI Ý] Mỗi nút BFS vẫn cấp phát `StateKey` (mảng byte) cùng nhiều mảng của `Move` (đã ghi trong phiếu). BFS chỉ dùng ngoài runtime; trên điện thoại chỉ dùng `WinSearch`/`PathSearch` theo từng bước, nên chấp nhận. Đo lại cấp phát ở việc 008 khi gắn vào game.
+- [GỢI Ý] `Step(budget)` đếm theo nút, không phải ms; `Step(1)` đo 0,044 ms trên màn 16 nên đủ nhỏ. Khi dùng ở 008, cho ngân sách mỗi frame theo **thời gian** (ví dụ dừng khi quá 2 ms) bọc bên ngoài.
 
 ## Trao đổi
 2026-11-22 22:20 · Codex → Người làm · [BÁO]: Nhận 007; main sạch, 006 APPROVE đã merge; main/origin/main cùng f32f34f sau fetch. Tạo 007-solver --no-track, gậy Codex. Sẽ đo thật thời gian/cấp phát/số trạng thái màn 16 trong Editor và chi phí Step(1), không làm 008.
 2026-11-22 22:40 · Codex → Claude, Người làm · [BÁO]: Người làm yêu cầu bỏ qua bước chạy lại phép đo cấp phát để sửa sau và xin nội dung commit. Giữ nguyên test; 314 qua/0 đỏ là lượt trước bản sửa Profiler cuối, cấp phát 0 byte không hợp lệ. Chưa chạy lại bản đo mới, không nhận V2 cuối đã đủ.
 2026-11-22 22:40 · Codex → Claude · [BÀN GIAO]: Đã thêm StateKey/BFS/WinSearch/PathSearch và test; 28 minima khớp, 31 đường PathSearch thắng trong lượt 314 xanh/0 đỏ. Màn 16 BFS median 1587,401 ms, 79056 trạng thái mới; Step(1) max 0,044 ms. Cấp phát/bản sửa bộ đo cuối chưa kiểm, người làm cho hoãn. Nhánh 007-solver, HEAD f32f34f; thay đổi chưa commit. Gậy Claude để review, không làm 008; play-plan.md ngoài phạm vi được giữ nguyên.
+2026-11-22 22:44 · Claude → Người làm · [BÀN GIAO]: Review 007 xong, verdict APPROVE CÓ ĐIỀU KIỆN (logic solver đúng theo prototype; cấp phát chưa có số hợp lệ). Việc của bạn: mở Unity chạy Test Runner EditMode toàn bộ một lần; nếu SolverPerformanceTests đỏ thì nhờ Codex đổi sang [Explicit]. Sau đó commit phần review, merge 007 vào main, commit docs/handoff/play-plan.md trên main, rồi giao 008 cho Codex.
