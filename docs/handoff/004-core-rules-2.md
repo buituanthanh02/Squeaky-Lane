@@ -1,5 +1,5 @@
-# 004 — Core luật phần 2     Cỡ: M (≤ nửa ngày)     Trạng thái: Chờ review
-Đang cầm: Claude        AI tham gia: Codex
+# 004 — Core luật phần 2     Cỡ: M (≤ nửa ngày)     Trạng thái: Chờ merge
+Đang cầm: Người làm        AI tham gia: Codex, Claude (review)
 Liên quan: 003; core-plan.md §1/§3     Chờ nhận: —
 
 ## Mục tiêu
@@ -87,10 +87,15 @@ Xe dùng được portal/trụ xoay và các vật cản động theo đúng pro
 - Chưa có phản đối chặn thực hiện. Rủi ro đã ghi trên; không cache faceList và không chia nhỏ kiểu dữ liệu là lựa chọn cài đặt trong phạm vi, không đổi luật.
 
 --- Người review điền ---
-## Verdict
-Chưa review. Codex không tự APPROVE code mình viết.
+## Verdict: APPROVE (Claude, 2026-11-22)
+**Đã soi (đối chiếu với `logic.js`):** `PortalRule.TryMove` ↔ `portalTry` (ô đầu xe theo chiều chạy, cạnh theo hướng chạy, thứ tự dò mặt cổng portal rồi trụ đúng thứ tự `faceList`, "1 lần chui mỗi lượt", thân trải vào trong ngược mặt tường đích, ô đích phải `Empty` trong bản đồ chụp đầu lượt, đổi trục/chiều, `steps++`, hiệu ứng ô từ đuôi tới đầu, sự kiện `Tele` đủ ô đi/ô đến); `PylonRule.PylonFaces` ↔ `pylonFaces` (cả 4 hướng đúng), `RotatePylon`; `Occupancy` (thứ tự cọc → trụ → barie → đèn → chốt → xe đúng như prototype; chốt tính theo vị trí đầu lượt); `BarrierRule`; chỗ gọi portal ở mép bãi và ở ô trụ trong `MoveResolver` (`Blocked`/`None` ở ô trụ đều thành `Stop Wall`). Không có `UnityEngine` trong Core. Bằng chứng V2 do Codex báo: Test Runner 131 xanh/0 đỏ, Console 0/0/0.
+**Chưa soi:** nội dung từng test (đọc tên), Play/APK/hiệu năng, golden trace (005–006 mới so từng nước đi), tương tác portal + xe tải đẩy trong màn thật.
+- [GỢI Ý] `RotatePylon` chặn trụ `fixed` ngay trong Core; prototype chỉ bỏ qua `fixed` ở `nextMoves`. Cùng kết quả cho solver và trace sinh từ `nextMoves`, nên không ảnh hưởng; ghi lại để khỏi bất ngờ nếu trace có gọi `rotatePylon` trực tiếp.
+- [GỢI Ý] `TryChain` (đẩy xe) dựng bản đồ từ trạng thái đang chạy dở, còn `Move` dùng bản đồ chụp đầu lượt. Đúng như prototype (Codex đã nêu); 006 sẽ bắt nếu lệch.
+- Cổng đúng/sai thật vẫn là việc 006.
 
 ## Trao đổi
 2026-11-22 20:26 · Codex → Người làm · [BÁO]: Nhận 004 sau khi main sạch và 003 APPROVE đã merge. Fetch xong main/origin/main cùng 86cb2e3; tạo 004-core-rules-2 từ main bằng --no-track. Gậy Codex, chỉ làm 004; giữ file gọn theo cơ chế, không bắt đầu 005.
 2026-11-22 20:36 · Codex → Người làm, Claude · [BÁO]: Đã port portal/trụ/barie/chốt và đối chiếu từng hàm nguồn trong bảng. Unity 2022.3.62f2 đã import sinh meta/biên dịch; Test Runner EditMode tổng 131 (74 cũ + 57 mới), xanh 131, đỏ 0, chưa chạy 0; Console trước/sau Log 0/Warning 0/Error 0, không Clear. 15 file đúng phạm vi, đủ meta; không đổi scene/package/settings/asmdef. Không có lỗi cần sửa sau lượt test Editor.
 2026-11-22 20:36 · Codex → Claude · [BÀN GIAO]: Gậy chuyển Claude, review 004 trên 004-core-rules-2, HEAD 86cb2e3; code/docs mới chưa commit. Đã làm portal hai chiều/đổi trục/1 lần, trụ 4 hướng/fixed, barie/chốt và nối map/Move; 131 EditMode xanh/0 đỏ, Console 0 lỗi/cảnh báo mới, đủ meta. Chưa Play/Android/hiệu năng/golden trace; lưu ý tryPush dùng state hiện tại còn map chính chụp đầu lượt, faceList được thay bằng duyệt tuyến tính giữ thứ tự. Đề nghị soi hướng/đầu nối trùng và sự kiện Tele/Pyl. Không tự APPROVE/commit/push/merge; dừng chờ review, không bắt đầu 005.
+2026-11-22 20:41 · Claude → Người làm · [BÀN GIAO]: Review 004 xong, verdict APPROVE (đối chiếu portal, trụ, barie, chốt với logic.js; V2 là kết quả Codex báo: 131 xanh, Console 0). Việc của bạn: commit phần review, merge 004 vào main, rồi giao 005 cho Codex.
