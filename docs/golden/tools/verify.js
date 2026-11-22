@@ -5,7 +5,7 @@ const path = require('node:path');
 const assert = require('node:assert/strict');
 const { CW, sourceLevels, goldenDirectory, fileName, readJson,
   levelToJson, levelToPrototype, compiledRules } = require('./export.js');
-const { SEQUENCES, copyJson, makeTrace, applyCommand, snapshotEvents } = require('./make-traces.js');
+const { copyJson, makeTrace, applyCommand, snapshotEvents } = require('./make-traces.js');
 
 const MAX_STATES = 300000;
 
@@ -24,11 +24,12 @@ function verifyTrace(level, originalLevel, trace, id) {
     assert.equal(trace[field], expected[field], `Màn ${id}: ${field}`);
   assert.deepEqual(trace.initialState, expected.initialState, `Màn ${id}: initialState từ nguồn`);
   assert.deepEqual(CW.initState(level), trace.initialState, `Màn ${id}: initialState sau round-trip`);
-  assert.equal(trace.sequences.length, SEQUENCES, `Màn ${id}: số chuỗi`);
+  assert.equal(trace.sequences.length, expected.sequences.length, `Màn ${id}: số chuỗi`);
   let steps = 0;
-  for (let sequence = 0; sequence < SEQUENCES; sequence++) {
+  for (let sequence = 0; sequence < expected.sequences.length; sequence++) {
     const actualSequence = trace.sequences[sequence], expectedSequence = expected.sequences[sequence];
     const prefix = `Màn ${id} · chuỗi ${sequence + 1}`;
+    assert.equal(actualSequence.kind, expectedSequence.kind, `${prefix}: loại chuỗi`);
     assert.equal(actualSequence.seed, expectedSequence.seed, `${prefix}: seed`);
     assert.equal(actualSequence.moves.length, expectedSequence.moves.length, `${prefix}: số nước`);
     let state = CW.initState(level);
@@ -73,7 +74,7 @@ function verify() {
   assert.equal(sourceLevels.length, 31);
   checkFileNames(path.join(goldenDirectory, 'levels'), 'level');
   checkFileNames(path.join(goldenDirectory, 'traces'), 'trace');
-  let known = 0, unknown = 0, steps = 0;
+  let known = 0, unknown = 0, steps = 0, sequences = 0;
   for (let i = 0; i < sourceLevels.length; i++) {
     const id = i + 1, data = readJson(path.join(goldenDirectory, 'levels', fileName('level', id)));
     const { level, original } = verifyLevelData(data, id);
@@ -100,12 +101,13 @@ function verify() {
     const trace = readJson(path.join(goldenDirectory, 'traces', fileName('trace', id)));
     const count = verifyTrace(level, original, trace, id);
     steps += count;
-    console.log(`QUA ${String(id).padStart(2, '0')}/31: ${minimum}; ${SEQUENCES} chuỗi/${count} nước khớp.`);
+    sequences += trace.sequences.length;
+    console.log(`QUA ${String(id).padStart(2, '0')}/31: ${minimum}; ${trace.sequences.length} chuỗi/${count} nước khớp.`);
   }
   const bytes = directoryBytes(goldenDirectory);
-  assert.ok(bytes <= 3 * 1024 * 1024, `Dữ liệu vượt 3 MiB: ${bytes} byte`);
-  console.log(`QUA 31/31: ${known} minMoves đã kiểm; ${unknown} chưa kết luận; ${31 * SEQUENCES} chuỗi/${steps} nước khớp; ${bytes} byte.`);
-  return { known, unknown, steps, bytes };
+  assert.ok(bytes <= 3600000, `Dữ liệu vượt 3,6 MB: ${bytes} byte`);
+  console.log(`QUA 31/31: ${known} minMoves đã kiểm; ${unknown} chưa kết luận; ${sequences} chuỗi/${steps} nước khớp; ${bytes} byte.`);
+  return { known, unknown, sequences, steps, bytes };
 }
 
 if (require.main === module) {

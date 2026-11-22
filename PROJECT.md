@@ -251,6 +251,7 @@ Assets/_Project/
 │  │  │  └─ GameRules.cs        # IsWin, WashedCount
 │  │  └─ Solver/                # dự kiến: Solver (BFS), StuckDetector
 │  ├─ Game/                     # asmdef "SqueakyLane.Game" → tham chiếu Core
+│  │  ├─ LevelJsonLoader.cs     # nhận JSON + tên nguồn → LevelDef; DTO cùng file
 │  │  ├─ GameSession.cs         # trạng thái hiện tại, lịch sử hoàn tác, bắn sự kiện
 │  │  ├─ LevelTimer.cs          # đếm ngược, trừ giờ hoàn tác, tính sao
 │  │  ├─ InputController.cs     # chạm nửa xe / vuốt / nút bàn xoay / chạm trụ → lệnh
@@ -396,7 +397,8 @@ namespace SqueakyLane.Game
 | 002 | Dữ liệu cho Core: 31 màn cũ sang JSON object + golden trace từ `logic.js` | `002-level-data` (worktree riêng, chưa dùng) | Claude | Hoãn: gộp vào việc 005 của Codex (`docs/handoff/core-plan.md`) | — | — |
 | 003 | Model và luật Core phần 1 + EditMode tests | `003-core-rules-1` | Codex | Xong (đã merge 22/11) | APPROVE (Claude 22/11) | 001 |
 | 004 | Core luật phần 2: portal, trụ xoay, barie/chốt + EditMode tests | `004-core-rules-2` | Codex | Xong (đã merge 22/11) | APPROVE (Claude 22/11) | 003 |
-| 005 | Dữ liệu chuẩn: 31 JSON object + golden trace và tool Node | `005-golden-data` | Codex | Chờ merge | APPROVE (Claude 22/11) | 002, 004 |
+| 005 | Dữ liệu chuẩn: 31 JSON object + golden trace và tool Node | `005-golden-data` | Codex | Xong (đã merge 22/11) | APPROVE (Claude 22/11) | 002, 004 |
+| 006 | Bộ nạp JSON + phát lại golden trace kiểm luật Core | `006-loader-trace` | Codex | Chờ review | Chưa review | 003–005 |
 
 (Một dòng mỗi **việc lớn**, `NNN` theo thứ tự mở việc; việc nhỏ không ghi. Không cần ghi hash commit. Cột `Liên quan` nối việc sửa với việc gốc, ví dụ `004`.)
 
@@ -409,4 +411,4 @@ namespace SqueakyLane.Game
 - `claude/tram-rua-xe-noi-dung-se-sua.md` — dáng xe theo màu, điều khiển chạm, ngôn ngữ cơ thể, theme, góp ý của lead.
 - Prototype: `tram-rua-xe-v10.html`; nguồn ở `/home/claude/proto` (`src/logic.js`, `tools/`, `test/`).
 - **Bản chép trong repo:** `docs/reference/prototype/` (`src/logic.js`, `tools/`, `test/`, `levels-export/` là 31 màn cũ kèm `minMoves`). Chỉ để đối chiếu, không nằm trong `Assets`. Lưu ý: màn 17–19 chưa có `minMoves` (vượt 300.000 trạng thái), màn 16 cần `maxStates` > 60.000; 25 màn mới theo bộ cơ chế mục 5.1 **chưa được sinh**.
-- **Dữ liệu chuẩn dạng object:** `docs/golden/` gồm 31 JSON màn cũ + trace seed cố định, dành cho kiểm loader/luật/solver C#; không phải 25 màn cuối và không vào APK. Định dạng/cách sinh và kiểm: `docs/golden/README.md`; lệnh kiểm `node docs/golden/tools/verify.js`. Màn 17–19 giữ `minMoves=-1`, `solveExhausted=false` (chưa kết luận tối ưu). `[FILE]`
+- **Dữ liệu chuẩn dạng object:** `docs/golden/` gồm 31 JSON màn cũ + trace seed cố định, dành cho kiểm loader/luật/solver C#; không phải 25 màn cuối và không vào APK. Trace schemaVersion=2 giữ 8 chuỗi random/màn và thêm một chuỗi lời giải ngắn nhất cho mỗi màn đã biết minMoves. Định dạng/cách sinh và kiểm: `docs/golden/README.md`; lệnh kiểm `node docs/golden/tools/verify.js`. Màn 17–19 giữ `minMoves=-1`, `solveExhausted=false` (chưa kết luận tối ưu). `[FILE]`

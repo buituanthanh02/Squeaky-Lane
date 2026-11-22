@@ -1,4 +1,4 @@
-# Dữ liệu chuẩn từ prototype — việc 005
+# Dữ liệu chuẩn từ prototype — việc 005, bổ sung độ phủ ở 006
 
 Đây là **31 màn cũ để kiểm chứng luật**, không phải bộ 25 màn cuối của Squeaky Lane. Mọi file ở ngoài `Assets`, không có `.meta`, không vào APK. Nguồn chỉ đọc: `../reference/prototype/src/logic.js`, `src/levels.js` và `levels-export/level_NN.json`.
 
@@ -30,7 +30,7 @@ node docs/golden/tools/verify.js
 
 ## Trace JSON (`traces/trace_NN.json`)
 
-Mỗi file có `schemaVersion:1`, `id`, `baseSeed`, `maxSteps:25`, `initialState`, `sequences`. Có **8 chuỗi/màn**, bắt đầu lại từ cùng trạng thái đầu; mỗi chuỗi có `seed` riêng và `moves` tối đa 25 phần tử. Dừng sớm khi thắng hoặc không còn lệnh hợp lệ. Trace ghi compact để giữ ngân sách ~3 MB, không bỏ trường state.
+Mỗi file có `schemaVersion:2`, `id`, `baseSeed`, `maxSteps:25`, `initialState`, `sequences`. Giữ **8 chuỗi random/màn** của 005, bắt đầu lại từ cùng trạng thái đầu; mỗi chuỗi có `kind:"random"`, `seed` riêng và `moves` tối đa 25 phần tử. Dừng sớm khi thắng hoặc không còn lệnh hợp lệ. Theo review 005, thêm **1 chuỗi `kind:"solution"`, seed=0** cho mỗi màn đã có minMoves (28 màn), lấy đường đi ít lượt nhất bằng CW.solve maxStates=300000; không cắt chuỗi lời giải theo giới hạn random. Màn 17–19 vẫn chỉ có 8 chuỗi random. Tổng 276 chuỗi; ngân sách dữ liệu ~≤3,6 MB, trace vẫn compact và đủ trường state.
 
 Một phần tử `moves`:
 
@@ -53,6 +53,16 @@ PRNG xorshift32, base seed `0x20261122`. Seed chuỗi = `(baseSeed XOR imul(id,0
 2. Chuyển JSON object về dữ liệu prototype, compile và so toàn bộ dữ liệu luật, kể cả Set/vật cản/đầu nối.
 3. Chạy solve cho 28 màn có minMoves, so số lượt/solveExhausted và phát lại lời giải đến thắng. Màn 17–19 giữ chưa biết.
 4. Tái tạo trace cùng seed từ **nguồn gốc**, rồi phát lại từng lệnh trên dữ liệu **đã round-trip qua JSON**; so command, moved/exited, mọi sự kiện và state, kiểm state đầu vào không bị sửa.
-5. Tổng thư mục ≤3 MiB. Chạy lại hai generator phải cho byte y hệt; kết quả thực tế/hash kiểm lại được ghi ở phiếu 005.
+5. Tổng thư mục ≤3,6 MB theo review 005 cho phần bổ sung ở 006. Chạy lại generator phải cho byte y hệt; kết quả thực tế/hash kiểm lại được ghi ở phiếu tương ứng.
 
-Bộ này chưa chứng minh C# khớp prototype: việc 006 sẽ nạp và phát lại trace bằng Core C#, việc 007 mới so solver C#. Không có bước Unity/Play/Android trong việc 005.
+## Bộ nạp C# và kiểm EditMode (006)
+
+`SqueakyLane.Game.LevelJsonLoader.Load(json, sourceName)` nhận chuỗi JSON và tên nguồn để báo lỗi, trả `LevelDef` bất biến; không tự đọc file hoặc Resources. Các DTO nằm cùng file loader. `sourceName` nên là tên màn/file, ví dụ `level_01.json`; dữ liệu sai ném `FormatException` có tên nguồn và nguyên nhân.
+
+Mảng tùy chọn vắng/null trở thành mảng rỗng; mud/phase/fixed/truck/splash vắng nhận 0/false. `cars[].len` là trường bắt buộc của định dạng object (2 hoặc 3); loader không diễn giải len=0 thành 2. Khóa màu/trục/cạnh được kiểm theo định dạng trên, cùng kiểm tọa độ, thân xe/chồng xe và dữ liệu cơ chế.
+
+`GoldenTraceTests` đọc `docs/golden` qua `Application.dataPath/..` trong Editor, dùng `JsonUtility` rồi gọi Core và so từng trường moved/exited/events/state; không đưa đường dẫn máy vào runtime. Seed không cần deserialize để replay. Root Pyl.k là số, Push.fx.k là chữ, nên dùng DTO riêng cho fx. Cổng null/DTO inline rỗng được so là không có cổng; cổng có dữ liệu vẫn so đầy đủ side/i/color.
+
+Đường solution bổ sung vẫn chưa tạo fx không rỗng trong corpus này. Test `PushEffects_JsonKeysAndOrderMatchPrototypeFixture` dùng kết quả `CW.move` của một màn nhỏ có sơn → bùn → xịt để kiểm riêng JsonUtility đọc đủ Push.fx theo đúng thứ tự; không sửa trace chuẩn để ép Core khớp.
+
+Kết quả kiểm C# nằm ở phiếu 006; việc 007 mới so solver C#. Không có bước Unity/Play/Android trong việc 005.
