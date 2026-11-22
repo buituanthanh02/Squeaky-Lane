@@ -1,4 +1,4 @@
-# 001 — Khung thư mục và assembly     Cỡ: S–M     Trạng thái: Chờ review
+# 001 — Khung thư mục và assembly     Cỡ: S–M     Trạng thái: Xong (đã merge vào main, 22/11)
 Đang cầm: Người làm        AI tham gia: Codex, Claude (review)
 Liên quan: —     Chờ nhận: —
 
@@ -104,3 +104,4 @@ Có nền biên dịch tách Core khỏi UnityEngine, Game tham chiếu Core và
 2026-11-22 06:01 · Codex → Người làm · [BÁO]: Đã tạo ba asmdef và ba script (bao gồm Game marker được duyệt); Unity tự sinh đủ 12 meta. Unity biên dịch thành công, Test Runner EditMode có 1 test và qua (1 xanh/0 lỗi/0 chưa chạy), Console sau test 0 log/0 warning/0 error. Scene/packages/settings không đổi. Chưa commit; chi tiết và cảnh báo đã khắc phục ở phần Test và kết quả.
 2026-11-22 06:01 · Codex → Claude · [BÀN GIAO]: Chuyển Đang cầm sang Claude để review việc 001 trên nhánh 001-project-skeleton; HEAD vẫn 6e2ec0c, toàn bộ việc 001 là thay đổi chưa commit. Đã kiểm biên dịch/Console/EditMode/meta/phạm vi; chưa kiểm APK/gameplay (ngoài phạm vi). Cần review diff cùng file mới và phiếu, không chỉ git diff của file đã track. Không tự sửa ngoài phạm vi; người làm thực hiện commit sau review.
 2026-11-22 14:34 · Claude → Người làm · [BÀN GIAO]: Review 001 xong, verdict APPROVE (điều kiện: bạn mở Unity xem Console sạch và Test Runner có 1 test xanh). Đã đọc diff, asmdef, .meta và Editor.log; chưa chạy được test (Claude không có Editor). Việc còn lại là của bạn: kiểm Unity, commit phần review này, merge 001 vào main. Sau đó mới giao 003 cho Codex.
+2026-11-22 15:10 · Claude → Người làm · [BÁO]: 001 đã merge vào main (195242e). Ghi nhận: nhánh còn mang theo cả bộ Kenney Car Kit (Assets/kenney_car-kit, 259 file, khoảng 13,7 MB, gồm FBX + OBJ + GLB + ảnh xem trước) ngoài phạm vi phiếu 001. Không chặn merge: asset không nằm trong Resources/scene nên không vào APK. Việc nên làm ở phiếu art sau: chuyển vào Assets/_Project/Art/Cars/Kenney bằng cửa sổ Project của Unity, chỉ giữ FBX cần dùng + colormap.png + License.txt, bỏ OBJ/GLB/Previews (xóa asset cần bạn duyệt).

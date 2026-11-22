@@ -373,7 +373,7 @@ namespace SqueakyLane.Game
 | NNN | Việc lớn | Nhánh | AI | Trạng thái | Verdict | Liên quan |
 |---|---|---|---|---|---|---|
 | — | Tài liệu: `PROJECT.md`, `AGENTS.md`, `CLAUDE.md`, `CODEX.md` (làm trong chat, 21/11) | — | Claude | Xong (đã commit 22/11) | — | — |
-| 001 | Khung thư mục và assembly Core/Game/EditMode | `001-project-skeleton` | Codex | Chờ merge | APPROVE (Claude 22/11, có điều kiện) | — |
+| 001 | Khung thư mục và assembly Core/Game/EditMode | `001-project-skeleton` | Codex | Xong (đã merge 22/11) | APPROVE (Claude 22/11) | — |
 
 (Một dòng mỗi **việc lớn**, `NNN` theo thứ tự mở việc; việc nhỏ không ghi. Không cần ghi hash commit. Cột `Liên quan` nối việc sửa với việc gốc, ví dụ `004`.)
 
