@@ -68,7 +68,7 @@ Hai AI **không nói chuyện trực tiếp với nhau**. Mọi thứ đi qua ng
 | Mục | Nội dung |
 |---|---|
 | Engine | Unity, C#. `[CHỐT]` |
-| Phiên bản Unity / pipeline | Người làm **đã tạo một project 3D mới trống**; chi tiết điền ở mục 3.1. `[CHỐT]` |
+| Phiên bản Unity / pipeline | Khởi tạo từ **project 3D trống**; hiện có khung assembly Core/Game/EditMode của việc 001. Chi tiết ở mục 3.1 và 8. `[FILE]` |
 | Thiết bị đích | **Android, cài được bằng APK** để lead tự cài chơi. `[CHỐT]` iOS: `[CHƯA CHỐT]` (chưa thấy nhu cầu). |
 | Màn hình | Điện thoại, **màn dọc**, chơi một tay một ngón. `[CHỐT]` |
 | Hiệu năng | Tối thiểu **30 fps**, mục tiêu **60 fps**. `[CHỐT]` |
@@ -216,6 +216,8 @@ Màn 1–6: tutorial từng cơ chế (cổng màu → cổng nước + bùn →
 ---
 
 ## 8. Kiến trúc đề xuất `[ĐỀ XUẤT]`
+
+**Hiện trạng việc 001:** đã có `Scripts/Core/SqueakyLane.Core.asmdef` (`noEngineReferences = true`), `Scripts/Game/SqueakyLane.Game.asmdef` (tham chiếu Core) và `Tests/EditMode/SqueakyLane.Tests.EditMode.asmdef` (chỉ Editor; tham chiếu Core, Game, TestRunner và NUnit). Core/Game có marker rỗng để Unity tạo DLL; một EditMode test reflection kiểm Core không tham chiếu `UnityEngine*` đã qua trong Test Runner. Các đường dẫn này nằm dưới `Assets/_Project/`; các thư mục/hệ thống còn lại trong cây bên dưới vẫn là dự kiến, chưa dựng. Game marker là bổ sung được người làm duyệt trong việc 001 để khắc phục cảnh báo asmdef không có script. `[FILE; CHỐT 22/11]`
 
 **Nguyên tắc:** 3 tầng, tầng trên gọi tầng dưới, không ngược lại.
 `Core` (luật thuần C#, không dùng `UnityEngine`) ← `Game` (phiên chơi, input, đồng hồ, tutorial) ← `Presentation/UI` (hình, âm, hiệu ứng).
@@ -371,6 +373,7 @@ namespace SqueakyLane.Game
 | NNN | Việc lớn | Nhánh | AI | Trạng thái | Verdict | Liên quan |
 |---|---|---|---|---|---|---|
 | — | Tài liệu: `PROJECT.md`, `AGENTS.md`, `CLAUDE.md`, `CODEX.md` (làm trong chat, 21/11) | — | Claude | Xong (đã commit 22/11) | — | — |
+| 001 | Khung thư mục và assembly Core/Game/EditMode | `001-project-skeleton` | Codex | Chờ merge | APPROVE (Claude 22/11, có điều kiện) | — |
 
 (Một dòng mỗi **việc lớn**, `NNN` theo thứ tự mở việc; việc nhỏ không ghi. Không cần ghi hash commit. Cột `Liên quan` nối việc sửa với việc gốc, ví dụ `004`.)
 
