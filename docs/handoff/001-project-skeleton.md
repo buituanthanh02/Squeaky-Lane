@@ -1,5 +1,5 @@
 # 001 — Khung thư mục và assembly     Cỡ: S–M     Trạng thái: Chờ review
-Đang cầm: Claude        AI tham gia: Codex
+Đang cầm: Người làm        AI tham gia: Codex, Claude (review)
 Liên quan: —     Chờ nhận: —
 
 ## Mục tiêu
@@ -90,8 +90,12 @@ Có nền biên dịch tách Core khỏi UnityEngine, Game tham chiếu Core và
 - Đã được người làm duyệt và đã thực hiện; xem `[TRẢ LỜI]` trong Trao đổi. Không còn phản đối chặn việc 001.
 
 --- Người review điền ---
-## Verdict
-Chưa review; Codex không tự APPROVE code mình viết.
+## Verdict: APPROVE (Claude, 2026-11-22) — điều kiện: người làm tự mở Unity xem Console sạch và Test Runner EditMode có 1 test xanh trước khi merge
+**Đã soi:** 3 asmdef (Core `noEngineReferences: true`, không reference; Game tham chiếu `SqueakyLane.Core`; Tests chỉ Editor, `overrideReferences` + `nunit.framework.dll`, `UNITY_INCLUDE_TESTS`, `autoReferenced: false`); 3 file C# (marker rỗng, test thật không phải `Assert.Pass()`); 12 `.meta` (GUID khác nhau, không trùng); phạm vi diff (không đụng scene, Packages, ProjectSettings); `Editor.log` (0 `error CS`, 0 `warning CS`, dòng build cuối `Tundra build success (4.21 seconds)`, không còn cảnh báo "will not be compiled" sau lần build cuối; log có dấu vết Test Runner đã chạy).
+**Chưa soi:** kết quả xanh/đỏ của test (log không ghi, chỉ có lời báo của Codex); Play/APK (ngoài phạm vi 001).
+- [GỢI Ý] `git diff --check` không "qua" như phiếu ghi: nó báo khoảng trắng cuối dòng trong các `.meta` (`userData: `…). Đó là định dạng Unity tự sinh, không sửa tay.
+- [GỢI Ý] `PROJECT.md` §3 dòng "Phiên bản Unity / pipeline" bị đổi nhãn `[CHỐT]` → `[FILE]` và chèn chuyện khung assembly; thông tin này đã có ở §3.1 và §8. Nên trả dòng đó về như cũ (không chặn merge).
+- [GỢI Ý] Test chỉ kiểm tham chiếu trực tiếp của một assembly đang gần như rỗng, nên giá trị thật chỉ có khi Core có code. Lớp bảo vệ chính vẫn là `noEngineReferences`. Đúng như Codex đã ghi.
 
 ## Trao đổi
 2026-11-22 05:44 · Codex → Người làm · [BÁO]: Nhận việc 001 theo prompt đã duyệt; Git sạch, fetch origin thành công, main khớp origin/main; tạo nhánh 001-project-skeleton. Đang kiểm khả năng thao tác Editor, chưa tạo asset/test.
@@ -99,3 +103,4 @@ Chưa review; Codex không tự APPROVE code mình viết.
 2026-11-22 05:53 · Người làm → Codex · [TRẢ LỜI]: Cho phép thêm marker Game (khuyến nghị). Codex tiếp tục theo phạm vi bổ sung này.
 2026-11-22 06:01 · Codex → Người làm · [BÁO]: Đã tạo ba asmdef và ba script (bao gồm Game marker được duyệt); Unity tự sinh đủ 12 meta. Unity biên dịch thành công, Test Runner EditMode có 1 test và qua (1 xanh/0 lỗi/0 chưa chạy), Console sau test 0 log/0 warning/0 error. Scene/packages/settings không đổi. Chưa commit; chi tiết và cảnh báo đã khắc phục ở phần Test và kết quả.
 2026-11-22 06:01 · Codex → Claude · [BÀN GIAO]: Chuyển Đang cầm sang Claude để review việc 001 trên nhánh 001-project-skeleton; HEAD vẫn 6e2ec0c, toàn bộ việc 001 là thay đổi chưa commit. Đã kiểm biên dịch/Console/EditMode/meta/phạm vi; chưa kiểm APK/gameplay (ngoài phạm vi). Cần review diff cùng file mới và phiếu, không chỉ git diff của file đã track. Không tự sửa ngoài phạm vi; người làm thực hiện commit sau review.
+2026-11-22 14:34 · Claude → Người làm · [BÀN GIAO]: Review 001 xong, verdict APPROVE (điều kiện: bạn mở Unity xem Console sạch và Test Runner có 1 test xanh). Đã đọc diff, asmdef, .meta và Editor.log; chưa chạy được test (Claude không có Editor). Việc còn lại là của bạn: kiểm Unity, commit phần review này, merge 001 vào main. Sau đó mới giao 003 cho Codex.
