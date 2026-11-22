@@ -249,7 +249,10 @@ Assets/_Project/
 │  │  │  ├─ TileEffects.cs
 │  │  │  ├─ Occupancy.cs
 │  │  │  └─ GameRules.cs        # IsWin, WashedCount
-│  │  └─ Solver/                # dự kiến: Solver (BFS), StuckDetector
+│  │  └─ Solver/
+│  │     ├─ StateKey.cs         # khóa byte, encoder và comparer
+│  │     ├─ Solver.cs           # BFS ít lượt nhất + lệnh/kết quả
+│  │     └─ StepSearch.cs       # WinSearch/PathSearch theo ngân sách node
 │  ├─ Game/                     # asmdef "SqueakyLane.Game" → tham chiếu Core
 │  │  ├─ LevelJsonLoader.cs     # nhận JSON + tên nguồn → LevelDef; DTO cùng file
 │  │  ├─ GameSession.cs         # trạng thái hiện tại, lịch sử hoàn tác, bắn sự kiện
@@ -398,7 +401,10 @@ namespace SqueakyLane.Game
 | 003 | Model và luật Core phần 1 + EditMode tests | `003-core-rules-1` | Codex | Xong (đã merge 22/11) | APPROVE (Claude 22/11) | 001 |
 | 004 | Core luật phần 2: portal, trụ xoay, barie/chốt + EditMode tests | `004-core-rules-2` | Codex | Xong (đã merge 22/11) | APPROVE (Claude 22/11) | 003 |
 | 005 | Dữ liệu chuẩn: 31 JSON object + golden trace và tool Node | `005-golden-data` | Codex | Xong (đã merge 22/11) | APPROVE (Claude 22/11) | 002, 004 |
-| 006 | Bộ nạp JSON + phát lại golden trace kiểm luật Core | `006-loader-trace` | Codex | Chờ merge | APPROVE (Claude 22/11) | 003–005 |
+| 006 | Bộ nạp JSON + phát lại golden trace kiểm luật Core | `006-loader-trace` | Codex | Xong (đã merge 22/11) | APPROVE (Claude 22/11) | 003–005 |
+| 007 | Solver BFS, tìm thắng/gợi ý theo bước và đo màn 16 | `007-solver` | Codex | Chờ review; hoãn xác nhận cấp phát theo người làm | Chưa review | 003–006 |
+
+**007 — kiểm chứng còn nợ:** đã chạy EditMode 314 qua/0 đỏ trước lần sửa bộ đo cấp phát. Người làm cho hoãn chạy lại bộ đo; số cấp phát `0 byte` của lượt cũ không hợp lệ, bản đo Profiler mới chưa chạy lại. Thời gian BFS màn 16 trung vị 1587,401 ms trong Editor; không suy thành hiệu năng Android. `[CHỐT 22/11; chi tiết: docs/handoff/007-solver.md]`
 
 (Một dòng mỗi **việc lớn**, `NNN` theo thứ tự mở việc; việc nhỏ không ghi. Không cần ghi hash commit. Cột `Liên quan` nối việc sửa với việc gốc, ví dụ `004`.)
 
