@@ -1,0 +1,140 @@
+{
+  "id": 25,
+  "name": "Bàn xoay và xe tải",
+  "cols": 6,
+  "rows": 6,
+  "gates": [
+    {
+      "side": "l",
+      "i": 0,
+      "color": "green"
+    },
+    {
+      "side": "t",
+      "i": 1,
+      "color": "blue"
+    },
+    {
+      "side": "b",
+      "i": 5,
+      "color": "yellow"
+    },
+    {
+      "side": "t",
+      "i": 3,
+      "color": "pink"
+    },
+    {
+      "side": "t",
+      "i": 2,
+      "color": "yellow"
+    },
+    {
+      "side": "r",
+      "i": 5,
+      "color": "blue"
+    },
+    {
+      "side": "l",
+      "i": 1,
+      "color": "yellow"
+    },
+    {
+      "side": "l",
+      "i": 2,
+      "color": "blue"
+    }
+  ],
+  "cars": [
+    {
+      "axis": "h",
+      "r": 0,
+      "c": 1,
+      "color": "green",
+      "len": 3,
+      "truck": true,
+      "mud": 0
+    },
+    {
+      "axis": "v",
+      "r": 2,
+      "c": 5,
+      "color": "blue",
+      "len": 2,
+      "truck": false,
+      "mud": 0
+    },
+    {
+      "axis": "v",
+      "r": 0,
+      "c": 5,
+      "color": "yellow",
+      "len": 2,
+      "truck": false,
+      "mud": 0
+    },
+    {
+      "axis": "v",
+      "r": 3,
+      "c": 3,
+      "color": "pink",
+      "len": 2,
+      "truck": false,
+      "mud": 0
+    },
+    {
+      "axis": "v",
+      "r": 3,
+      "c": 2,
+      "color": "yellow",
+      "len": 2,
+      "truck": false,
+      "mud": 0
+    },
+    {
+      "axis": "h",
+      "r": 5,
+      "c": 2,
+      "color": "blue",
+      "len": 2,
+      "truck": false,
+      "mud": 0
+    },
+    {
+      "axis": "h",
+      "r": 1,
+      "c": 0,
+      "color": "yellow",
+      "len": 2,
+      "truck": false,
+      "mud": 0
+    },
+    {
+      "axis": "v",
+      "r": 1,
+      "c": 2,
+      "color": "blue",
+      "len": 2,
+      "truck": false,
+      "mud": 0
+    }
+  ],
+  "cones": [],
+  "muds": [],
+  "sprays": [],
+  "tables": [
+    {
+      "r": 4,
+      "c": 4
+    }
+  ],
+  "paints": [],
+  "lights": [],
+  "barriers": [],
+  "splash": false,
+  "portals": [],
+  "pylons": [],
+  "switches": [],
+  "minMoves": 13,
+  "solveExhausted": true
+}

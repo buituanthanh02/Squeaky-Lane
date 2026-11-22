@@ -1,0 +1,93 @@
+{
+  "id": 7,
+  "name": "Bùn dày",
+  "cols": 5,
+  "rows": 6,
+  "gates": [
+    {
+      "side": "t",
+      "i": 2,
+      "color": "pink"
+    },
+    {
+      "side": "b",
+      "i": 2,
+      "color": "blue"
+    },
+    {
+      "side": "r",
+      "i": 1,
+      "color": "yellow"
+    },
+    {
+      "side": "l",
+      "i": 4,
+      "color": "green"
+    },
+    {
+      "side": "b",
+      "i": 4,
+      "color": "blue"
+    }
+  ],
+  "cars": [
+    {
+      "axis": "v",
+      "r": 3,
+      "c": 2,
+      "color": "pink",
+      "len": 2,
+      "truck": false,
+      "mud": 2
+    },
+    {
+      "axis": "h",
+      "r": 1,
+      "c": 0,
+      "color": "yellow",
+      "len": 2,
+      "truck": false,
+      "mud": 2
+    },
+    {
+      "axis": "h",
+      "r": 4,
+      "c": 3,
+      "color": "green",
+      "len": 2,
+      "truck": false,
+      "mud": 2
+    },
+    {
+      "axis": "v",
+      "r": 0,
+      "c": 4,
+      "color": "blue",
+      "len": 2,
+      "truck": false,
+      "mud": 0
+    }
+  ],
+  "cones": [],
+  "muds": [],
+  "sprays": [
+    {
+      "r": 1,
+      "c": 2
+    },
+    {
+      "r": 4,
+      "c": 1
+    }
+  ],
+  "tables": [],
+  "paints": [],
+  "lights": [],
+  "barriers": [],
+  "splash": true,
+  "portals": [],
+  "pylons": [],
+  "switches": [],
+  "minMoves": 4,
+  "solveExhausted": true
+}

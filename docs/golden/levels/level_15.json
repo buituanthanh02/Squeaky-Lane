@@ -1,0 +1,115 @@
+{
+  "id": 15,
+  "name": "Đổi màu đúng lúc",
+  "cols": 5,
+  "rows": 6,
+  "gates": [
+    {
+      "side": "r",
+      "i": 3,
+      "color": "pink"
+    },
+    {
+      "side": "t",
+      "i": 1,
+      "color": "water"
+    },
+    {
+      "side": "b",
+      "i": 1,
+      "color": "green"
+    },
+    {
+      "side": "r",
+      "i": 5,
+      "color": "water"
+    },
+    {
+      "side": "l",
+      "i": 5,
+      "color": "yellow"
+    },
+    {
+      "side": "t",
+      "i": 0,
+      "color": "pink"
+    },
+    {
+      "side": "b",
+      "i": 4,
+      "color": "blue"
+    }
+  ],
+  "cars": [
+    {
+      "axis": "h",
+      "r": 3,
+      "c": 2,
+      "color": "purple",
+      "len": 2,
+      "truck": false,
+      "mud": 0
+    },
+    {
+      "axis": "v",
+      "r": 0,
+      "c": 1,
+      "color": "green",
+      "len": 2,
+      "truck": false,
+      "mud": 1
+    },
+    {
+      "axis": "h",
+      "r": 5,
+      "c": 2,
+      "color": "yellow",
+      "len": 2,
+      "truck": false,
+      "mud": 1
+    },
+    {
+      "axis": "v",
+      "r": 4,
+      "c": 0,
+      "color": "orange",
+      "len": 2,
+      "truck": false,
+      "mud": 0
+    },
+    {
+      "axis": "v",
+      "r": 0,
+      "c": 4,
+      "color": "blue",
+      "len": 2,
+      "truck": false,
+      "mud": 0
+    }
+  ],
+  "cones": [],
+  "muds": [],
+  "sprays": [],
+  "tables": [],
+  "paints": [
+    {
+      "r": 3,
+      "c": 0,
+      "color": "pink"
+    }
+  ],
+  "lights": [],
+  "barriers": [
+    {
+      "r": 3,
+      "c": 4,
+      "need": 2
+    }
+  ],
+  "splash": true,
+  "portals": [],
+  "pylons": [],
+  "switches": [],
+  "minMoves": 6,
+  "solveExhausted": true
+}
