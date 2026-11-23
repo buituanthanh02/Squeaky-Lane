@@ -1,0 +1,127 @@
+{
+  "id": 28,
+  "name": "Tổng hợp xe tải",
+  "cols": 5,
+  "rows": 5,
+  "gates": [
+    {
+      "side": "l",
+      "i": 4,
+      "color": "yellow"
+    },
+    {
+      "side": "t",
+      "i": 2,
+      "color": "yellow"
+    },
+    {
+      "side": "b",
+      "i": 0,
+      "color": "blue"
+    },
+    {
+      "side": "b",
+      "i": 3,
+      "color": "pink"
+    }
+  ],
+  "cars": [
+    {
+      "axis": "h",
+      "r": 4,
+      "c": 0,
+      "color": "yellow",
+      "len": 3,
+      "truck": true,
+      "mud": 0
+    },
+    {
+      "axis": "v",
+      "r": 2,
+      "c": 2,
+      "color": "yellow",
+      "len": 2,
+      "truck": false,
+      "mud": 0
+    },
+    {
+      "axis": "v",
+      "r": 3,
+      "c": 4,
+      "color": "blue",
+      "len": 2,
+      "truck": false,
+      "mud": 0
+    },
+    {
+      "axis": "v",
+      "r": 1,
+      "c": 3,
+      "color": "pink",
+      "len": 2,
+      "truck": false,
+      "mud": 0
+    },
+    {
+      "axis": "v",
+      "r": 0,
+      "c": 4,
+      "color": "blue",
+      "len": 2,
+      "truck": false,
+      "mud": 0
+    },
+    {
+      "axis": "v",
+      "r": 0,
+      "c": 1,
+      "color": "blue",
+      "len": 2,
+      "truck": false,
+      "mud": 0
+    }
+  ],
+  "cones": [],
+  "muds": [],
+  "sprays": [],
+  "tables": [],
+  "paints": [],
+  "lights": [],
+  "barriers": [],
+  "splash": false,
+  "portals": [
+    {
+      "a": {
+        "r": 0,
+        "c": 4,
+        "side": "N"
+      },
+      "b": {
+        "r": 0,
+        "c": 1,
+        "side": "N"
+      }
+    }
+  ],
+  "pylons": [],
+  "switches": [
+    {
+      "r": 3,
+      "c": 3,
+      "a": [
+        {
+          "r": 0,
+          "c": 3
+        }
+      ],
+      "b": [
+        {
+          "r": 3,
+          "c": 1
+        }
+      ]
+    }
+  ],
+  "minMoves": 17,
+  "solveExhausted": true
+}

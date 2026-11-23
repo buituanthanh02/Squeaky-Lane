@@ -1,0 +1,125 @@
+{
+  "id": 30,
+  "name": "Hai mặt cổng",
+  "cols": 5,
+  "rows": 5,
+  "gates": [
+    {
+      "side": "t",
+      "i": 3,
+      "color": "yellow"
+    },
+    {
+      "side": "l",
+      "i": 0,
+      "color": "yellow"
+    },
+    {
+      "side": "b",
+      "i": 0,
+      "color": "blue"
+    },
+    {
+      "side": "b",
+      "i": 2,
+      "color": "blue"
+    },
+    {
+      "side": "r",
+      "i": 2,
+      "color": "pink"
+    }
+  ],
+  "cars": [
+    {
+      "axis": "h",
+      "r": 3,
+      "c": 1,
+      "color": "yellow",
+      "len": 2,
+      "truck": false,
+      "mud": 0
+    },
+    {
+      "axis": "v",
+      "r": 2,
+      "c": 0,
+      "color": "yellow",
+      "len": 2,
+      "truck": false,
+      "mud": 0
+    },
+    {
+      "axis": "h",
+      "r": 4,
+      "c": 0,
+      "color": "blue",
+      "len": 2,
+      "truck": false,
+      "mud": 0
+    },
+    {
+      "axis": "v",
+      "r": 0,
+      "c": 0,
+      "color": "blue",
+      "len": 2,
+      "truck": false,
+      "mud": 0
+    },
+    {
+      "axis": "h",
+      "r": 2,
+      "c": 3,
+      "color": "pink",
+      "len": 2,
+      "truck": false,
+      "mud": 0
+    }
+  ],
+  "cones": [],
+  "muds": [],
+  "sprays": [],
+  "tables": [],
+  "paints": [],
+  "lights": [],
+  "barriers": [],
+  "splash": false,
+  "portals": [
+    {
+      "a": {
+        "r": 3,
+        "c": 0,
+        "side": "W"
+      },
+      "b": {
+        "r": 4,
+        "c": 0,
+        "side": "W"
+      }
+    }
+  ],
+  "pylons": [
+    {
+      "r": 3,
+      "c": 3,
+      "o": "v",
+      "fixed": false,
+      "to": [
+        {
+          "r": 0,
+          "c": 0,
+          "side": "N"
+        },
+        {
+          "r": 4,
+          "c": 1,
+          "side": "S"
+        }
+      ]
+    }
+  ],
+  "switches": [],
+  "minMoves": 18,
+  "solveExhausted": true
+}

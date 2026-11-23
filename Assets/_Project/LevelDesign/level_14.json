@@ -1,0 +1,94 @@
+{
+  "id": 14,
+  "name": "Xoay sau khi rửa",
+  "cols": 5,
+  "rows": 6,
+  "gates": [
+    {
+      "side": "l",
+      "i": 2,
+      "color": "water"
+    },
+    {
+      "side": "t",
+      "i": 2,
+      "color": "yellow"
+    },
+    {
+      "side": "b",
+      "i": 3,
+      "color": "blue"
+    },
+    {
+      "side": "r",
+      "i": 4,
+      "color": "green"
+    },
+    {
+      "side": "t",
+      "i": 4,
+      "color": "water"
+    },
+    {
+      "side": "b",
+      "i": 4,
+      "color": "pink"
+    }
+  ],
+  "cars": [
+    {
+      "axis": "h",
+      "r": 2,
+      "c": 1,
+      "color": "yellow",
+      "len": 2,
+      "truck": false,
+      "mud": 1
+    },
+    {
+      "axis": "v",
+      "r": 2,
+      "c": 3,
+      "color": "blue",
+      "len": 2,
+      "truck": false,
+      "mud": 0
+    },
+    {
+      "axis": "h",
+      "r": 4,
+      "c": 3,
+      "color": "green",
+      "len": 2,
+      "truck": false,
+      "mud": 0
+    },
+    {
+      "axis": "v",
+      "r": 0,
+      "c": 4,
+      "color": "pink",
+      "len": 2,
+      "truck": false,
+      "mud": 1
+    }
+  ],
+  "cones": [],
+  "muds": [],
+  "sprays": [],
+  "tables": [
+    {
+      "r": 2,
+      "c": 1
+    }
+  ],
+  "paints": [],
+  "lights": [],
+  "barriers": [],
+  "splash": true,
+  "portals": [],
+  "pylons": [],
+  "switches": [],
+  "minMoves": 6,
+  "solveExhausted": true
+}

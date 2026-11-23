@@ -1,0 +1,136 @@
+{
+  "id": 16,
+  "name": "Tổng lực",
+  "cols": 6,
+  "rows": 6,
+  "gates": [
+    {
+      "side": "t",
+      "i": 0,
+      "color": "water"
+    },
+    {
+      "side": "b",
+      "i": 0,
+      "color": "pink"
+    },
+    {
+      "side": "r",
+      "i": 1,
+      "color": "yellow"
+    },
+    {
+      "side": "b",
+      "i": 3,
+      "color": "blue"
+    },
+    {
+      "side": "r",
+      "i": 4,
+      "color": "water"
+    },
+    {
+      "side": "l",
+      "i": 4,
+      "color": "green"
+    },
+    {
+      "side": "l",
+      "i": 5,
+      "color": "orange"
+    },
+    {
+      "side": "t",
+      "i": 5,
+      "color": "purple"
+    },
+    {
+      "side": "t",
+      "i": 2,
+      "color": "blue"
+    }
+  ],
+  "cars": [
+    {
+      "axis": "v",
+      "r": 3,
+      "c": 0,
+      "color": "pink",
+      "len": 2,
+      "truck": false,
+      "mud": 1
+    },
+    {
+      "axis": "h",
+      "r": 1,
+      "c": 0,
+      "color": "yellow",
+      "len": 2,
+      "truck": false,
+      "mud": 0
+    },
+    {
+      "axis": "v",
+      "r": 0,
+      "c": 3,
+      "color": "blue",
+      "len": 2,
+      "truck": false,
+      "mud": 0
+    },
+    {
+      "axis": "h",
+      "r": 4,
+      "c": 2,
+      "color": "green",
+      "len": 2,
+      "truck": false,
+      "mud": 1
+    },
+    {
+      "axis": "h",
+      "r": 5,
+      "c": 3,
+      "color": "orange",
+      "len": 2,
+      "truck": false,
+      "mud": 0
+    },
+    {
+      "axis": "v",
+      "r": 4,
+      "c": 5,
+      "color": "purple",
+      "len": 2,
+      "truck": false,
+      "mud": 0
+    },
+    {
+      "axis": "h",
+      "r": 2,
+      "c": 1,
+      "color": "blue",
+      "len": 2,
+      "truck": false,
+      "mud": 0
+    }
+  ],
+  "cones": [],
+  "muds": [],
+  "sprays": [],
+  "tables": [
+    {
+      "r": 2,
+      "c": 1
+    }
+  ],
+  "paints": [],
+  "lights": [],
+  "barriers": [],
+  "splash": true,
+  "portals": [],
+  "pylons": [],
+  "switches": [],
+  "minMoves": 9,
+  "solveExhausted": true
+}
