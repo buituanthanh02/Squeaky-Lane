@@ -1,0 +1,231 @@
+{
+  "id": 19,
+  "name": "Tổng lực lớn",
+  "cols": 7,
+  "rows": 8,
+  "gates": [
+    {
+      "side": "t",
+      "i": 0,
+      "color": "water"
+    },
+    {
+      "side": "r",
+      "i": 4,
+      "color": "water"
+    },
+    {
+      "side": "b",
+      "i": 3,
+      "color": "water"
+    },
+    {
+      "side": "t",
+      "i": 2,
+      "color": "pink"
+    },
+    {
+      "side": "r",
+      "i": 1,
+      "color": "yellow"
+    },
+    {
+      "side": "b",
+      "i": 0,
+      "color": "blue"
+    },
+    {
+      "side": "l",
+      "i": 4,
+      "color": "green"
+    },
+    {
+      "side": "l",
+      "i": 7,
+      "color": "orange"
+    },
+    {
+      "side": "t",
+      "i": 5,
+      "color": "purple"
+    },
+    {
+      "side": "r",
+      "i": 6,
+      "color": "blue"
+    },
+    {
+      "side": "b",
+      "i": 6,
+      "color": "green"
+    },
+    {
+      "side": "l",
+      "i": 2,
+      "color": "yellow"
+    },
+    {
+      "side": "t",
+      "i": 4,
+      "color": "orange"
+    },
+    {
+      "side": "r",
+      "i": 7,
+      "color": "pink"
+    }
+  ],
+  "cars": [
+    {
+      "axis": "h",
+      "r": 3,
+      "c": 2,
+      "color": "green",
+      "len": 2,
+      "truck": false,
+      "mud": 2
+    },
+    {
+      "axis": "v",
+      "r": 0,
+      "c": 5,
+      "color": "purple",
+      "len": 2,
+      "truck": false,
+      "mud": 0
+    },
+    {
+      "axis": "h",
+      "r": 2,
+      "c": 4,
+      "color": "yellow",
+      "len": 2,
+      "truck": false,
+      "mud": 0
+    },
+    {
+      "axis": "h",
+      "r": 2,
+      "c": 2,
+      "color": "yellow",
+      "len": 2,
+      "truck": false,
+      "mud": 0
+    },
+    {
+      "axis": "v",
+      "r": 5,
+      "c": 0,
+      "color": "blue",
+      "len": 2,
+      "truck": false,
+      "mud": 0
+    },
+    {
+      "axis": "v",
+      "r": 1,
+      "c": 0,
+      "color": "blue",
+      "len": 2,
+      "truck": false,
+      "mud": 2
+    },
+    {
+      "axis": "v",
+      "r": 4,
+      "c": 5,
+      "color": "purple",
+      "len": 2,
+      "truck": false,
+      "mud": 0
+    },
+    {
+      "axis": "h",
+      "r": 7,
+      "c": 5,
+      "color": "pink",
+      "len": 2,
+      "truck": false,
+      "mud": 0
+    },
+    {
+      "axis": "v",
+      "r": 2,
+      "c": 6,
+      "color": "green",
+      "len": 2,
+      "truck": false,
+      "mud": 0
+    },
+    {
+      "axis": "v",
+      "r": 5,
+      "c": 2,
+      "color": "pink",
+      "len": 2,
+      "truck": false,
+      "mud": 0
+    },
+    {
+      "axis": "v",
+      "r": 4,
+      "c": 6,
+      "color": "green",
+      "len": 2,
+      "truck": false,
+      "mud": 0
+    },
+    {
+      "axis": "h",
+      "r": 4,
+      "c": 0,
+      "color": "green",
+      "len": 2,
+      "truck": false,
+      "mud": 0
+    },
+    {
+      "axis": "h",
+      "r": 7,
+      "c": 3,
+      "color": "orange",
+      "len": 2,
+      "truck": false,
+      "mud": 0
+    }
+  ],
+  "cones": [],
+  "muds": [
+    {
+      "r": 1,
+      "c": 4
+    }
+  ],
+  "sprays": [
+    {
+      "r": 5,
+      "c": 1
+    }
+  ],
+  "tables": [
+    {
+      "r": 3,
+      "c": 2
+    }
+  ],
+  "paints": [
+    {
+      "r": 6,
+      "c": 5,
+      "color": "pink"
+    }
+  ],
+  "lights": [],
+  "barriers": [],
+  "splash": true,
+  "portals": [],
+  "pylons": [],
+  "switches": [],
+  "minMoves": -1,
+  "solveExhausted": false
+}

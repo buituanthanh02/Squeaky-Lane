@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dc4d39ba5e5d99844a763a353aa38115, type: 3}
+  m_Name: FeelConfig
+  m_EditorClassIdentifier: 
+  stepSeconds: 0.1
+  exitSeconds: 0.25
+  rotateSeconds: 0.25
+  teleSeconds: 0.2
+  bumpSeconds: 0.08
+  bumpDistance: 0.04
+  waterDipCells: 0.6
+  rotateMidScale: 0.65

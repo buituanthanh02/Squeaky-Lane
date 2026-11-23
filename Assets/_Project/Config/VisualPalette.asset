@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 940311121b0f57549b944fa4dea5ea2d, type: 3}
+  m_Name: VisualPalette
+  m_EditorClassIdentifier: 
+  material: {fileID: 2100000, guid: eb83a271f3295574c8c38ef5aab44c48, type: 2}
+  pink: {r: 1, g: 0.3, b: 0.57, a: 1}
+  blue: {r: 0.16, g: 0.59, b: 1, a: 1}
+  yellow: {r: 1, g: 0.8, b: 0.1, a: 1}
+  green: {r: 0.25, g: 0.8, b: 0.39, a: 1}
+  orange: {r: 1, g: 0.43, b: 0.1, a: 1}
+  purple: {r: 0.65, g: 0.32, b: 0.93, a: 1}
+  water: {r: 0.25, g: 0.95, b: 1, a: 1}
+  background: {r: 0.1, g: 0.13, b: 0.2, a: 1}
+  floor: {r: 0.52, g: 0.57, b: 0.65, a: 1}
+  wall: {r: 0.24, g: 0.28, b: 0.36, a: 1}
+  mud: {r: 0.28, g: 0.13, b: 0.055, a: 1}
+  cone: {r: 1, g: 0.48, b: 0.15, a: 1}
+  table: {r: 0.78, g: 0.7, b: 0.95, a: 1}
+  portal: {r: 0.25, g: 1, b: 0.8, a: 1}
+  closed: {r: 0.95, g: 0.2, b: 0.25, a: 1}
+  open: {r: 0.25, g: 0.95, b: 0.35, a: 1}

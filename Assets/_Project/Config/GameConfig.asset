@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: eddf17b67b5bb2448870cd7c8f29d9a7, type: 3}
+  m_Name: GameConfig
+  m_EditorClassIdentifier: 
+  baseSeconds: 20
+  secondsPerMove: 5
+  undoPenalty: 3
+  hintsPerLevel: 3
+  hintPenalty: 5
+  star3Ratio: 0.5
+  star2Ratio: 0.2
+  targetFps: 60
+  tutorialLevelsUntimed: 0
+  searchMilliseconds: 2
+  searchMaxStates: 300000
+  unknownMinimumMoves: 20
+  swipeShortSideRatio: 0.06
+  tableTouchMillimeters: 9

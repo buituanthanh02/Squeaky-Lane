@@ -53,6 +53,7 @@ Hai AI **không nói chuyện trực tiếp với nhau**. Mọi thứ đi qua ng
 - Khi phiên làm việc có repo, người làm sẽ mở chat riêng gắn repo để Claude xem nhánh/diff. `[CHỐT]` (chat này chỉ để lấy ý tưởng và kết luận tổng thể).
 
 ### 2.5. Làm việc với Unity Editor `[ĐỀ XUẤT kế thừa từ cách làm cũ của người làm, cần xác nhận lại]`
+- **Từ 23/11: Codex không điều khiển máy/Editor.** Khi cần mở scene, chạy Test Runner hoặc chơi thử, gửi bước cụ thể để người làm thực hiện và báo kết quả; Codex tiếp tục sửa code/đọc log. `[CHỐT 23/11]`
 - Người làm chơi thử, build APK và commit. AI được sửa trực tiếp scene/prefab (`AGENTS.md` §4.2); với việc cần thao tác tay trong Editor thì AI viết từng bước cụ thể hoặc viết menu Editor để người làm bấm.
 - Không sửa tay YAML scene/prefab khi Editor đang mở.
 - Nếu một sửa đổi phải đợi người làm chạy Play mới kiểm được thì AI ghi rõ "chưa kiểm chứng" thay vì khẳng định.
@@ -87,7 +88,7 @@ Người làm đã tạo project 3D trống và sẽ bổ sung thông tin sau. *
 | Template / render pipeline (3D Built-in hay URP) | **3D Built-in**: `Packages/manifest.json` không có URP/HDRP, `GraphicsSettings.asset` có `m_CustomRenderPipeline: {fileID: 0}` `[FILE]` |
 | Input (Input Manager cũ hay Input System) | **Input Manager cũ**: `activeInputHandler: 0` trong `ProjectSettings/ProjectSettings.asset`; không có package Input System `[FILE]` |
 | Repo / remote Git, nhánh chính | `https://github.com/buituanthanh02/Squeaky-Lane.git`, nhánh chính `main` `[FILE: git remote -v]`. **Không dùng Git LFS** (`.gitattributes` chỉ có `* text=auto`); chỉ bật khi có asset 3D/âm thanh nặng `[CHỐT 22/11]` |
-| Tên thư mục gốc project, tên scene chính | Thư mục gốc `Squeaky Lane`; scene `Assets/Scenes/SampleScene.unity` (chỉ có Main Camera + Directional Light; chưa nằm trong Build Settings: `EditorBuildSettings.asset` có `m_Scenes: []`) `[FILE]` |
+| Tên thư mục gốc project, tên scene chính | Thư mục gốc `Squeaky Lane`; scene chơi `Assets/_Project/Scenes/Play.unity` có Main Camera, Directional Light, GameRoot (prefab), EventSystem, Canvas; đã bật trong Build Settings. Scene mẫu `Assets/Scenes/SampleScene.unity` vẫn giữ. `[FILE: Play.unity, ProjectSettings/EditorBuildSettings.asset; người làm chạy Setup Play 23/11]` |
 | Package đã thêm (ngoài mặc định) | **Không có.** Chỉ có package mặc định của template (`com.unity.feature.development`, TextMeshPro, Timeline, ugui, Visual Scripting…). `com.unity.test-framework 1.1.33` có sẵn trong `packages-lock.json` nên dùng được EditMode test `[FILE: Packages/manifest.json, packages-lock.json]` |
 | Android: package name, scripting backend, min API | `companyName: DefaultCompany`, `productName: Squeaky Lane`. **Package name chưa đặt** (`applicationIdentifier: {}`, đang mặc định) `[CHƯA ĐIỀN]`. **Scripting backend chưa đặt** (`scriptingBackend: {}`, đang mặc định) `[CHƯA ĐIỀN]`. Min API 22, target API 0 (tự động). Kiến trúc `AndroidTargetArchitectures: 1` (hiểu là chỉ ARMv7) `[CHƯA KIỂM CHỨNG]`. Xoay màn hình `defaultScreenOrientation: 4` (tự xoay, **chưa khóa dọc**). `[FILE: ProjectSettings/ProjectSettings.asset]`. Cần quyết trước khi build APK đầu tiên: package name, khóa Portrait, ARM64 (đổi Project Settings là việc phải hỏi) |
 | Quy ước đặt tên / ghi chú khác | Cây thư mục và đặt tên: theo mục 8. Mã nguồn prototype để đối chiếu nằm ở `docs/reference/prototype/` (ngoài `Assets`, Unity không biên dịch). `.gitignore` đã có (bỏ `Library`, `Logs`, `UserSettings`, `.vscode`, `*.sln`, `*.apk`, keystore…) `[FILE]` |
@@ -149,6 +150,7 @@ Hỗ trợ **cả hai**:
 1. **Chạm nửa xe:** chạm nửa nào, xe chạy về đầu đó.
 2. **Chạm vào xe rồi vuốt** theo hướng muốn đi.
 Camera cố định. Hoàn tác, chơi lại luôn có.
+- **Vuốt vượt ngưỡng phải ra lệnh ngay khi tay còn giữ trên màn hình**, không đợi nhả tay; mỗi cử chỉ phát tối đa một lệnh, không phát lại lúc nhả. Chạm nhẹ vẫn phân biệt với vuốt. `[CHỐT 23/11 — sửa sau commit mốc chơi thử 008]`
 
 ### 6.2. Kỹ thuật cho chạm nửa xe `[ĐỀ XUẤT]`
 Raycast vào xe → lấy điểm trúng → chiếu lên **trục thân xe trong không gian bàn chơi** → so với tâm xe để biết nửa đầu hay nửa đuôi. Vuốt: bắt đầu trên xe, lấy hướng vuốt chiếu lên trục thân xe, vượt ngưỡng (vài chục pixel) mới tính. Chạm nhẹ (không vuốt) = chạm nửa xe.
@@ -210,6 +212,7 @@ Màn 1–6: tutorial từng cơ chế (cổng màu → cổng nước + bùn →
   - `CameraConfig`: góc nghiêng (mặc định 65°), kích thước camera trực giao, độ mờ khi vật che xe.
   - **Catalog** (thêm màu/cơ chế/theme = thêm một dòng): `CarCatalog` màu → prefab/dáng/vật liệu; `MechanicCatalog` cơ chế → prefab/icon/tutorial; `ThemeConfig`.
   - Quy tắc khi nào dùng config: `AGENTS.md` §7.
+- **Đưa model ngoài vào game (việc 010):** phải qua bước kiểm asset/giấy phép/độ nặng → chuẩn hóa pivot, trục, scale, kích thước → tạo prefab bọc với collider và CarView → nối qua CarCatalog → thử chạy/Undo/xoay/portal/đẩy và đo trên máy. Không coi việc thả model vào Assets là đã tích hợp; luật/kích thước lưới vẫn do Core quyết định. `[CHỐT 23/11 — người làm yêu cầu có bước prefab riêng]`
 - **Ghi đè theo từng màn** trong JSON: `timeLimit`, `hints` (bỏ trống = dùng công thức/config).
 - **Test:** nạp cả 25 JSON → solver C# → so `minMoves` trong JSON.
 
@@ -255,18 +258,30 @@ Assets/_Project/
 │  │     └─ StepSearch.cs       # WinSearch/PathSearch theo ngân sách node
 │  ├─ Game/                     # asmdef "SqueakyLane.Game" → tham chiếu Core
 │  │  ├─ LevelJsonLoader.cs     # nhận JSON + tên nguồn → LevelDef; DTO cùng file
-│  │  ├─ GameSession.cs         # trạng thái hiện tại, lịch sử hoàn tác, bắn sự kiện
-│  │  ├─ LevelTimer.cs          # đếm ngược, trừ giờ hoàn tác, tính sao
-│  │  ├─ InputController.cs     # chạm nửa xe / vuốt / nút bàn xoay / chạm trụ → lệnh
-│  │  └─ Tutorial/
-│  ├─ Presentation/             # BoardView, CarView, ActionAnimator, BodyLanguage, VFX, Sfx
-│  ├─ UI/                       # HUD (đồng hồ, sao), hộp thoại thắng/thua/kẹt
-│  └─ Editor/                   # LevelJsonImporter, công cụ kiểm màn (làm sau)
-├─ Resources/Levels/            # level_01.json … level_25.json (nạp bằng TextAsset)
-├─ Config/                      # GameConfig, FeelConfig, CameraConfig, CarCatalog, MechanicCatalog, ThemeConfig
-├─ Art/  Audio/  Prefabs/  Scenes/
+│  │  ├─ GameSession.cs         # snapshot, lịch sử Undo/Restart, dùng lại SolverMove
+│  │  ├─ LevelTimer.cs          # dt từ ngoài, phạt Undo/Hint, sao
+│  │  ├─ SearchServices.cs      # SearchBudget theo ms, StuckDetector, HintProvider
+│  │  ├─ GameConfig.cs
+│  │  ├─ FeelConfig.cs
+│  │  ├─ CameraConfig.cs
+│  │  └─ ConfigProvider.cs      # điểm đọc Resources duy nhất
+│  ├─ Presentation/             # asmdef SqueakyLane.Presentation → Core, Game, TMP, uGUI
+│  │  ├─ GameBootstrap.cs
+│  │  ├─ BoardView.cs
+│  │  ├─ CarView.cs
+│  │  ├─ InputController.cs     # chạm/vuốt → lệnh; ưu tiên raycast UI
+│  │  ├─ ActionAnimator.cs      # events, hàng đợi mỗi xe và đặt chỗ đường hình
+│  │  ├─ DebugHud.cs            # nút debug; chưa có Navigator/panel của 009
+│  │  └─ VisualPalette.cs
+│  └─ Editor/PlayTools.cs       # menu Sync Levels / Setup Play / Measure Search (Play)
+├─ Resources/Levels/            # 31 màn thử + level_order, chưa phải 25 màn cuối
+├─ Config/                      # GameConfig, FeelConfig, CameraConfig, VisualPalette + BlockMaterial
+├─ Prefabs/GameRoot.prefab
+├─ Scenes/Play.unity
 └─ Tests/EditMode/              # test luật + so khớp với golden file của prototype
 ```
+
+**Tạo tài nguyên:** các đường dẫn Config/Resources/Prefabs/Scenes trong sơ đồ là đầu ra của menu Setup Play; menu tạo tài nguyên bằng API Unity. UI chính thức, catalog art và tutorial làm ở các việc sau; không tạo thư mục rỗng phòng xa.
 
 ### 8.1. Code mẫu (minh hoạ cấu trúc; luật chính xác xem `logic.js`)
 
@@ -402,7 +417,10 @@ namespace SqueakyLane.Game
 | 004 | Core luật phần 2: portal, trụ xoay, barie/chốt + EditMode tests | `004-core-rules-2` | Codex | Xong (đã merge 22/11) | APPROVE (Claude 22/11) | 003 |
 | 005 | Dữ liệu chuẩn: 31 JSON object + golden trace và tool Node | `005-golden-data` | Codex | Xong (đã merge 22/11) | APPROVE (Claude 22/11) | 002, 004 |
 | 006 | Bộ nạp JSON + phát lại golden trace kiểm luật Core | `006-loader-trace` | Codex | Xong (đã merge 22/11) | APPROVE (Claude 22/11) | 003–005 |
-| 007 | Solver BFS, tìm thắng/gợi ý theo bước và đo màn 16 | `007-solver` | Codex | Chờ merge; hoãn xác nhận cấp phát theo người làm | APPROVE có điều kiện (Claude 22/11) | 003–006 |
+| 007 | Solver BFS, tìm thắng/gợi ý theo bước và đo màn 16 | `007-solver` | Codex | Xong (đã merge 22/11); cấp phát kiểm tiếp ở 008 | APPROVE có điều kiện (Claude 22/11) | 003–006 |
+| 008 | Chơi được trên màn hình: phiên chơi, khối 3D, input/animation/nút debug | `008-playable` | Codex | Mốc chơi thử chạm được; chờ người làm commit, còn sửa vuốt/đo hiệu năng | Chưa review | 003–007 |
+
+**Kế hoạch từ 008:** `docs/handoff/play-plan.md` thay `core-plan.md` §7–9; 008 gộp logic phiên chơi + hiển thị + điều khiển, có thể commit theo mốc A/B/C, Claude review một lần cuối. 008 chưa có Navigator/điều hướng; phần đó là 009-A. `[CHỐT 22/11]`
 
 **007 — kiểm chứng còn nợ:** đã chạy EditMode 314 qua/0 đỏ trước lần sửa bộ đo cấp phát. Người làm cho hoãn chạy lại bộ đo; số cấp phát `0 byte` của lượt cũ không hợp lệ, bản đo Profiler mới chưa chạy lại. Thời gian BFS màn 16 trung vị 1587,401 ms trong Editor; không suy thành hiệu năng Android. `[CHỐT 22/11; chi tiết: docs/handoff/007-solver.md]`
 

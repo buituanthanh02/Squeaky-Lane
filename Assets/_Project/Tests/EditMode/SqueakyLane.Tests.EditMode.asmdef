@@ -5,7 +5,8 @@
         "UnityEngine.TestRunner",
         "UnityEditor.TestRunner",
         "SqueakyLane.Core",
-        "SqueakyLane.Game"
+        "SqueakyLane.Game",
+        "SqueakyLane.Presentation"
     ],
     "includePlatforms": [
         "Editor"

@@ -1,5 +1,5 @@
 # Kế hoạch "chơi được" (việc 008 trở đi) — thay thế core-plan.md mục 7–9
-Lập 2026-11-22 bởi Claude theo yêu cầu người làm: **ít việc hơn, mỗi việc lớn hơn, thấy game chạy trên màn hình sớm.** Lõi luật (003–006) đã xong và khớp prototype; 007 (solver) đang làm. Từ 008, mỗi nhánh là **một cụm có thể chơi/nghe/nhìn được**, Claude **review một lần ở cuối nhánh** (không review từng bước nhỏ).
+Lập 2026-11-22 bởi Claude theo yêu cầu người làm: **ít việc hơn, mỗi việc lớn hơn, thấy game chạy trên màn hình sớm.** Lõi luật (003–006) đã xong và khớp prototype; 007 (solver) đã review/merge, phần cấp phát đo tiếp ở 008. Từ 008, mỗi nhánh là **một cụm có thể chơi/nghe/nhìn được**, Claude **review một lần ở cuối nhánh** (không review từng bước nhỏ).
 Người làm gửi prompt "làm theo play-plan" = **duyệt kế hoạch** việc 008; 009 và sau đó duyệt khi bắt đầu.
 
 ## 0. Quy trình (giữ phần cốt lõi, bỏ phần rườm)
@@ -33,7 +33,7 @@ Người làm gửi prompt "làm theo play-plan" = **duyệt kế hoạch** vi�
 8. `InputController`: (a) **chạm nửa xe** (raycast vào xe → điểm trúng chiếu lên **trục thân xe trong không gian bàn chơi** → so với tâm xe), (b) **chạm vào xe rồi vuốt** theo hướng (chiếu lên trục thân, ngưỡng vài chục pixel, đơn vị theo `Screen.dpi` hoặc phần trăm cạnh ngắn, đưa vào config), (c) **nút ở tâm bàn xoay** (vùng chạm ≥ ~9 mm, **ưu tiên hơn xe**), (d) chạm trụ xoay. Chạm UI không xuyên xuống bãi.
 9. `ActionAnimator`: đọc **danh sách sự kiện** từ `MoveResult` (Core không biết hình) và chạy hoạt hình cho từng xe: `step` (trượt từng ô), `stop` (nảy nhẹ), `exit` (chạy ra cổng rồi biến mất), `water` (chui vào cổng nước rồi dội), `mud/paint/spray` (đổi màu/độ bẩn ngay tại ô), `splash`, `push` (xe tải và xe bị đẩy), `tele` (biến mất ở cổng A, hiện ở cổng B), `rotate` (bàn xoay 90°), `pyl`. **Nhiều xe chạy song song:** lệnh mới được nhận ngay; Core tính ngay, hình **đặt chỗ đường đi** để xe không chồng hình (mỗi xe một hàng đợi). Không cấp phát mỗi frame (cache, danh sách tái dùng).
 10. **Hoàn tác và chơi lại:** hủy mọi hoạt hình đang chạy, dựng lại hình từ `GameState` cũ (không "tua ngược" hoạt hình). Nút tạm: Undo, Restart, Hint, chọn màn trước/sau (bản **gỡ lỗi**, giao diện đẹp ở 009).
-11. Thắng: `IsWin` → hiện chữ "Thắng" + số sao (tạm); hết giờ → "Hết giờ"; kẹt → "Kẹt xe". Đồng hồ **tạm dừng** khi có hộp thoại.
+11. Thắng: `IsWin` → hiện chữ "Thắng" + số sao (tạm); hết giờ → "Hết giờ"; kẹt → chữ "Kẹt xe" không chặn. Đồng hồ chỉ **tạm dừng khi thắng/hết giờ**, **kẹt vẫn chạy** (người làm xác nhận 23/11, khớp PROJECT §6.4 và mục 3.1 dưới đây).
 **Điều dễ làm sai:** chạm nửa xe tính theo nửa màn hình thay vì trục thân xe; vuốt chéo; nút bàn xoay bị xe nuốt chạm; hoàn tác giữa lúc hoạt hình (xe lệch ô); hết giờ vẫn nhận lệnh; `Time.deltaTime` truyền vào timer khi `timeScale=0` (quyết định có chủ đích scaled/unscaled, ghi vào phiếu); `Stuck` tính tiếp sau khi người chơi đã hoàn tác; static sót qua lần nạp lại màn; `Find*`/`GetComponent` trong `Update`; ScriptableObject bị sửa lúc chạy; camera lệch trên màn dài/ngắn; TextMeshPro mặc định **thiếu chữ có dấu tiếng Việt** (giữ chữ HUD ngắn, kiểm glyph, nếu thiếu thì tạo font atlas dynamic có tiếng Việt, không đổi package).
 **Tiêu chí xong:** Test Runner xanh toàn bộ (nêu số); Console sạch; menu Sync Levels chạy được; **người làm chơi thật** (xem danh sách dưới) trên Editor, và nếu có thể trên một điện thoại.
 **Danh sách chơi thử (người làm):** (1) mở màn 1, thắng bằng cách chạm; (2) chạm đầu xe và đuôi xe cho xe chạy đúng hướng; (3) vuốt dọc thân xe; (4) hoàn tác giữa lúc xe đang chạy, xe về đúng ô; (5) màn 3 có cổng nước: xe vào được xịt rồi dội ngược; (6) màn 8 bàn xoay: nút tâm bấm được, không bấm nhầm xe; (7) màn 21 portal; (8) màn 29 trụ xoay; (9) màn 20 xe tải đẩy; (10) để hết giờ thấy "Hết giờ"; (11) dựng kẹt xe thấy báo "Kẹt xe"; (12) Hint hiện nước đi và trừ lượt.
@@ -84,6 +84,16 @@ Người làm gửi prompt "làm theo play-plan" = **duyệt kế hoạch** vi�
 | 011 | VFX và cảm giác: nhún, chúi, nảy, rũ bùn, hạt nước/bùn, rung camera nhẹ, bánh quay | Số trong `FeelConfig`; Claude quyết số cụ thể dựa trên video người làm gửi |
 | 012 | Chọn/sinh **25 màn cuối** + tutorial bằng hình (bàn tay, vòng sáng, mũi tên) + công thức giờ chỉnh theo người chơi thật | Dùng tool/prototype; golden `minMoves` cho từng màn |
 | 013 | Build APK, đo fps (mục tiêu 50–60), nhiệt, dung lượng, sửa lỗi | Người làm build; Android: package name, Portrait, ARM64 cần quyết trước |
+
+### 4.1. Tích hợp prefab xe ngoài — bước bắt buộc trong 010 `[CHỐT 23/11]`
+Người làm nhắc: nhập asset không đồng nghĩa prefab đã dùng được trong game. Làm theo chuỗi sau, không thay trực tiếp model vào scene rồi coi xong:
+1. Kiểm nguồn/giấy phép, mesh, renderer/vật liệu, texture và dung lượng; thống nhất gói được phép thêm. Không nhập toàn bộ file dư vào build.
+2. Tạo **prefab bọc** cho game (giữ model nguồn làm con/nested prefab). Root có pivot giữa thân xe theo chuẩn bàn chơi; trục dọc thân là +X ở tư thế ngang, local rotation/scale của root là 0/1. Bù hướng/kích thước/độ cao ở model con, không sửa quy ước tọa độ của Core. Xe thường khớp 2×1 ô, xe tải 3×1 ô; kiểm khoảng hở giữa ô và thân.
+3. Collider/vùng chọn theo footprint lưới và CarView ở root; cache renderer, nối màu/vật liệu và phần bùn riêng. Chỉ rõ shader dùng `_Color`, `_BaseColor` hay material variant; không tự tạo material mới mỗi frame để đổi màu.
+4. Tạo CarCatalog ánh xạ màu/loại xe → prefab + dữ liệu hiển thị. Thay điểm dựng xe khối trong BoardView bằng catalog, giữ luồng Core → events → CarView/ActionAnimator. Nếu thiếu prefab phải báo rõ hoặc dùng fallback khối; không rải Resources.Load hay hard-code tên model.
+5. Kiểm spawn/pivot, chạm đầu/đuôi, chạy tới/lùi, ra cổng, Undo khi đang chạy, bàn xoay, portal đổi hướng và xe tải đẩy; reload/vào Play lại. Đo draw call/cấp phát/fps trên máy đích trước khi nhận là đã tích hợp xong; Claude duyệt visual qua ảnh/video.
+
+**Ghi chú kiểm 008:** người làm đã thử chạm được và duyệt commit mốc đầu. Cần sửa vuốt ở lượt sau commit: vượt ngưỡng là ra lệnh khi đang giữ tay, chỉ một lệnh mỗi gesture, nhả tay không phát lại. Đây vẫn thuộc 008, không bắt đầu 009.
 
 ## 5. Lịch (cập nhật 22/11)
 | Ngày | Việc |
