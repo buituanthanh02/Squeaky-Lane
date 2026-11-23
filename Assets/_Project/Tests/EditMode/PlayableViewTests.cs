@@ -16,6 +16,42 @@ namespace SqueakyLane.Tests.EditMode
         private VisualPalette palette;
         private FeelConfig feel;
         private Material material;
+        [TestCase(1)] [TestCase(-1)]
+        public void SwipeFiresAtThresholdWhileHeldAndNeverRepeats(int direction)
+        {
+            var gesture = new CarGesture(); gesture.Begin(Vector2.zero, Vector2.right, -direction, 40);
+            Assert.That(gesture.TryDrag(Vector2.right * (39 * direction), out _), Is.False);
+            Assert.That(gesture.TryDrag(Vector2.right * (40 * direction), out int sign), Is.True);
+            Assert.That(sign, Is.EqualTo(direction));
+            Assert.That(gesture.TryDrag(Vector2.right * (80 * direction), out _), Is.False);
+            Assert.That(gesture.TryRelease(Vector2.right * (80 * direction), out _), Is.False);
+        }
+        [Test]
+        public void TapWaitsForReleaseAndUsesHalfSelectedAtPress()
+        {
+            var gesture = new CarGesture(); gesture.Begin(Vector2.zero, Vector2.up, -1, 40);
+            Assert.That(gesture.TryDrag(new Vector2(3, 5), out _), Is.False);
+            Assert.That(gesture.TryRelease(new Vector2(3, 5), out int sign), Is.True); Assert.That(sign, Is.EqualTo(-1));
+            Assert.That(gesture.TryRelease(Vector2.zero, out _), Is.False);
+        }
+        [Test]
+        public void SidewaysDragAndCancelledGestureCannotBecomeTap()
+        {
+            var gesture = new CarGesture(); gesture.Begin(Vector2.zero, Vector2.up, 1, 40);
+            Assert.That(gesture.TryDrag(Vector2.right * 60, out _), Is.False);
+            Assert.That(gesture.TryRelease(Vector2.zero, out _), Is.False);
+            gesture.Begin(Vector2.zero, Vector2.up, 1, 40); gesture.Cancel();
+            Assert.That(gesture.TryDrag(Vector2.up * 60, out _), Is.False); Assert.That(gesture.TryRelease(Vector2.zero, out _), Is.False);
+        }
+        [Test]
+        public void FastFlickAndNewGestureUseProjectedAxis()
+        {
+            var gesture = new CarGesture(); var axis = new Vector2(.3f, .8f).normalized;
+            gesture.Begin(Vector2.zero, axis, -1, 40);
+            Assert.That(gesture.TryRelease(axis * 60, out int first), Is.True); Assert.That(first, Is.EqualTo(1));
+            gesture.Begin(Vector2.zero, axis, 1, 40);
+            Assert.That(gesture.TryDrag(-axis * 60, out int second), Is.True); Assert.That(second, Is.EqualTo(-1));
+        }
         [SetUp]
         public void Setup()
         {

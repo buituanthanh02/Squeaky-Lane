@@ -47,12 +47,21 @@ namespace SqueakyLane.EditorTools
                 UnityEngine.Profiling.Profiler.enabled = true;
                 recorder = ProfilerRecorder.StartNew(ProfilerCategory.Memory, "GC Allocated In Frame", 16);
                 yield return null; yield return null;
+                var calibrationFrames = new long[4];
                 var probe = new byte[1024 * 1024]; probe[0] = 1;
-                yield return null;
-                long calibration = recorder.Valid ? recorder.LastValue : 0;
+                long calibration = 0;
+                // Coroutine có thể chạy trước lúc Profiler công bố frame vừa xong.
+                // Theo dõi nhiều frame để không nhầm frame cũ ít byte với frame chứa mẫu 1 MiB.
+                for (int frame = 0; frame < calibrationFrames.Length; frame++)
+                {
+                    yield return null;
+                    calibrationFrames[frame] = recorder.Valid ? recorder.LastValue : 0;
+                    calibration = Math.Max(calibration, calibrationFrames[frame]);
+                }
                 GC.KeepAlive(probe); probe = null;
                 report.AppendLine("Unity=" + Application.unityVersion + "; Editor/Mono; services=HintProvider+StuckDetector; level=16");
                 report.AppendLine("CPU=" + SystemInfo.processorType + "; RAM_MB=" + SystemInfo.systemMemorySize + "; calibration1MiBFrameBytes=" + calibration);
+                report.AppendLine("calibrationFrames=" + string.Join(",", calibrationFrames));
                 if (calibration < 1024 * 1024)
                 {
                     report.AppendLine("ALLOCATION_UNAVAILABLE: counter chưa bắt được mẫu 1 MiB; không báo 0 byte là cấp phát thật. Bật Record trong Profiler và thử lại.");
@@ -69,7 +78,9 @@ namespace SqueakyLane.EditorTools
                     var session = new GameSession(level); var timer = new LevelTimer(0, 0, 0, .5f, .2f);
                     using var stuck = new StuckDetector(session, bootstrap.Configs.Game.SearchMaxStates);
                     using var hint = new HintProvider(session, timer, 1, bootstrap.Configs.Game.SearchMaxStates);
-                    hint.Request(); yield return null;
+                    hint.Request();
+                    // Tách cấp phát nạp màn/tạo wrapper khỏi cửa sổ đo, kể cả counter công bố trễ.
+                    for (int settle = 0; settle < 4; settle++) yield return null;
                     int frames = 0; long allocated = 0; double total = 0, peak = 0;
                     while (frames < 10000)
                     {
@@ -82,18 +93,22 @@ namespace SqueakyLane.EditorTools
                         yield return null; allocated += recorder.LastValue;
                         if (done) break;
                     }
+                    // Thu cả phần counter có thể công bố sau khi search đã kết thúc.
+                    // Đây là cửa sổ nhiều frame, báo riêng số frame thu và trừ nền tương ứng.
+                    int captureFrames = frames;
+                    for (int tail = 0; tail < 3; tail++) { yield return null; allocated += recorder.LastValue; captureFrames++; }
                     if (!hint.HasHint || stuck.Status != StuckStatus.Winnable)
                         throw new InvalidOperationException("Đo màn 16: tìm kiếm chưa kết luận thắng; không nhận số đo như đã qua kiểm.");
                     report.AppendLine(string.Format(CultureInfo.InvariantCulture,
-                        "sample={0}; budgetMs={1:F3}; frames={2}; totalWorkMs={3:F3}; peakWorkFrameMs={4:F3}; rawFrameBytes={5}; estimatedSearchBytes={6}; stuckExplored={7}",
-                        sample + 1, bootstrap.Configs.Game.SearchMilliseconds, frames, total, peak, allocated, Math.Max(0, allocated - baseline * frames), stuck.Explored));
+                        "sample={0}; budgetMs={1:F3}; workFrames={2}; totalWorkMs={3:F3}; peakWorkFrameMs={4:F3}; rawWindowBytes={5}; estimatedSearchBytes={6}; stuckExplored={7}; captureFrames={8}",
+                        sample + 1, bootstrap.Configs.Game.SearchMilliseconds, frames, total, peak, allocated, Math.Max(0, allocated - baseline * captureFrames), stuck.Explored, captureFrames));
                     yield return null;
                 }
                 report.AppendLine("Đây là tìm kiếm theo frame qua Game services, không phải BFS tối ưu hay số đo Android; một node có thể vượt ngân sách mềm.");
             }
             finally
             {
-                recorder.Dispose(); UnityEngine.Profiling.Profiler.enabled = oldProfiler;
+                if (recorder.Valid) recorder.Dispose(); UnityEngine.Profiling.Profiler.enabled = oldProfiler;
                 if (bootstrap != null) bootstrap.DiagnosticsPaused = oldPause;
                 measuring = false;
                 string logs = Path.GetFullPath(Path.Combine(Application.dataPath, "../Logs")); Directory.CreateDirectory(logs);

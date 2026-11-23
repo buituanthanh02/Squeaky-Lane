@@ -150,7 +150,7 @@ Hỗ trợ **cả hai**:
 1. **Chạm nửa xe:** chạm nửa nào, xe chạy về đầu đó.
 2. **Chạm vào xe rồi vuốt** theo hướng muốn đi.
 Camera cố định. Hoàn tác, chơi lại luôn có.
-- **Vuốt vượt ngưỡng phải ra lệnh ngay khi tay còn giữ trên màn hình**, không đợi nhả tay; mỗi cử chỉ phát tối đa một lệnh, không phát lại lúc nhả. Chạm nhẹ vẫn phân biệt với vuốt. `[CHỐT 23/11 — sửa sau commit mốc chơi thử 008]`
+- **Vuốt vượt ngưỡng phải ra lệnh ngay khi tay còn giữ trên màn hình**, không đợi nhả tay; mỗi cử chỉ phát tối đa một lệnh, không phát lại lúc nhả. Chạm nhẹ vẫn phân biệt với vuốt. `[CHỐT 23/11]`
 
 ### 6.2. Kỹ thuật cho chạm nửa xe `[ĐỀ XUẤT]`
 Raycast vào xe → lấy điểm trúng → chiếu lên **trục thân xe trong không gian bàn chơi** → so với tâm xe để biết nửa đầu hay nửa đuôi. Vuốt: bắt đầu trên xe, lấy hướng vuốt chiếu lên trục thân xe, vượt ngưỡng (vài chục pixel) mới tính. Chạm nhẹ (không vuốt) = chạm nửa xe.
@@ -418,7 +418,7 @@ namespace SqueakyLane.Game
 | 005 | Dữ liệu chuẩn: 31 JSON object + golden trace và tool Node | `005-golden-data` | Codex | Xong (đã merge 22/11) | APPROVE (Claude 22/11) | 002, 004 |
 | 006 | Bộ nạp JSON + phát lại golden trace kiểm luật Core | `006-loader-trace` | Codex | Xong (đã merge 22/11) | APPROVE (Claude 22/11) | 003–005 |
 | 007 | Solver BFS, tìm thắng/gợi ý theo bước và đo màn 16 | `007-solver` | Codex | Xong (đã merge 22/11); cấp phát kiểm tiếp ở 008 | APPROVE có điều kiện (Claude 22/11) | 003–006 |
-| 008 | Chơi được trên màn hình: phiên chơi, khối 3D, input/animation/nút debug | `008-playable` | Codex | Mốc chơi thử chạm được; chờ người làm commit, còn sửa vuốt/đo hiệu năng | Chưa review | 003–007 |
+| 008 | Chơi được trên màn hình: phiên chơi, khối 3D, input/animation/nút debug | `008-playable` | Codex | Chờ review; người làm chấp nhận bản hiện tại, phần chưa kiểm ghi trong phiếu | Chưa review | 003–007 |
 
 **Kế hoạch từ 008:** `docs/handoff/play-plan.md` thay `core-plan.md` §7–9; 008 gộp logic phiên chơi + hiển thị + điều khiển, có thể commit theo mốc A/B/C, Claude review một lần cuối. 008 chưa có Navigator/điều hướng; phần đó là 009-A. `[CHỐT 22/11]`
 
