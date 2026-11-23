@@ -1,5 +1,5 @@
-# 008 — Chơi được trên màn hình     Cỡ: L (~1 ngày)     Trạng thái: Chờ review
-Đang cầm: Claude        AI tham gia: Codex
+# 008 — Chơi được trên màn hình     Cỡ: L (~1 ngày)     Trạng thái: Chờ người làm kiểm điều kiện
+Đang cầm: Người làm        AI tham gia: Codex, Claude (review)
 Liên quan: 003–007; play-plan.md §2     Chờ nhận: —
 
 ## Mục tiêu
@@ -92,8 +92,20 @@ Chọn một trong 31 màn thử, chạm xe để chơi, hoàn tác, dùng đồ
 - play-plan §2.11 nói đồng hồ tạm dừng khi hộp thoại (kể cả kẹt), trong khi PROJECT §6.4 và play-plan §3.1 chốt Kẹt xe vẫn chạy giờ. Đã được người làm trả lời: giữ giờ chạy khi kẹt; 008 hiện chữ không chặn, chỉ dừng khi thắng/hết giờ.
 
 --- Người review điền ---
-## Verdict
-Chưa review. Codex không tự APPROVE.
+## Verdict: APPROVE CÓ ĐIỀU KIỆN (Claude, 2026-11-23) — chưa đủ bằng chứng V2/V3 để APPROVE thẳng; code đọc được không có lỗi chặn
+**Đã soi:** `InputController` + `CarGesture` (chạm nửa xe tính theo trục thân xe từ điểm chạm lúc nhấn; vuốt ra lệnh **ngay khi vượt ngưỡng lúc còn giữ tay** và chỉ một lệnh mỗi cử chỉ; vuốt chéo thân bị lọc, không ra lệnh; flick chỉ có mẫu cuối vẫn bắt được; chạm UI được raycast trước nên nút XOAY ưu tiên hơn xe; trụ là nút riêng; ngưỡng vuốt theo cạnh ngắn, nút ≥ 9 mm có dự phòng khi dpi lạ), `ActionAnimator` (đọc sự kiện từ Core, mỗi xe một hàng đợi, **tư thế cuối luôn lấy lại từ trạng thái Core** nên hình không thể lệch luật; hoàn tác `CancelAndSnap` dựng lại từ trạng thái; danh sách tái dùng, không cấp phát mỗi frame; vòng đặt chỗ đường chạy luôn tiến về phía sau nên hữu hạn), `GameSession`/`LevelTimer`/`SearchServices` theo phiếu, 31 JSON runtime giống golden. Số đo màn 16 (Editor, tích hợp): tìm kiếm 2,23/0,46/0,48 ms mỗi lần, **đỉnh một frame 2,03 ms**, ước lượng cấp phát 128–152 KiB mỗi lần gợi ý + kiểm kẹt.
+**Bằng chứng có:** Test Runner 333 xanh/0 đỏ/1 Explicit (ảnh người làm, **trước** sửa vuốt); Setup Play Console 0 cảnh báo/0 lỗi; người làm đã vào Play và chạm được.
+**Chưa có (nợ, người làm chấp nhận chuyển review):** Test Runner sau sửa vuốt (thêm 5 test, chưa có số Run All mới); ảnh Game view; chơi thử các cơ chế màn 3, 8, 20, 21, 29; màn 17 vừa màn dọc; hết giờ/kẹt xe/gợi ý; chữ tiếng Việt trên HUD; vào Play lại; Android/fps. **Claude không thấy hình và không tự chạy được gì ở các mục này.**
+**Điều kiện trước khi merge (người làm tự làm, ~10 phút):**
+1. Mở Unity, **Run All** EditMode: phải xanh toàn bộ (nêu số).
+2. Chơi nhanh và báo "ổn/không": màn 3 (cổng nước), màn 8 (nút XOAY không bấm nhầm xe), màn 20 (xe tải đẩy), màn 21 (portal), màn 29 (trụ xoay), một lần hoàn tác giữa lúc xe đang chạy.
+3. Gửi **1–2 ảnh Game view** (màn 1 và màn 17) để Claude xem bố cục và camera.
+Mục nào lỗi thì ghi vào phiếu; lỗi nặng thì quay lại 008, không sang 009.
+- [NÊN] Ngân sách tìm kiếm mặc định 2 ms mà đỉnh đo được đã 2,03 ms trên máy mạnh; điện thoại chậm hơn. Trước khi đo trên máy thật, giảm `SearchMilliseconds` xuống ~1 ms (đã là số trong config, không cần sửa code) và đo lại ở việc 013.
+- [NÊN] `ActionAnimator` đặt chỗ bảo thủ ("đường giao nhau thì chờ"): đúng hướng, nhưng có thể làm xe **đứng đợi lâu hơn cảm giác** khi nhiều xe cùng chạy. Chỉ phán được khi chơi màn nhiều xe (17, 19) → người làm báo cảm giác.
+- [GỢI Ý] Bàn xoay hiện thu nhỏ xe giữa lúc xoay để không quệt xe bên cạnh: chấp nhận cho khối xám, xem lại ở việc 011.
+- [GỢI Ý] Hai file `ProjectSettings` tự sinh (`TimelineSettings.asset`, `SceneTemplateSettings.json`) đã vào commit mốc dù phiếu nói không đưa vào; vô hại, giữ nguyên.
+- [GỢI Ý] `OverUI` gọi `RaycastAll` mỗi frame khi đang kéo; nhỏ, theo dõi nếu fps tụt.
 
 ## Trao đổi
 2026-11-22 22:48 · Codex → Người làm · [BÁO]: Main sạch, main/origin/main afe9593; tạo 008-playable --no-track. Nhận A–C theo play-plan, không Navigator/009; chưa commit/push/merge.
@@ -110,3 +122,4 @@ Chưa review. Codex không tự APPROVE.
 2026-11-23 09:34 · Codex → Người làm, Claude · [BÁO]: Sau khi mở Profiler ghi Playmode/Memory, menu đã bắt 1 MiB (1063773 byte) và đo đủ 3 mẫu màn 16: total 2.230/0.464/0.478 ms, peak frame cao nhất 2.028 ms, estimate cấp phát 131518/155842/149214 byte (gợi ý+kiểm kẹt, trừ nền mọi luồng, không phải Android). Đã chép số liệu vào phiếu. Còn xác nhận Test Runner sau sửa vuốt và checklist Play/Console/reload trước bàn giao; không điều khiển máy, không bắt đầu 009.
 2026-11-23 09:35 · Codex → Claude, Người làm · [BÁO]: Người làm chấp nhận kết quả hiện tại (“coi như ổn r”), cho chuyển review dù chưa có bằng chứng đủ checklist/Run All sau gesture. Không tự nhận các mục chưa kiểm đã qua. Git chỉ 5 file thuộc phần sửa tiếp, mọi meta đủ; settings tự sinh đã ở commit mốc được giữ nguyên, không tự xóa/revert.
 2026-11-23 09:35 · Codex → Claude · [BÀN GIAO]: 008 triển khai đủ A–C, sửa vuốt phát ngay khi giữ tay/chống lặp; đã có số đo hợp lệ màn 16, peak frame 2.028 ms, cấp phát estimate 128–152 KiB. Nhánh 008-playable, HEAD bf0cd82; 5 file sửa tiếp chưa commit. Bằng chứng test 333 xanh/0 đỏ/1 Explicit thuộc mốc trước gesture; 5 case thêm chưa có số Run All mới, checklist cơ chế/ảnh/glyph/reload/Android chưa đầy đủ. Người làm chấp nhận chuyển review với phần này ghi rõ còn nợ. Gậy Claude, soi InputController/ActionAnimator/phép đo, chưa APPROVE/merge/009. Không điều khiển máy.
+2026-11-23 09:37 · Claude → Người làm · [BÀN GIAO]: Review 008 xong, verdict APPROVE CÓ ĐIỀU KIỆN: code không có lỗi chặn, nhưng thiếu bằng chứng V2/V3 sau sửa vuốt. Bạn làm 3 việc (Run All xanh, chơi nhanh màn 3/8/20/21/29 + hoàn tác, gửi 1–2 ảnh Game view màn 1 và 17), rồi commit phần review, merge 008 vào main, giao 009.
