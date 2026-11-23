@@ -20,3 +20,4 @@ MonoBehaviour:
   bumpDistance: 0.04
   waterDipCells: 0.6
   rotateMidScale: 0.65
+  winDialogDelaySeconds: 0.5

@@ -29,7 +29,7 @@ namespace SqueakyLane.Presentation
         public event Action<int> ChangeLevel;
         public event Action<SolverMove> Command;
 
-        public void Initialize(Canvas target)
+        public void Initialize(Canvas target, bool showDebugControls = true)
         {
             canvas = target;
             // HUD gỡ lỗi dùng font hệ điều hành dynamic để không phụ thuộc TMP Essentials/atlas Latin thiếu dấu.
@@ -37,6 +37,7 @@ namespace SqueakyLane.Presentation
             font = Font.CreateDynamicFontFromOSFont(new[] { "Arial", "Roboto", "Droid Sans", "sans-serif" }, 24);
             var go = new GameObject("Debug HUD", typeof(RectTransform)); go.transform.SetParent(canvas.transform, false);
             safe = go.GetComponent<RectTransform>();
+            if (!showDebugControls) { RefreshSafeArea(); return; }
             heading = Text("Thông tin", safe, 29, TextAnchor.MiddleCenter); Rect(heading.rectTransform, new Vector2(0, .87f), Vector2.one, Vector2.zero, Vector2.zero);
             status = Text("Trạng thái", safe, 23, TextAnchor.MiddleCenter); Rect(status.rectTransform, new Vector2(0, .075f), new Vector2(1, .16f), Vector2.zero, Vector2.zero);
             Button("◀ Màn", 0, () => ChangeLevel?.Invoke(-1)); undo = Button("Hoàn tác", 1, () => Undo?.Invoke());
@@ -48,6 +49,7 @@ namespace SqueakyLane.Presentation
             session = game; board = view; boardCamera = camera; config = settings;
             if (tableRoot != null) { tableRoot.SetActive(false); Destroy(tableRoot); }
             tableRoot = new GameObject("Nút bàn xoay", typeof(RectTransform)); tableRoot.transform.SetParent(canvas.transform, false);
+            tableRoot.transform.SetAsFirstSibling(); // Các dialog/fade bạn dựng phải nằm trên nút bàn xoay.
             var root = tableRoot.GetComponent<RectTransform>(); Rect(root, Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero);
             tables = new Button[session.Level.Tables.Count]; tableRects = new RectTransform[tables.Length]; tableCars = new int[tables.Length];
             for (int i = 0; i < tables.Length; i++)
@@ -74,7 +76,7 @@ namespace SqueakyLane.Presentation
         }
         public void Show(string title, string message, bool canUndo, bool canHint, bool canPlay)
         {
-            heading.text = title; status.text = message; undo.interactable = canUndo; hint.interactable = canHint;
+            if (heading != null) { heading.text = title; status.text = message; undo.interactable = canUndo; hint.interactable = canHint; }
             if (tables != null) for (int i = 0; i < tables.Length; i++) tables[i].interactable = canPlay && tableCars[i] >= 0;
         }
         public Rect BoardViewport()
@@ -82,6 +84,7 @@ namespace SqueakyLane.Presentation
             var area = Screen.safeArea;
             return new Rect(area.x / Screen.width, (area.y + area.height * .17f) / Screen.height, area.width / Screen.width, area.height * .69f / Screen.height);
         }
+        public void SetGameplayVisible(bool visible) { if (tableRoot != null) tableRoot.SetActive(visible); }
         public bool RefreshSafeArea()
         {
             if (lastSafe == Screen.safeArea && lastWidth == Screen.width && lastHeight == Screen.height) return false;

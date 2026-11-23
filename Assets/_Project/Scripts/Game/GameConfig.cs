@@ -19,6 +19,8 @@ namespace SqueakyLane.Game
         [SerializeField, Min(1), Tooltip("Số nước tạm tính giờ cho màn 17–19 chưa biết tối ưu.")] private int unknownMinimumMoves = 20;
         [SerializeField, Range(.01f, .3f), Tooltip("Ngưỡng vuốt theo cạnh màn hình ngắn, dùng khi DPI không đáng tin.")] private float swipeShortSideRatio = .06f;
         [SerializeField, Min(9), Tooltip("Đường kính vùng chạm nút bàn xoay, mm; cần thử máy thật.")] private float tableTouchMillimeters = 9;
+        [SerializeField, Tooltip("Mở mọi màn cho lead thử; tắt để màn kế chỉ mở sau khi thắng màn trước theo level_order.")] private bool unlockAll = true;
+        [SerializeField, Range(0, 1), Tooltip("Tỷ lệ giờ còn lại để đổi màu đồng hồ và báo tiếng đếm ngược.")] private float lowTimeRatio = .2f;
         public float BaseSeconds => baseSeconds;
         public float SecondsPerMove => secondsPerMove;
         public float UndoPenalty => undoPenalty;
@@ -33,6 +35,8 @@ namespace SqueakyLane.Game
         public int UnknownMinimumMoves => unknownMinimumMoves;
         public float SwipeShortSideRatio => swipeShortSideRatio;
         public float TableTouchMillimeters => tableTouchMillimeters;
+        public bool UnlockAll => unlockAll;
+        public float LowTimeRatio => lowTimeRatio;
         private void OnValidate()
         {
             baseSeconds = Clean(baseSeconds, 0, 20); secondsPerMove = Clean(secondsPerMove, 0, 5);
@@ -42,6 +46,7 @@ namespace SqueakyLane.Game
             searchMilliseconds = Clean(searchMilliseconds, .1f, 2); searchMaxStates = Mathf.Max(1, searchMaxStates);
             unknownMinimumMoves = Mathf.Max(1, unknownMinimumMoves); swipeShortSideRatio = Mathf.Clamp(Clean(swipeShortSideRatio, .01f, .06f), .01f, .3f);
             tableTouchMillimeters = Clean(tableTouchMillimeters, 9, 9);
+            lowTimeRatio = Mathf.Clamp01(Clean(lowTimeRatio, 0, .2f));
         }
         internal static float Clean(float value, float minimum, float fallback) => float.IsNaN(value) || float.IsInfinity(value) ? fallback : Mathf.Max(minimum, value);
     }

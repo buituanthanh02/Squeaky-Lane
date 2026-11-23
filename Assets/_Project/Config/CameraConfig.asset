@@ -12,5 +12,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 916c5410ac8dc44498f416b4cde4e750, type: 3}
   m_Name: CameraConfig
   m_EditorClassIdentifier: 
-  tiltDegrees: 65
+  tiltDegrees: 70
   padding: 0.5

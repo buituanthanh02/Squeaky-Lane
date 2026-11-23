@@ -17,7 +17,7 @@ Dòng nào không có nhãn là mô tả, không phải quyết định.
 - **Người duyệt:** anh lead của công ty game puzzle. Góp ý đã có: mỗi màu xe một dáng riêng, thao tác chạm mượt hơn vuốt, nên làm 3D để xe là nhân vật IP, level design cần hấp dẫn hơn, **ít blocker hơn**, cơ chế phải ghép được với nhau. `[CHỐT]`
 - **Hạn chót: 30/11/2026** (tính từ 22/11 còn 8 ngày). `[CHỐT]`
 - **Phạm vi bản này:** lõi chơi + visual + VFX + SFX + cảm giác (feeling). **Chưa làm:** menu, cài đặt, shop, meta, quảng cáo, analytics. `[CHỐT]`
-- **Nội dung:** **25 màn** (gồm tutorial), làm thủ công từng màn (không sinh ngẫu nhiên lúc chạy). Ưu tiên hiện tại: **làm đủ 25 màn trước**; tool dựng màn trong Editor và phần setup nâng cao **làm sau**. Màn định nghĩa bằng JSON + file config (mục 7.5). `[CHỐT]`
+- **Nội dung:** **25 màn** (gồm tutorial), làm thủ công từng màn (không sinh ngẫu nhiên lúc chạy). **Cập nhật 23/11:** người làm duyệt thêm trình sửa màn/config ngoài Play vào **009-D**, làm sau khi sửa lỗi chữ UI; thay ưu tiên cũ "25 màn trước, tool sau". Tool hỗ trợ xe/cổng/cơ chế, xem trước và lưu/xuất JSON; phạm vi chi tiết và giới hạn một ngày ở phiếu 009. Màn định nghĩa bằng JSON + file config (mục 7.5). `[CHỐT]`
 
 ---
 
@@ -54,6 +54,7 @@ Hai AI **không nói chuyện trực tiếp với nhau**. Mọi thứ đi qua ng
 
 ### 2.5. Làm việc với Unity Editor `[ĐỀ XUẤT kế thừa từ cách làm cũ của người làm, cần xác nhận lại]`
 - **Từ 23/11: Codex không điều khiển máy/Editor.** Khi cần mở scene, chạy Test Runner hoặc chơi thử, gửi bước cụ thể để người làm thực hiện và báo kết quả; Codex tiếp tục sửa code/đọc log. `[CHỐT 23/11]`
+- **Để người làm học:** Codex viết code và hướng dẫn từng bước có giải thích; người làm tự setup scene/UI/prefab và gắn tài nguyên. Không dựng tự động hết thay người làm. `[CHỐT 23/11, bắt đầu từ 009]`
 - Người làm chơi thử, build APK và commit. AI được sửa trực tiếp scene/prefab (`AGENTS.md` §4.2); với việc cần thao tác tay trong Editor thì AI viết từng bước cụ thể hoặc viết menu Editor để người làm bấm.
 - Không sửa tay YAML scene/prefab khi Editor đang mở.
 - Nếu một sửa đổi phải đợi người làm chạy Play mới kiểm được thì AI ghi rõ "chưa kiểm chứng" thay vì khẳng định.
@@ -104,6 +105,7 @@ Người làm đã tạo project 3D trống và sẽ bổ sung thông tin sau. *
 - **Góc nghiêng 60–70° được chấp nhận.** `[CHỐT]` `[ĐỀ XUẤT]` mặc định **65°, camera trực giao (orthographic)**, để chỉnh bằng một biến trong prefab camera.
 - Nguyên tắc chọn góc: nếu góc nghiêng làm che mất thông tin chơi (cơ chế) thì dùng nhìn thẳng từ trên xuống; còn nếu vẫn đọc được thì giữ nghiêng để thấy ngôn ngữ cơ thể của xe. `[CHỐT]`
 - `[ĐỀ XUẤT]` Quy tắc chống che: vật cao (trụ xoay, đèn giao thông, cổng/barie phía dưới) làm thấp còn ~60–70% so với thực tế; vật nào che xe thì tự mờ dần (fade).
+- **Giá trị đang dùng:** `CameraConfig.tiltDegrees = 70` (65 → 70 theo yêu cầu tăng 5° ngày 23/11). Camera vẽ/xóa nền toàn màn; vùng dành cho bãi chỉ dùng để tính kích thước và tâm nhìn, nhằm tránh vệt chữ HUD ngoài vùng camera cũ. Code đã biên dịch CLI; người làm xác nhận hết lỗi chữ sau khi chơi thử. `[FILE: Assets/_Project/Config/CameraConfig.asset, Scripts/Presentation/BoardView.cs; CHỐT 23/11]`
 - Cạm bẫy 3D: chạm "nửa xe" phải tính trên **trục thân xe trong không gian bàn chơi**, không phải theo nửa trên/dưới màn hình (xem mục 6.2).
 
 ---
@@ -151,6 +153,7 @@ Hỗ trợ **cả hai**:
 2. **Chạm vào xe rồi vuốt** theo hướng muốn đi.
 Camera cố định. Hoàn tác, chơi lại luôn có.
 - **Vuốt vượt ngưỡng phải ra lệnh ngay khi tay còn giữ trên màn hình**, không đợi nhả tay; mỗi cử chỉ phát tối đa một lệnh, không phát lại lúc nhả. Chạm nhẹ vẫn phân biệt với vuốt. `[CHỐT 23/11]`
+- **Nhịp kết thúc màn:** dừng đồng hồ khi luật xác định thắng; đợi xe chạy hết hoạt hình, phát chúc mừng rồi chờ thêm `FeelConfig.winDialogDelaySeconds = 0.5` giây trước khi mở bảng thắng. Giá trị asset tăng 0 → 0.5 khi người làm yêu cầu "lâu thêm 1 tí", chỉnh tiếp ngoài Play nếu cần. `[CHỐT 23/11; code đã compile CLI, người làm chơi thử thấy tạm ổn]`
 
 ### 6.2. Kỹ thuật cho chạm nửa xe `[ĐỀ XUẤT]`
 Raycast vào xe → lấy điểm trúng → chiếu lên **trục thân xe trong không gian bàn chơi** → so với tâm xe để biết nửa đầu hay nửa đuôi. Vuốt: bắt đầu trên xe, lấy hướng vuốt chiếu lên trục thân xe, vượt ngưỡng (vài chục pixel) mới tính. Chạm nhẹ (không vuốt) = chạm nửa xe.
@@ -176,7 +179,7 @@ Raycast vào xe → lấy điểm trúng → chiếu lên **trục thân xe tron
 
 ### 7.1. Số lượng và cách làm `[CHỐT]`
 - **25 màn**, gồm tutorial. Ít màn khó; chủ yếu để chơi và giới thiệu cơ chế bằng cảm giác. Làm thủ công từng màn.
-- Về sau cần **tool để dựng màn** nhanh.
+- Tool dựng màn ngoài Play đã được duyệt thành 009-D; đang chờ kiểm bản sửa lỗi chữ trước khi triển khai. Nguồn thiết kế JSON sẽ tách khỏi bộ golden kiểm luật; chỉ xuất vào game khi người làm lưu/xuất. `[CHỐT 23/11]`
 
 ### 7.2. Cách làm 25 màn trong ~9 ngày `[CHỐT — người làm đã duyệt]`
 1. Dùng lại công cụ sinh/kiểm của prototype (Node, `tools/mech.js`, `CW.solve`) với **bộ cơ chế ở 5.1** để ra 25 màn **được kiểm là giải được**, mỗi cơ chế xuất hiện có chứng minh "tắt đi thì vô nghiệm" (ablation). Claude làm bước này trong workspace riêng, xuất JSON.
@@ -261,6 +264,8 @@ Assets/_Project/
 │  │  ├─ GameSession.cs         # snapshot, lịch sử Undo/Restart, dùng lại SolverMove
 │  │  ├─ LevelTimer.cs          # dt từ ngoài, phạt Undo/Hint, sao
 │  │  ├─ SearchServices.cs      # SearchBudget theo ms, StuckDetector, HintProvider
+│  │  ├─ Navigator.cs           # luồng chọn/chơi/pause/thắng/thua; trả lệnh
+│  │  ├─ ProgressStore.cs       # sao tốt nhất và công tắc âm/rung
 │  │  ├─ GameConfig.cs
 │  │  ├─ FeelConfig.cs
 │  │  ├─ CameraConfig.cs
@@ -271,17 +276,21 @@ Assets/_Project/
 │  │  ├─ CarView.cs
 │  │  ├─ InputController.cs     # chạm/vuốt → lệnh; ưu tiên raycast UI
 │  │  ├─ ActionAnimator.cs      # events, hàng đợi mỗi xe và đặt chỗ đường hình
-│  │  ├─ DebugHud.cs            # nút debug; chưa có Navigator/panel của 009
+│  │  ├─ DebugHud.cs            # HUD cũ và nút bàn xoay; NavigationView nhận UI 009
+│  │  ├─ NavigationView.cs      # tham chiếu UI do người làm dựng trong Canvas
+│  │  ├─ SfxCatalog.cs
+│  │  ├─ SfxPlayer.cs
+│  │  ├─ Haptics.cs
 │  │  └─ VisualPalette.cs
 │  └─ Editor/PlayTools.cs       # menu Sync Levels / Setup Play / Measure Search (Play)
 ├─ Resources/Levels/            # 31 màn thử + level_order, chưa phải 25 màn cuối
-├─ Config/                      # GameConfig, FeelConfig, CameraConfig, VisualPalette + BlockMaterial
-├─ Prefabs/GameRoot.prefab
+├─ Config/                      # GameConfig, FeelConfig, CameraConfig, VisualPalette, SfxCatalog + BlockMaterial
+├─ Prefabs/                     # GameRoot.prefab, LevelButton.prefab
 ├─ Scenes/Play.unity
 └─ Tests/EditMode/              # test luật + so khớp với golden file của prototype
 ```
 
-**Tạo tài nguyên:** các đường dẫn Config/Resources/Prefabs/Scenes trong sơ đồ là đầu ra của menu Setup Play; menu tạo tài nguyên bằng API Unity. UI chính thức, catalog art và tutorial làm ở các việc sau; không tạo thư mục rỗng phòng xa.
+**Tạo tài nguyên:** menu Setup Play tạo khung chơi ban đầu bằng API Unity. UI 009, LevelButton và SfxCatalog do người làm tạo/gắn qua Inspector; code điều hướng/âm/rung đã có nhưng chưa xác nhận đủ V2/V3. Người làm duyệt Codex căn thông số UI bằng sửa YAML khi Unity đã đóng (23/11); không dùng tool căn UI, các giá trị nằm trong scene/prefab để chỉnh qua Inspector. ClockFill còn thiếu Source Image, StuckBanner còn thiếu chữ con; chưa xác nhận bằng Play. Catalog art và tutorial làm ở các việc sau; không tạo thư mục rỗng phòng xa.
 
 ### 8.1. Code mẫu (minh hoạ cấu trúc; luật chính xác xem `logic.js`)
 
@@ -418,7 +427,8 @@ namespace SqueakyLane.Game
 | 005 | Dữ liệu chuẩn: 31 JSON object + golden trace và tool Node | `005-golden-data` | Codex | Xong (đã merge 22/11) | APPROVE (Claude 22/11) | 002, 004 |
 | 006 | Bộ nạp JSON + phát lại golden trace kiểm luật Core | `006-loader-trace` | Codex | Xong (đã merge 22/11) | APPROVE (Claude 22/11) | 003–005 |
 | 007 | Solver BFS, tìm thắng/gợi ý theo bước và đo màn 16 | `007-solver` | Codex | Xong (đã merge 22/11); cấp phát kiểm tiếp ở 008 | APPROVE có điều kiện (Claude 22/11) | 003–006 |
-| 008 | Chơi được trên màn hình: phiên chơi, khối 3D, input/animation/nút debug | `008-playable` | Codex | Chờ người làm kiểm điều kiện rồi merge | APPROVE có điều kiện (Claude 23/11) | 003–007 |
+| 008 | Chơi được trên màn hình: phiên chơi, khối 3D, input/animation/nút debug | `008-playable` | Codex | Đã merge 23/11; phần chưa kiểm giữ trong phiếu | APPROVE có điều kiện (Claude 23/11) | 003–007 |
+| 009 | Điều hướng, HUD/panel, âm thanh và rung | `009-audio-ui` | Codex | Đang làm A–C; người làm tự setup, chờ chọn SFX | Chưa review | 008 |
 
 **Kế hoạch từ 008:** `docs/handoff/play-plan.md` thay `core-plan.md` §7–9; 008 gộp logic phiên chơi + hiển thị + điều khiển, có thể commit theo mốc A/B/C, Claude review một lần cuối. 008 chưa có Navigator/điều hướng; phần đó là 009-A. `[CHỐT 22/11]`
 

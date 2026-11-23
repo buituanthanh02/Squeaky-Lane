@@ -21,6 +21,7 @@ namespace SqueakyLane.Presentation
         private readonly List<Cell> switchWallCells = new List<Cell>();
         public LevelDef Level => level;
         public CarView Car(int index) => cars[index];
+        public void SetVisible(bool visible) { if (content != null) content.SetActive(visible); }
         public Vector3 Cell(float r, float c, float y = .32f) => new Vector3(c - (level.Cols - 1) * .5f, y, (level.Rows - 1) * .5f - r);
         public Vector3 Position(CarState car, int length) => Cell(car.R + (car.Axis == Axis.Vertical ? (length - 1) * .5f : 0), car.C + (car.Axis == Axis.Horizontal ? (length - 1) * .5f : 0));
         public static float Yaw(Axis axis) => axis == Axis.Horizontal ? 0 : 90;
@@ -155,13 +156,22 @@ namespace SqueakyLane.Presentation
         public Vector3 PylonPosition(int i) { var p = level.Pylons[i]; return transform.TransformPoint(Cell(p.R, p.C, .22f)); }
         public void FitCamera(Camera camera, CameraConfig config, Rect viewport)
         {
-            camera.orthographic = true; camera.rect = viewport; camera.backgroundColor = palette.Background; camera.clearFlags = CameraClearFlags.SolidColor;
+            // Camera phải xóa nền cả màn: nếu chỉ vẽ vùng bãi, chữ HUD ngoài vùng đó có thể lưu vệt của frame cũ.
+            // viewport chỉ dùng để chừa chỗ cho HUD, không giới hạn vùng camera vẽ.
+            camera.orthographic = true; camera.rect = new Rect(0, 0, 1, 1);
+            camera.backgroundColor = palette.Background; camera.clearFlags = CameraClearFlags.SolidColor;
             camera.transform.rotation = Quaternion.Euler(config.TiltDegrees, 0, 0);
-            camera.transform.position = transform.position - camera.transform.forward * 25;
             float aspect = camera.pixelRect.width / Mathf.Max(1, camera.pixelRect.height);
             float halfWidth = level.Cols * .5f + .9f + config.Padding;
             float halfHeight = (level.Rows * .5f + .9f + config.Padding) * Mathf.Sin(config.TiltDegrees * Mathf.Deg2Rad) + .7f;
-            camera.orthographicSize = Mathf.Max(halfHeight, halfWidth / aspect);
+            camera.orthographicSize = Mathf.Max(halfHeight / Mathf.Max(.001f, viewport.height),
+                halfWidth / (aspect * Mathf.Max(.001f, viewport.width)));
+            // Dịch tâm nhìn để bãi vẫn nằm giữa khoảng chơi, kể cả safe area không đối xứng.
+            Vector2 center = viewport.center;
+            float offsetX = (center.x * 2 - 1) * camera.orthographicSize * aspect;
+            float offsetY = (center.y * 2 - 1) * camera.orthographicSize;
+            camera.transform.position = transform.position - camera.transform.forward * 25
+                - camera.transform.right * offsetX - camera.transform.up * offsetY;
         }
         private static void Release(Object obj) { if (Application.isPlaying) Destroy(obj); else DestroyImmediate(obj); }
         private void OnDestroy() { if (labelFont != null) Release(labelFont); }

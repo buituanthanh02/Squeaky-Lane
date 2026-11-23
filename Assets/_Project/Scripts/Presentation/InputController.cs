@@ -19,6 +19,7 @@ namespace SqueakyLane.Presentation
         private readonly List<RaycastResult> uiHits = new List<RaycastResult>(16);
         public bool Accepting { get; set; }
         public event Action<SolverMove> Command;
+        public event Action CarSelected;
         public void Initialize(Camera camera, BoardView view, GameConfig settings)
         { boardCamera = camera; board = view; config = settings; CancelGesture(); }
         private bool OverUI(Vector2 position)
@@ -47,6 +48,7 @@ namespace SqueakyLane.Presentation
                         int tapSign = Vector3.Dot(hit.point - selected.transform.position, positive) >= 0 ? 1 : -1;
                         var screenAxis = (Vector2)(boardCamera.WorldToScreenPoint(selected.transform.position + positive) - boardCamera.WorldToScreenPoint(selected.transform.position));
                         gesture.Begin(down, screenAxis, tapSign, Mathf.Min(Screen.width, Screen.height) * config.SwipeShortSideRatio);
+                        CarSelected?.Invoke();
                     }
                 }
                 if (selected == null)

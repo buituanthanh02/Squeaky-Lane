@@ -16,6 +16,9 @@ namespace SqueakyLane.Presentation
         private readonly List<Clip> draft = new List<Clip>(128);
         private readonly List<PylonClip> pylons = new List<PylonClip>();
         private float clock;
+        public bool Paused { get; set; }
+        public event System.Action<MoveEventKind, StopReason?> EventStarted;
+        public event System.Action CarStarted;
         public bool IsBusy
         {
             get { if (lanes == null) return false; for (int i = 0; i < lanes.Length; i++) if (lanes[i].Head < lanes[i].Clips.Count) return true; return pylons.Count > 0; }
@@ -50,6 +53,7 @@ namespace SqueakyLane.Presentation
             var events = result.Events;
             for (int e = 0; e < events.Count; e++)
             {
+                int firstClip = draft.Count;
                 var ev = events[e]; var pose = poses[selected]; var to = pose;
                 switch (ev.Kind)
                 {
@@ -92,7 +96,11 @@ namespace SqueakyLane.Presentation
                         Add(selected, cursor, feel.RotateSeconds * .5f, middle); cursor += feel.RotateSeconds * .5f;
                         to.Yaw = pose.Yaw + 90; Add(selected, cursor, feel.RotateSeconds * .5f, to); cursor += feel.RotateSeconds * .5f; break;
                 }
+                if (draft.Count > firstClip)
+                { var clip = draft[firstClip]; clip.HasEvent = true; clip.EventKind = ev.Kind; clip.Reason = ev.Reason; draft[firstClip] = clip; }
             }
+            if (command.Kind == SolverMoveKind.MoveCar)
+                for (int i = 0; i < draft.Count; i++) if (draft[i].Car == selected) { var clip = draft[i]; clip.StartsMove = true; draft[i] = clip; break; }
             // Tư thế cuối lấy từ Core; không tự suy luật dựa vào vị trí đang render.
             for (int i = 0; i < affected.Length; i++) if (affected[i]) Add(i, cursor, 0, FromState(result.State.CarAt(i), i));
             float start = clock;
@@ -137,6 +145,7 @@ namespace SqueakyLane.Presentation
             if (ev.Kind == MoveEventKind.Mud) to.Mud = 1;
             if (ev.Kind == MoveEventKind.Spray) to.Mud = 0;
             Add(car, time, 0, to);
+            var effect = draft[draft.Count - 1]; effect.HasEvent = true; effect.EventKind = ev.Kind; draft[draft.Count - 1] = effect;
             if (ev.Kind == MoveEventKind.Mud)
             { var clip = draft[draft.Count - 1]; clip.ConsumedMud = ev.MudIndex; draft[draft.Count - 1] = clip; }
         }
@@ -167,7 +176,7 @@ namespace SqueakyLane.Presentation
         public void Advance(float seconds)
         {
             if (float.IsNaN(seconds) || float.IsInfinity(seconds) || seconds < 0) throw new System.ArgumentOutOfRangeException(nameof(seconds));
-            if (lanes == null) return;
+            if (lanes == null || Paused) return;
             clock += seconds;
             for (int i = 0; i < lanes.Length; i++)
             {
@@ -175,6 +184,12 @@ namespace SqueakyLane.Presentation
                 while (lane.Head < lane.Clips.Count)
                 {
                     var clip = lane.Clips[lane.Head]; if (clock < clip.Start) break;
+                    if (!clip.Started)
+                    {
+                        clip.Started = true; lane.Clips[lane.Head] = clip;
+                        if (clip.StartsMove) CarStarted?.Invoke();
+                        if (clip.HasEvent) EventStarted?.Invoke(clip.EventKind, clip.Reason);
+                    }
                     float t = clip.Duration <= 0 ? 1 : Mathf.Clamp01((clock - clip.Start) / clip.Duration);
                     var from = clip.From; var to = clip.To;
                     board.Car(i).Show(Vector3.Lerp(from.Position, to.Position, t), Mathf.LerpAngle(from.Yaw, to.Yaw, t),
@@ -188,6 +203,7 @@ namespace SqueakyLane.Presentation
             for (int i = 0; i < pylons.Count;)
             {
                 var p = pylons[i]; if (clock < p.Start) { i++; continue; }
+                if (!p.Started) { p.Started = true; pylons[i] = p; EventStarted?.Invoke(MoveEventKind.Pyl, null); }
                 float t = Mathf.Clamp01((clock - p.Start) / (p.End - p.Start)); board.SetPylon(p.Index, Mathf.Lerp(p.From, p.To, t));
                 if (t >= 1) pylons.RemoveAt(i); else i++;
             }
@@ -195,7 +211,7 @@ namespace SqueakyLane.Presentation
         private void OnDisable() { if (lanes != null) { for (int i = 0; i < lanes.Length; i++) { lanes[i].Clips.Clear(); lanes[i].Head = 0; lanes[i].End = clock; } pylons.Clear(); } }
         private sealed class Lane { public readonly List<Clip> Clips = new List<Clip>(64); public int Head; public float End; }
         private struct Pose { public Vector3 Position; public float Yaw, Scale; public TileColor Color; public int Mud; public bool Alive; }
-        private struct Clip { public int Car, ConsumedMud; public float Start, Duration; public float End => Start + Duration; public Pose From, To; public Rect Swept; }
-        private struct PylonClip { public int Index; public float Start, End, From, To; }
+        private struct Clip { public int Car, ConsumedMud; public float Start, Duration; public float End => Start + Duration; public Pose From, To; public Rect Swept; public bool Started, HasEvent, StartsMove; public MoveEventKind EventKind; public StopReason? Reason; }
+        private struct PylonClip { public int Index; public float Start, End, From, To; public bool Started; }
     }
 }
