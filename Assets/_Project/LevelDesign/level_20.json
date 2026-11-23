@@ -1,0 +1,93 @@
+{
+  "id": 20,
+  "name": "Xe tải húc",
+  "cols": 5,
+  "rows": 5,
+  "gates": [
+    {
+      "side": "r",
+      "i": 2,
+      "color": "blue"
+    },
+    {
+      "side": "t",
+      "i": 1,
+      "color": "yellow"
+    },
+    {
+      "side": "b",
+      "i": 2,
+      "color": "blue"
+    },
+    {
+      "side": "b",
+      "i": 4,
+      "color": "yellow"
+    },
+    {
+      "side": "l",
+      "i": 0,
+      "color": "yellow"
+    }
+  ],
+  "cars": [
+    {
+      "axis": "h",
+      "r": 2,
+      "c": 1,
+      "color": "blue",
+      "len": 3,
+      "truck": true,
+      "mud": 0
+    },
+    {
+      "axis": "v",
+      "r": 0,
+      "c": 3,
+      "color": "yellow",
+      "len": 2,
+      "truck": false,
+      "mud": 0
+    },
+    {
+      "axis": "v",
+      "r": 3,
+      "c": 2,
+      "color": "blue",
+      "len": 2,
+      "truck": false,
+      "mud": 0
+    },
+    {
+      "axis": "v",
+      "r": 3,
+      "c": 3,
+      "color": "yellow",
+      "len": 2,
+      "truck": false,
+      "mud": 0
+    },
+    {
+      "axis": "h",
+      "r": 0,
+      "c": 1,
+      "color": "yellow",
+      "len": 2,
+      "truck": false,
+      "mud": 0
+    }
+  ],
+  "cones": [],
+  "muds": [],
+  "sprays": [],
+  "tables": [],
+  "paints": [],
+  "lights": [],
+  "barriers": [],
+  "splash": false,
+  "portals": [],
+  "pylons": [],
+  "switches": [],
+  "minMoves": 12,
+  "solveExhausted": true
+}

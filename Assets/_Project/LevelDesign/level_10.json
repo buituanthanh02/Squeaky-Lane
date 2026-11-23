@@ -1,0 +1,90 @@
+{
+  "id": 10,
+  "name": "Đèn giao thông",
+  "cols": 5,
+  "rows": 5,
+  "gates": [
+    {
+      "side": "t",
+      "i": 0,
+      "color": "pink"
+    },
+    {
+      "side": "r",
+      "i": 3,
+      "color": "blue"
+    },
+    {
+      "side": "l",
+      "i": 0,
+      "color": "yellow"
+    },
+    {
+      "side": "b",
+      "i": 4,
+      "color": "green"
+    }
+  ],
+  "cars": [
+    {
+      "axis": "v",
+      "r": 3,
+      "c": 0,
+      "color": "pink",
+      "len": 2,
+      "truck": false,
+      "mud": 0
+    },
+    {
+      "axis": "h",
+      "r": 3,
+      "c": 1,
+      "color": "blue",
+      "len": 2,
+      "truck": false,
+      "mud": 0
+    },
+    {
+      "axis": "h",
+      "r": 0,
+      "c": 2,
+      "color": "yellow",
+      "len": 2,
+      "truck": false,
+      "mud": 0
+    },
+    {
+      "axis": "v",
+      "r": 0,
+      "c": 4,
+      "color": "green",
+      "len": 2,
+      "truck": false,
+      "mud": 0
+    }
+  ],
+  "cones": [],
+  "muds": [],
+  "sprays": [],
+  "tables": [],
+  "paints": [],
+  "lights": [
+    {
+      "r": 1,
+      "c": 0,
+      "phase": 1
+    },
+    {
+      "r": 3,
+      "c": 3,
+      "phase": 0
+    }
+  ],
+  "barriers": [],
+  "splash": false,
+  "portals": [],
+  "pylons": [],
+  "switches": [],
+  "minMoves": 4,
+  "solveExhausted": true
+}

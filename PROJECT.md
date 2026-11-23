@@ -179,35 +179,39 @@ Raycast vào xe → lấy điểm trúng → chiếu lên **trục thân xe tron
 
 ### 7.1. Số lượng và cách làm `[CHỐT]`
 - **25 màn**, gồm tutorial. Ít màn khó; chủ yếu để chơi và giới thiệu cơ chế bằng cảm giác. Làm thủ công từng màn.
-- Tool dựng màn ngoài Play đã được duyệt thành 009-D; đang chờ kiểm bản sửa lỗi chữ trước khi triển khai. Nguồn thiết kế JSON sẽ tách khỏi bộ golden kiểm luật; chỉ xuất vào game khi người làm lưu/xuất. `[CHỐT 23/11]`
+- Tool 009-D mở qua `Tools → Squeaky Lane → Level Editor`: lưới sửa xe/cổng/cơ chế, xem trước 3D, thứ tự màn và ba config Game/Feel/Camera ngoài Play. Người làm đã thử lưới/preview và Nhân bản/Undo/Lưu/Export/Play, báo ổn; đã tạo ba bản sao32–34. Ảnh EditMode xác nhận352Passed/0Failed/1khôngchạy. Còn review và kiểm Android, chưa coi 009 xong. `[FILE; người làm báo/ảnh 23/11]`
 
 ### 7.2. Cách làm 25 màn trong ~9 ngày `[CHỐT — người làm đã duyệt]`
 1. Dùng lại công cụ sinh/kiểm của prototype (Node, `tools/mech.js`, `CW.solve`) với **bộ cơ chế ở 5.1** để ra 25 màn **được kiểm là giải được**, mỗi cơ chế xuất hiện có chứng minh "tắt đi thì vô nghiệm" (ablation). Claude làm bước này trong workspace riêng, xuất JSON.
-2. Unity chỉ cần **bộ nạp JSON → dựng bãi** (không đặt tay từng xe trong scene). Người làm vẫn chỉnh tay bằng cách sửa JSON/duyệt màn.
+2. Unity nạp JSON → dựng bãi (không đặt tay từng xe trong scene). Người làm chỉnh bằng tool Editor 009-D hoặc JSON rồi kiểm/duyệt màn.
 3. Xuất kèm **"số nước ngắn nhất" cho từng màn** làm dữ liệu chuẩn (golden file) để đối chiếu solver C# (mục 8) và tính giờ/sao.
-4. Tool dựng màn trong Editor và phần setup nâng cao **làm sau**, khi đã đủ 25 màn. `[CHỐT]`
-Lý do: dựng tay 25 màn trong Unity + tự kiểm giải được là phần dễ sai và tốn thời gian nhất.
+4. **Cập nhật 23/11:** người làm đưa tool dựng màn ngoài Play vào 009-D trước khi chốt 25 màn. Không làm hệ node/drag dây phức tạp; dữ liệu vẫn là JSON, solver vẫn phải kiểm màn. `[CHỐT]`
+Không tự đặt xe trong scene rồi dùng scene làm dữ liệu màn: dễ lệch luật và khó kiểm bằng solver.
 
 ### 7.3. Đường cong học `[ĐỀ XUẤT]`
 Màn 1–6: tutorial từng cơ chế (cổng màu → cổng nước + bùn → cọc → đèn → bàn xoay) · 7–15: kết hợp 2 cơ chế · 16–25: cổng tường, trụ xoay, xe tải và vài màn khó. Mỗi màn tối đa 2–3 cơ chế. Mỗi cơ chế mới có màn giới thiệu và tutorial bằng hình (bàn tay + vòng sáng + mũi tên; chữ một dòng ngắn).
 
-### 7.4. Định dạng dữ liệu màn (JSON) `[FILE — rút gọn, bỏ phần cơ chế đã loại]`
-```jsonc
+### 7.4. Định dạng dữ liệu màn Unity `[FILE: LevelJsonLoader.cs, docs/golden/levels]`
+```json
 {
-  "name": "Trụ xoay", "cols": 5, "rows": 5,
-  "gates":  [{ "side": "t|b|l|r", "i": 1, "color": "pink|blue|yellow|green|orange|purple|water" }],
-  "cars":   [{ "axis": "h|v", "r": 1, "c": 0, "color": "blue", "len": 2, "truck": false, "mud": 0 }],
-  "cones":  [[r,c]], "lights": [...], "tables": [[r,c]], "muds": [[r,c]],
-  "portals": [[[r,c,"N|E|S|W"],[r,c,"N|E|S|W"]]],
-  "pylons":  [{ "r":2,"c":2,"o":"h|v","to":[[r,c,"S"],[r,c,"N"]] }],
-  "tutorial": [{ "say": "...", "focus": [...], "do": ["move", 0, -1] }]
+  "id": 1, "name": "Ví dụ", "cols": 5, "rows": 5,
+  "gates": [{ "side": "r", "i": 1, "color": "blue" }],
+  "cars": [{ "axis": "h", "r": 1, "c": 0, "color": "blue", "len": 2, "truck": false, "mud": 0 }],
+  "cones": [{ "r": 3, "c": 3 }], "muds": [], "sprays": [], "tables": [],
+  "paints": [], "lights": [], "barriers": [], "switches": [],
+  "portals": [], "pylons": [], "splash": false,
+  "timeLimit": 45, "hints": 3, "minMoves": -1, "solveExhausted": false
 }
 ```
-`(r,c)` = ô trên-trái của xe; `sign` ±1 = đầu TRÁI/TRÊN (−1) hoặc PHẢI/DƯỚI (+1). Trường mới cho bản Unity: `timeLimit` (giây, hoặc `null` cho màn không tính giờ), `minMoves` (từ solver). Định dạng thật của prototype (`docs/reference/prototype/levels-export/level_NN.json`) còn có `id`, `tag`, `hint` (chuỗi có thẻ `<b>`), `solveExhausted`, `explored`, các khóa `barriers`, `switches`, `sprays`, `paints`, `splash` (bool), `lights[].phase`, `pylons[].fixed`; phần `tutorial` dùng `focus`/`tap`/`do`. Bộ nạp C# theo định dạng thật này, không theo mẫu rút gọn ở trên.
+`r/c` là hàng/cột từ 0, tọa độ ô trên-trái của xe. `axis/o`: `h` ngang, `v` dọc. Cổng mép dùng `side: t/b/l/r`; mặt portal dùng `N/W/S/E`. Màu: pink/blue/yellow/green/orange/purple; water chỉ cho cổng. Các ô là **object `{r,c}`**, không phải mảng `[r,c]` của prototype cũ. Portal là `{a:{r,c,side},b:{r,c,side}}`; trụ là `{r,c,o,fixed,to:[hai mặt]}`; chốt là `{r,c,a:[các ô],b:[các ô]}`. `sign` chỉ dùng trong lệnh: −1 trái/trên, +1 phải/dưới.
+
+Vắng `timeLimit/hints` thì dùng GameConfig; đặt timeLimit=0 là không tính giờ, hints=-1 là không giới hạn. `minMoves=-1` là chưa biết tối ưu. Tool giữ metadata lạ ở gốc (tag/hint/tutorial/...), nhưng chặn mở/sửa khi có field cơ chế lạ để tránh âm thầm mất dữ liệu.
 
 ### 7.5. Dữ liệu màn và file config `[CHỐT: dùng JSON + file config]`, chi tiết `[ĐỀ XUẤT]`
 
 - **Mỗi màn một file JSON** `level_NN.json` trong `Assets/_Project/Resources/Levels/`, nạp bằng `Resources.Load<TextAsset>` (chạy ổn trên APK, khỏi xử lý đường dẫn Android). Thứ tự màn do một file/ScriptableObject danh sách màn quyết định.
+- **Thiết kế ngoài Play (009-D):** lần lưu đầu khởi tạo `Assets/_Project/LevelDesign/` từ dữ liệu runtime hiện có. `Lưu thiết kế` chỉ ghi kho này; `Xuất vào game` hoặc `Sync Levels` mới chép các màn theo `level_order.json` sang Resources. Khi kho thiết kế đã tồn tại, Sync không dùng golden ghi đè. Bỏ màn khỏi thứ tự không xóa asset; đổi ID là tạo bản mới, không đổi tên file cũ. Có bản sao trước mỗi lần ghi đè ở `Logs/level-editor-backups/` (ignored).
+- **Kiểm màn:** tool tái dùng loader/Core để chặn dữ liệu sai. Sửa bố cục làm minMoves=-1/solveExhausted=false; nút tìm đường dùng PathSearch theo ngân sách thời gian, chỉ chứng minh có đường thắng, **không nhận độ dài đó là tối ưu**. Bộ golden ở `docs/golden/` không đổi và không phải kho màn đang thiết kế. Không sinh thư mục/file thiết kế cho tới khi người làm lưu.
 - **"Sinh nhanh" nghĩa là sinh bằng tool ngoài game** (Node, từ prototype) rồi bỏ JSON vào thư mục. Game **không sinh màn lúc chạy**: người làm muốn màn làm thủ công, và kiểm "giải được" cần solver nặng.
 - **Config chia theo miền** `[CHỐT: mọi thứ liên quan setup nhanh nên là dữ liệu]`, ScriptableObject trong `Assets/_Project/Config/`, đọc qua một `ConfigProvider`:
   - `GameConfig`: công thức giờ (nền 20 s + 5 s/nước), phạt hoàn tác, số lần và phạt giờ của gợi ý, ngưỡng sao, bật/tắt cơ chế bậc B, fps mục tiêu. Mặc định lấy từ mục 6.4.
@@ -282,8 +286,12 @@ Assets/_Project/
 │  │  ├─ SfxPlayer.cs
 │  │  ├─ Haptics.cs
 │  │  └─ VisualPalette.cs
-│  └─ Editor/PlayTools.cs       # menu Sync Levels / Setup Play / Measure Search (Play)
-├─ Resources/Levels/            # 31 màn thử + level_order, chưa phải 25 màn cuối
+│  └─ Editor/
+│     ├─ PlayTools.cs          # Sync dùng kho thiết kế nếu có, nếu chưa có dùng 31 mẫu golden
+│     ├─ LevelEditorWindow.cs  # lưới, thuộc tính, preview riêng, Undo bản nháp, config ngoài Play
+│     └─ LevelDesignIO.cs      # schema JSON, kiểm/lưu/xuất/thứ tự; không ghi golden
+├─ Resources/Levels/            # 34 màn thử + level_order (31 gốc, 3 bản sao thử tool), chưa phải 25 màn cuối
+├─ LevelDesign/                 # kho thiết kế ngoài Play: 34 JSON + level_order; Lưu rồi Xuất/Sync
 ├─ Config/                      # GameConfig, FeelConfig, CameraConfig, VisualPalette, SfxCatalog + BlockMaterial
 ├─ Prefabs/                     # GameRoot.prefab, LevelButton.prefab
 ├─ Scenes/Play.unity
@@ -428,7 +436,7 @@ namespace SqueakyLane.Game
 | 006 | Bộ nạp JSON + phát lại golden trace kiểm luật Core | `006-loader-trace` | Codex | Xong (đã merge 22/11) | APPROVE (Claude 22/11) | 003–005 |
 | 007 | Solver BFS, tìm thắng/gợi ý theo bước và đo màn 16 | `007-solver` | Codex | Xong (đã merge 22/11); cấp phát kiểm tiếp ở 008 | APPROVE có điều kiện (Claude 22/11) | 003–006 |
 | 008 | Chơi được trên màn hình: phiên chơi, khối 3D, input/animation/nút debug | `008-playable` | Codex | Đã merge 23/11; phần chưa kiểm giữ trong phiếu | APPROVE có điều kiện (Claude 23/11) | 003–007 |
-| 009 | Điều hướng, HUD/panel, âm thanh và rung | `009-audio-ui` | Codex | Đang làm A–C; người làm tự setup, chờ chọn SFX | Chưa review | 008 |
+| 009 | Điều hướng, HUD/panel, âm thanh/rung và tool sửa màn/config ngoài Play | `009-audio-ui` | Codex | Chờ Claude review A–D; EditMode352/0/1, đã thử tool; còn UI/V3 Android | Chưa review | 008 |
 
 **Kế hoạch từ 008:** `docs/handoff/play-plan.md` thay `core-plan.md` §7–9; 008 gộp logic phiên chơi + hiển thị + điều khiển, có thể commit theo mốc A/B/C, Claude review một lần cuối. 008 chưa có Navigator/điều hướng; phần đó là 009-A. `[CHỐT 22/11]`
 

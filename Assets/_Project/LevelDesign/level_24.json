@@ -1,0 +1,106 @@
+{
+  "id": 24,
+  "name": "Húc qua cổng",
+  "cols": 5,
+  "rows": 5,
+  "gates": [
+    {
+      "side": "t",
+      "i": 0,
+      "color": "yellow"
+    },
+    {
+      "side": "r",
+      "i": 4,
+      "color": "pink"
+    },
+    {
+      "side": "l",
+      "i": 1,
+      "color": "blue"
+    },
+    {
+      "side": "b",
+      "i": 2,
+      "color": "yellow"
+    },
+    {
+      "side": "t",
+      "i": 4,
+      "color": "yellow"
+    }
+  ],
+  "cars": [
+    {
+      "axis": "v",
+      "r": 2,
+      "c": 0,
+      "color": "yellow",
+      "len": 3,
+      "truck": true,
+      "mud": 0
+    },
+    {
+      "axis": "h",
+      "r": 4,
+      "c": 2,
+      "color": "pink",
+      "len": 2,
+      "truck": false,
+      "mud": 0
+    },
+    {
+      "axis": "h",
+      "r": 1,
+      "c": 3,
+      "color": "blue",
+      "len": 2,
+      "truck": false,
+      "mud": 0
+    },
+    {
+      "axis": "v",
+      "r": 2,
+      "c": 3,
+      "color": "yellow",
+      "len": 2,
+      "truck": false,
+      "mud": 0
+    },
+    {
+      "axis": "v",
+      "r": 3,
+      "c": 1,
+      "color": "yellow",
+      "len": 2,
+      "truck": false,
+      "mud": 0
+    }
+  ],
+  "cones": [],
+  "muds": [],
+  "sprays": [],
+  "tables": [],
+  "paints": [],
+  "lights": [],
+  "barriers": [],
+  "splash": false,
+  "portals": [
+    {
+      "a": {
+        "r": 4,
+        "c": 0,
+        "side": "S"
+      },
+      "b": {
+        "r": 2,
+        "c": 4,
+        "side": "E"
+      }
+    }
+  ],
+  "pylons": [],
+  "switches": [],
+  "minMoves": 13,
+  "solveExhausted": true
+}

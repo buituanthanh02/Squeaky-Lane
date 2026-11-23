@@ -121,6 +121,8 @@ namespace SqueakyLane.EditorTools
         public static void SyncLevels()
         {
             if (EditorApplication.isPlaying) throw new InvalidOperationException("Thoát Play trước khi đồng bộ dữ liệu.");
+            // Khi đã có kho thiết kế, không lấy golden ghi đè màn người làm sửa.
+            if (LevelDesignIO.HasDesignSource) { LevelDesignIO.Export(); return; }
             string source = Path.GetFullPath(Path.Combine(Application.dataPath, "../docs/golden/levels"));
             var paths = Directory.GetFiles(source, "level_*.json"); Array.Sort(paths, StringComparer.Ordinal);
             if (paths.Length != 31) throw new InvalidOperationException("Cần đúng 31 màn chuẩn, hiện có " + paths.Length);
