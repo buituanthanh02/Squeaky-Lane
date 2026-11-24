@@ -82,9 +82,11 @@ Người làm gửi prompt "làm theo play-plan" = **duyệt kế hoạch** vi�
 |---|---|---|
 | 010 | Xe Kenney (mỗi màu một dáng), bảng màu hồng/tím, camera/ánh sáng đẹp, chống che (mờ vật cao) | Nhập asset **qua Unity**, gọn trong `Assets/_Project/Art/Cars/Kenney/`, bỏ OBJ/GLB/ảnh xem trước không dùng (xóa asset cần duyệt) |
 | 011 | **Bãi xe và cơ chế ra hình** (cập nhật 25/11): mặt bãi (nhựa đường, vạch đỗ, viền), hình cho cơ chế bậc A (§5.1): cổng màu, cổng nước, vũng bùn, cọc, đèn, bàn xoay, portal, trụ xoay. `MechanicCatalog` giống `CarCatalog` (cơ chế → prefab), thiếu thì dùng khối cũ | Kenney CC0 cùng phong cách xe (City Kit Roads, Racing Kit…): chỉ nhập model dùng tới. Thứ không có sẵn (cổng rửa, bàn xoay, portal, vũng) dựng từ khối đơn giản theo bảng màu. Bậc B và nhà nền quanh bãi cắt trước |
-| 012 | Chọn/sinh **25 màn cuối** + tutorial bằng hình (bàn tay, vòng sáng, mũi tên) + công thức giờ chỉnh theo người chơi thật | Dùng tool/prototype; golden `minMoves` cho từng màn; bỏ màn thử 32–34 |
-| 013 | Cảm giác và VFX: nhún, chúi, nảy, rũ bùn, hạt nước/bùn, rung camera nhẹ, bánh quay | Số trong `FeelConfig`; Claude quyết số theo video. **Cắt được** |
-| 014 | Build APK cuối, đo fps (50–60), nhiệt, dung lượng, sửa lỗi | APK đầu tiên build khi 011 xong (muộn nhất 26/11); Android: package name, Portrait, IL2CPP + ARM64 |
+| 012 | **Cảm giác lõi** `[CHỐT 25/11: ưu tiên gameplay + visual, tutorial xuống sau]`: xe là nhân vật bằng ngôn ngữ cơ thể (nhún khi chạy, chúi + nảy khi phanh/va, rướn khi ra cổng, rũ bùn), bánh quay, khoảnh khắc rửa ở cổng nước/cổng màu (hạt nước, bọt, lấp lánh), rung màn hình nhỏ, ăn mừng thắng | Phiếu `012-core-feel.md`. Số trong `FeelConfig`. VFX từ Particle Pack (Kenney CC0, PNG Transparent). Claude chốt số theo video |
+| 013 | **Khung nhìn** (gộp phần đáng giá của 011-01): camera bãi to hơn, cảnh quanh bãi (vỉa hè/cỏ/cây/đèn đường), nền camera không còn xanh đậm trống, bỏ chữ nổi trên bãi (gợi ý chỉ thẳng vào xe), chữ/màu nút HUD | Xem bảng V1–V7 trong `011-01-visual-hand-pass.md`. **APK đầu tiên khi 013 xong (26/11)** |
+| 014 | **25 màn chơi**: chọn và sắp 25 màn từ 31 màn có sẵn theo đường cong khó, bỏ màn thử 32–34 và màn dùng barie/chốt, chỉnh giờ theo chơi thử | Dùng Level Editor + solver; `minMoves` từ golden |
+| 015 | **Tutorial gọn**: 3 màn đầu có bàn tay/mũi tên chỉ thao tác + một dòng chữ; giới thiệu cơ chế mới bằng một khung hình ở màn đầu tiên có cơ chế đó | Bắt buộc theo yêu cầu lead, nhưng làm đơn giản. Cắt phần khung giới thiệu cơ chế nếu trễ, không cắt 3 màn đầu |
+| 016 | Build APK cuối, đo fps (50–60), nhiệt, dung lượng, sửa lỗi | Android: package name, Portrait, IL2CPP + ARM64 |
 
 ### 4.1. Tích hợp prefab xe ngoài — bước bắt buộc trong 010 `[CHỐT 23/11]`
 Người làm nhắc: nhập asset không đồng nghĩa prefab đã dùng được trong game. Làm theo chuỗi sau, không thay trực tiếp model vào scene rồi coi xong:
@@ -96,16 +98,14 @@ Người làm nhắc: nhập asset không đồng nghĩa prefab đã dùng đư�
 
 **Ghi chú kiểm 008:** người làm đã thử chạm được và duyệt commit mốc đầu. Cần sửa vuốt ở lượt sau commit: vượt ngưỡng là ra lệnh khi đang giữ tay, chỉ một lệnh mỗi gesture, nhả tay không phát lại. Đây vẫn thuộc 008, không bắt đầu 009.
 
-## 5. Lịch (cập nhật 22/11)
+## 5. Lịch (cập nhật 25/11 — ưu tiên gameplay + visual)
 | Ngày | Việc |
 |---|---|
-| 22/11 (tối) | 007 xong/review |
-| 23/11 | 008 (mốc A–C), người làm chơi thử |
-| 24/11 | 009 (âm thanh, rung, UI) |
-| 25/11 | 010 xong, merge |
-| 25–26/11 | 011 bãi xe và cơ chế ra hình; **APK đầu tiên ngay khi 011 xong, muộn nhất 26/11** `[CHỐT 25/11: người làm muốn build sau khi có visual]` |
-| 27/11 | 012 25 màn + tutorial |
-| 28/11 | 013 cảm giác/VFX (cắt được) |
-| 28–29/11 | 014 APK cuối, đo, sửa lỗi |
-| 30/11 | Đánh bóng, video demo, chốt tài liệu |
+| 22–24/11 | 007–009 xong |
+| 25/11 | 010, 011 xong và merge · bắt đầu 012 cảm giác lõi |
+| 26/11 | 012 xong · 013 khung nhìn · **APK đầu tiên tối 26/11** |
+| 27/11 | 014 25 màn |
+| 28/11 | 015 tutorial gọn · sửa theo APK |
+| 29/11 | 016 APK cuối, đo, sửa lỗi |
+| 30/11 | Đánh bóng, video demo, chốt tài liệu; học 5 mục "Học sau" (phiếu 011-01) nếu chưa kịp |
 **Thứ tự cắt** (từ dưới lên): asset đẹp → VFX phụ → Gợi ý → công tắc cài đặt → tutorial bằng hình. **Không cắt:** chơi được 25 màn, hoàn tác, đồng hồ, thắng/thua, âm thanh, rung (yêu cầu bắt buộc của anh lead: APK hoàn chỉnh, ≥ 25 màn, âm thanh + rung, không crash, 50–60 fps, < 250 MB, máy không nóng).

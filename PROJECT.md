@@ -451,7 +451,8 @@ namespace SqueakyLane.Game
 | 009-01 | Dọn nợ thiết kế 009: Pause nền, setup/metadata/test màn, tách nút bàn xoay và âm/rung, gom schema Editor | `009-01-code-cleanup` | Codex, Claude | Đã vào main 24/11; phần kiểm chưa ghi giữ trong phiếu, G hoãn | APPROVE có điều kiện (Claude 24/11) | 009 |
 | 010 | Xe Kenney: prefab bọc, colormap theo màu, CarCatalog và tích hợp hiển thị | `010-kenney-cars` | Codex, Claude | Đủ12 prefab, tải nối thùng2.82ô; chờ Run All mới/Play/ảnh20 trước merge | APPROVE có điều kiện (Claude 25/11) | 008, 009-01 |
 | 011 | Bãi xe và cơ chế ra hình: MechanicCatalog, mặt bãi, cơ chế bậc A | `011-lot-mechanics` | Codex, Claude | P1: ảnh Claude đã nhận; portal trắng/chanh/cyan, Run All524/0/1; chờ Console Play sau đổi màu, người làm commit/merge; visual tiếp ở011-01 | APPROVE có điều kiện (Claude 25/11) | 010 |
-| 011-01 | Làm đẹp nhanh bằng code/tool: camera/ánh sáng, HUD, tấm sơn trước cổng, bỏ chữ nổi, cảnh quanh bãi; học làm tay dời sau | `011-01-visual-hand-pass` (sau khi 011 merge) | Codex, Claude | Plan | — | 011 |
+| 011-01 | Làm đẹp nhanh bằng code/tool: camera/ánh sáng, HUD, tấm sơn trước cổng, bỏ chữ nổi, cảnh quanh bãi; học làm tay dời sau | `011-01-visual-hand-pass` (không mở) | Codex, Claude | Bỏ 25/11: phần V1–V7 gộp vào 013 khung nhìn; mục "Học sau" giữ trong phiếu | — | 011 |
+| 012 | Cảm giác lõi: ngôn ngữ cơ thể xe, bánh quay, khoảnh khắc rửa, rung màn hình, ăn mừng thắng | `012-core-feel` | Codex, Claude | Plan | — | 011 |
 
 **Kế hoạch từ 008:** `docs/handoff/play-plan.md` thay `core-plan.md` §7–9; 008 gộp logic phiên chơi + hiển thị + điều khiển, có thể commit theo mốc A/B/C, Claude review một lần cuối. 008 chưa có Navigator/điều hướng; phần đó là 009-A. `[CHỐT 22/11]`
 

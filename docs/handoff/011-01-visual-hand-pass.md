@@ -1,6 +1,8 @@
-# 011-01 — Làm đẹp nhanh để visual tạm ổn · M ≤ 1 ngày · Plan
+# 011-01 — Làm đẹp nhanh để visual tạm ổn · Bỏ (gộp vào 013)
 Đang cầm: Codex (sau khi 011 merge, nhánh `011-01-visual-hand-pass` từ main) · AI: Codex (code + hướng dẫn bước Editor), Claude (visual/review)
 Liên quan: 011
+
+> **[CHỐT 25/11 — người làm] Không mở phiếu này.** Bảng V1–V7 được dùng lại trong việc 013 "Khung nhìn" (play-plan §4). Mục "Học sau" vẫn giữ ở đây. Trước đó: hoãn cả phiếu, làm sau 012 nếu còn giờ (ngày 28–29/11). Ba việc rẻ đã tách ra làm ngay: V7 màu portal (điều kiện merge 011), V1 `padding` 0,1 (một số), V3 chữ nút HUD (nợ từ 009).
 
 ## Vì sao có việc này
 Ảnh 25/11 (màn 28, 29, 30): luật đã đọc được nhưng nhìn còn "hình của lập trình viên". Bãi chỉ chiếm ~65% bề ngang, xung quanh là nền xanh đậm trống, chữ nổi `1A/2B/1/số xe` chồng nhau, nút HUD còn chữ `Button`, cổng ở cạnh trái/phải nhìn từ trên chỉ còn một vạch mỏng.
