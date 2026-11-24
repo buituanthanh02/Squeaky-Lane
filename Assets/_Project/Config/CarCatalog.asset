@@ -14,26 +14,26 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   entries:
   - color: 0
-    carPrefab: {fileID: 1585635601439665758, guid: d821bce2403f105488161d489a5e43c5, type: 3}
-    truckPrefab: {fileID: 0}
+    carPrefab: {fileID: 3994415914709736719, guid: d821bce2403f105488161d489a5e43c5, type: 3}
+    truckPrefab: {fileID: 5619906957379675092, guid: 9f00a0b9a6817064791ddeb3cb35f1af, type: 3}
     material: {fileID: 2100000, guid: 006ce0dd2070a8841b5d2310d08fad2b, type: 2}
   - color: 1
-    carPrefab: {fileID: 2793129801075853045, guid: 0a5657f9bca05aa468bb98c75d70f1ab, type: 3}
-    truckPrefab: {fileID: 0}
+    carPrefab: {fileID: 8395491849939900703, guid: 0a5657f9bca05aa468bb98c75d70f1ab, type: 3}
+    truckPrefab: {fileID: 8211087588267613759, guid: 5e6ed464ac2c79140b7710499da8329a, type: 3}
     material: {fileID: 2100000, guid: 2aef86b4e76e2984cb2be684f2a2de20, type: 2}
   - color: 2
-    carPrefab: {fileID: 4738738119917183042, guid: ac6b7756ddc975f48ae69468a6a29807, type: 3}
-    truckPrefab: {fileID: 0}
+    carPrefab: {fileID: 4558745215853818537, guid: ac6b7756ddc975f48ae69468a6a29807, type: 3}
+    truckPrefab: {fileID: 8158870893902466835, guid: 83a6a2af29216514d955e3d607139cf5, type: 3}
     material: {fileID: 2100000, guid: 36b98a6e5bd5b6645bccc05cb00b3c36, type: 2}
   - color: 3
-    carPrefab: {fileID: 1448666335024613879, guid: c0cbe213281bc814f9e2406658c009c6, type: 3}
-    truckPrefab: {fileID: 0}
+    carPrefab: {fileID: 6323412554097352655, guid: c0cbe213281bc814f9e2406658c009c6, type: 3}
+    truckPrefab: {fileID: 2519845982999974841, guid: 233c21411b3bba34c98bbf8264eae8ea, type: 3}
     material: {fileID: 2100000, guid: 7658f310a21cbef4aa1deccfa010afc8, type: 2}
   - color: 4
-    carPrefab: {fileID: 836605617010921570, guid: 2226e9edce6480f439dbffc7de92d245, type: 3}
-    truckPrefab: {fileID: 0}
+    carPrefab: {fileID: 3069626400274598476, guid: 2226e9edce6480f439dbffc7de92d245, type: 3}
+    truckPrefab: {fileID: 5064221408471870600, guid: 7c82a5de248c58c47b3060b10ed4e3bb, type: 3}
     material: {fileID: 2100000, guid: 8d362c61cb1deeb4bbdfced66683644d, type: 2}
   - color: 5
-    carPrefab: {fileID: 2016079123587533507, guid: 671fe64f58794ac41b9e24169ec0f6b8, type: 3}
-    truckPrefab: {fileID: 0}
+    carPrefab: {fileID: 7573634300729648532, guid: 671fe64f58794ac41b9e24169ec0f6b8, type: 3}
+    truckPrefab: {fileID: 8457474338779418813, guid: ff6c1e0725d9dcd4e89a40ce93945fb1, type: 3}
     material: {fileID: 2100000, guid: 8f8f9c049144cb442b543705667ba498, type: 2}

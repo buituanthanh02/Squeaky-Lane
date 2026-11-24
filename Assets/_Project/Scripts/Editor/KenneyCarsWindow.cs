@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Globalization;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
@@ -15,6 +16,7 @@ namespace SqueakyLane.EditorTools
         private const string Art = "Assets/_Project/Art/Cars/Kenney";
         private const string Prefabs = "Assets/_Project/Prefabs/Cars";
         private const string CatalogPath = "Assets/_Project/Config/CarCatalog.asset";
+        private const float TruckBedCutSourceZ = -.30f;
         [Serializable] private sealed class Source
         {
             public TileColor color;
@@ -25,7 +27,8 @@ namespace SqueakyLane.EditorTools
         [SerializeField] private VisualPalette palette;
         [SerializeField] private GameObject truckModel;
         [SerializeField] private float truckYaw = 90;
-        [SerializeField] private float gap = .18f, width = .78f, bottom = -.25f;
+        // BoardView đặt root xe tại Y=0.32; mặt bãi Y=-0.01 nên đáy model ở local Y=-0.33.
+        [SerializeField] private float gap = .18f, width = .78f, bottom = -.33f;
         [SerializeField] private Source[] sources =
         {
             new Source { color = TileColor.Pink }, new Source { color = TileColor.Blue },
@@ -62,6 +65,10 @@ namespace SqueakyLane.EditorTools
             bottom = EditorGUILayout.FloatField("Đáy model so với root", bottom);
             truckModel = (GameObject)EditorGUILayout.ObjectField("FBX xe tải", truckModel, typeof(GameObject), false);
             truckYaw = EditorGUILayout.FloatField("Yaw model tải (+Z → +X: 90)", truckYaw);
+            if (GUILayout.Button("Sửa 6 tải đã có · nối dài riêng thùng"))
+            {
+                Run(UpdateTruckWrappers);
+            }
             foreach (var source in sources)
             {
                 EditorGUILayout.Space();
@@ -101,6 +108,16 @@ namespace SqueakyLane.EditorTools
                 }
             }
             return result;
+        }
+
+        internal static Bounds FitVisualToFootprint(Transform visual, Bounds bounds, int length, float gap, float width, float bottom)
+        {
+            float s = Mathf.Min((length - gap) / bounds.size.x, width / bounds.size.z);
+            visual.localScale = Vector3.one * s;
+            visual.localPosition = new Vector3(-bounds.center.x * s, bottom - bounds.min.y * s, -bounds.center.z * s);
+            float height = bounds.size.y * s;
+            // Model giữ tỷ lệ gốc; collider vẫn phủ footprint lưới, kể cả khi model ngắn hơn.
+            return new Bounds(new Vector3(0, bottom + height * .5f, 0), new Vector3(length - gap, height, width));
         }
 
         private void CreateColors()
@@ -163,6 +180,11 @@ namespace SqueakyLane.EditorTools
             {
                 throw new InvalidOperationException("Gán FBX đã chuyển vào Art/Cars/Kenney qua cửa sổ Project.");
             }
+            bool isTruckModel = string.Equals(Path.GetFileName(sourcePath), "truck.fbx", StringComparison.OrdinalIgnoreCase);
+            if (truck != isTruckModel)
+            {
+                throw new InvalidOperationException(truck ? "Prefab tải phải dùng truck.fbx." : "truck.fbx chỉ dùng cho prefab tải, không dùng cho xe thường.");
+            }
             var material = AssetDatabase.LoadAssetAtPath<Material>(MaterialPath(color));
             if (material == null) throw new InvalidOperationException("Tạo 6 bộ màu trước.");
             string path = PrefabPath(color, truck);
@@ -193,19 +215,19 @@ namespace SqueakyLane.EditorTools
                 }
                 if (bounds.size.x <= 0 || bounds.size.y <= 0 || bounds.size.z <= 0) throw new InvalidOperationException("Bounds model không hợp lệ.");
                 int length = truck ? 3 : 2;
-                float yScale = width / bounds.size.z;
-                var scale = new Vector3((length - gap) / bounds.size.x, yScale, width / bounds.size.z);
-                visual.localScale = scale;
-                visual.localPosition = new Vector3(-bounds.center.x * scale.x, bottom - bounds.min.y * scale.y, -bounds.center.z * scale.z);
-                float height = bounds.size.y * yScale;
+                var footprint = FitVisualToFootprint(visual, bounds, length, gap, width, bottom);
+                if (truck)
+                {
+                    SaveTruckBody(visual, LengthenTruckBed(visual, footprint.size.x));
+                }
                 var collider = root.AddComponent<BoxCollider>();
-                collider.size = new Vector3(length - gap, height, width);
-                collider.center = new Vector3(0, bottom + height * .5f, 0);
+                collider.size = footprint.size;
+                collider.center = footprint.center;
                 var mud = GameObject.CreatePrimitive(PrimitiveType.Cube);
                 mud.name = "Bùn bám";
                 mud.transform.SetParent(root.transform, false);
-                mud.transform.localPosition = new Vector3(0, bottom + height + .025f, 0);
-                mud.transform.localScale = new Vector3(length * .6f, .05f, .55f);
+                mud.transform.localPosition = new Vector3(0, footprint.max.y + .025f, 0);
+                mud.transform.localScale = new Vector3((truck ? footprint.size.x : bounds.size.x * visual.localScale.x) * .6f, .05f, .55f);
                 DestroyImmediate(mud.GetComponent<Collider>());
                 var dirt = mud.GetComponent<Renderer>();
                 dirt.sharedMaterial = palette.Material;
@@ -217,6 +239,150 @@ namespace SqueakyLane.EditorTools
             UpdateCatalog();
             Selection.activeObject = AssetDatabase.LoadAssetAtPath<GameObject>(path);
             status = "Đã tạo " + path + ". Mở prefab kiểm root 0/1, mũi xe hướng +X và khoảng hở; bù thêm ở model con nếu cần.";
+        }
+
+        internal static Mesh LengthenTruckBed(Transform visual, float targetLength)
+        {
+            Transform model = visual.GetChild(0);
+            if (Mathf.Abs(Mathf.DeltaAngle(model.localEulerAngles.y, 90)) > .01f)
+            {
+                throw new InvalidOperationException("Nối thùng truck.fbx cần yaw 90 để mũi hướng +X.");
+            }
+            MeshFilter body = null;
+            var wheels = new System.Collections.Generic.List<MeshFilter>();
+            foreach (var filter in model.GetComponentsInChildren<MeshFilter>(true))
+            {
+                if (filter.name == "body")
+                {
+                    body = filter;
+                }
+                else if (filter.name.StartsWith("wheel-", StringComparison.Ordinal))
+                {
+                    wheels.Add(filter);
+                }
+                else
+                {
+                    throw new InvalidOperationException("truck.fbx có phần mesh chưa hỗ trợ: " + filter.name);
+                }
+            }
+            if (body == null || wheels.Count != 4)
+            {
+                throw new InvalidOperationException("Cần thân body và đủ 4 bánh của truck.fbx Car Kit 3.1.");
+            }
+            Transform root = visual.parent;
+            var bodyToRoot = root.worldToLocalMatrix * body.transform.localToWorldMatrix;
+            var bounds = body.GetComponent<Renderer>().bounds;
+            float extra = targetLength - bounds.size.x;
+            // Z=-0.30 của truck.fbx nằm sau vách cabin (-0.25), trước hết vòm bánh sau (-0.37).
+            // Cắt tam giác tại đây rồi chèn đoạn phẳng, không kéo méo cabin/vòm bánh/thành đuôi.
+            float cut = root.InverseTransformPoint(model.TransformPoint(new Vector3(0, 0, TruckBedCutSourceZ))).x;
+            var mesh = KenneyTruckMesh.ExtendBed(body.sharedMesh, bodyToRoot, cut, extra);
+            body.sharedMesh = mesh;
+            foreach (var wheel in wheels)
+            {
+                float x = root.InverseTransformPoint(wheel.GetComponent<Renderer>().bounds.center).x;
+                Vector3 shift = root.TransformVector(new Vector3(x < cut ? -extra * .5f : extra * .5f, 0, 0));
+                wheel.transform.localPosition += wheel.transform.parent.InverseTransformVector(shift);
+            }
+            return mesh;
+        }
+
+        private static void SaveTruckBody(Transform visual, Mesh mesh)
+        {
+            EnsureFolder(Art + "/Meshes");
+            float sourceLength = mesh.bounds.size.z; // FBX thân dài theo +Z; Visual giữ scale đều.
+            string path = Art + "/Meshes/TruckBody_Bed1_" + sourceLength.ToString("F6", CultureInfo.InvariantCulture) + ".asset";
+            var shared = AssetDatabase.LoadAssetAtPath<Mesh>(path);
+            if (shared == null)
+            {
+                AssetDatabase.CreateAsset(mesh, path);
+                return;
+            }
+            foreach (var filter in visual.GetComponentsInChildren<MeshFilter>(true))
+            {
+                if (filter.sharedMesh == mesh)
+                {
+                    filter.sharedMesh = shared;
+                }
+            }
+            DestroyImmediate(mesh);
+        }
+
+        private void UpdateTruckWrappers()
+        {
+            RequirePalette();
+            var source = AssetDatabase.LoadAssetAtPath<GameObject>(Art + "/truck.fbx");
+            if (source == null)
+            {
+                throw new InvalidOperationException("Không thấy Art/Cars/Kenney/truck.fbx.");
+            }
+            // Giữ GUID/root và tham chiếu catalog; chỉ dựng lại Visual trong 6 wrapper tải.
+            string backup = "Logs/010-truck-backups/" + DateTime.Now.ToString("yyyyMMdd-HHmmss-fff");
+            Directory.CreateDirectory(backup);
+            foreach (var item in sources)
+            {
+                string path = PrefabPath(item.color, true);
+                var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(path);
+                if (!CarView.Usable(prefab, 3))
+                {
+                    throw new InvalidOperationException("Prefab tải chưa hợp lệ: " + path);
+                }
+                if (AssetDatabase.LoadAssetAtPath<Material>(MaterialPath(item.color)) == null)
+                {
+                    throw new InvalidOperationException("Thiếu material tải " + item.color);
+                }
+                File.Copy(path, backup + "/" + Path.GetFileName(path));
+            }
+            foreach (var item in sources)
+            {
+                string path = PrefabPath(item.color, true);
+                var root = PrefabUtility.LoadPrefabContents(path);
+                try
+                {
+                    var view = root.GetComponent<CarView>();
+                    var data = new SerializedObject(view);
+                    var visual = (Transform)data.FindProperty("modelRoot").objectReferenceValue;
+                    var dirt = (Renderer)data.FindProperty("mudOverlay").objectReferenceValue;
+                    while (visual.childCount > 0)
+                    {
+                        DestroyImmediate(visual.GetChild(0).gameObject);
+                    }
+                    visual.localPosition = Vector3.zero;
+                    visual.localRotation = Quaternion.identity;
+                    visual.localScale = Vector3.one;
+                    var model = (GameObject)PrefabUtility.InstantiatePrefab(source, visual);
+                    model.transform.localPosition = Vector3.zero;
+                    model.transform.localRotation = Quaternion.Euler(0, 90, 0);
+                    model.transform.localScale = Vector3.one;
+                    var material = AssetDatabase.LoadAssetAtPath<Material>(MaterialPath(item.color));
+                    if (material == null)
+                    {
+                        throw new InvalidOperationException("Thiếu material tải " + item.color);
+                    }
+                    var renderers = visual.GetComponentsInChildren<Renderer>(true);
+                    var bounds = renderers[0].bounds;
+                    foreach (var renderer in renderers)
+                    {
+                        bounds.Encapsulate(renderer.bounds);
+                        renderer.sharedMaterial = material;
+                    }
+                    var footprint = FitVisualToFootprint(visual, bounds, 3, gap, width, bottom);
+                    SaveTruckBody(visual, LengthenTruckBed(visual, footprint.size.x));
+                    var collider = root.GetComponent<BoxCollider>();
+                    collider.center = footprint.center;
+                    collider.size = footprint.size;
+                    dirt.transform.localPosition = new Vector3(0, footprint.max.y + .025f, 0);
+                    dirt.transform.localScale = new Vector3(footprint.size.x * .6f, .05f, .55f);
+                    view.ConfigurePrefab(visual, dirt, 3);
+                    PrefabUtility.SaveAsPrefabAsset(root, path);
+                }
+                finally
+                {
+                    PrefabUtility.UnloadPrefabContents(root);
+                }
+            }
+            status = "Đã nối thùng 6 xe tải, giữ cabin/bánh, root/GUID/catalog. Bản sao prefab cũ: " + backup;
+            Selection.activeObject = AssetDatabase.LoadAssetAtPath<GameObject>(PrefabPath(TileColor.Blue, true));
         }
 
         private void UpdateCatalog()
