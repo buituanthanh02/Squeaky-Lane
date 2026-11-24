@@ -17,6 +17,8 @@ namespace SqueakyLane.Presentation
         private GameObject[] muds;
         private Transform[] pylons;
         private Font labelFont;
+        private CarCatalog carCatalog;
+        private bool carWarningShown;
         private readonly List<Renderer> switchWalls = new List<Renderer>();
         private readonly List<Cell> switchWallCells = new List<Cell>();
         public LevelDef Level => level;
@@ -26,10 +28,11 @@ namespace SqueakyLane.Presentation
         public Vector3 Position(CarState car, int length) => Cell(car.R + (car.Axis == Axis.Vertical ? (length - 1) * .5f : 0), car.C + (car.Axis == Axis.Horizontal ? (length - 1) * .5f : 0));
         public static float Yaw(Axis axis) => axis == Axis.Horizontal ? 0 : 90;
 
-        public void Build(LevelDef definition, GameState state, VisualPalette colors)
+        public void Build(LevelDef definition, GameState state, VisualPalette colors, CarCatalog vehicles = null)
         {
             if (content != null) { content.SetActive(false); Release(content); }
             level = definition; palette = colors; block = new MaterialPropertyBlock();
+            carCatalog = vehicles;
             switchWalls.Clear(); switchWallCells.Clear();
             if (labelFont == null) labelFont = Font.CreateDynamicFontFromOSFont(new[] { "Arial", "Roboto", "Droid Sans", "sans-serif" }, 24);
             content = new GameObject("Board Runtime"); content.transform.SetParent(transform, false);
@@ -68,12 +71,17 @@ namespace SqueakyLane.Presentation
             cars = new CarView[state.CarCount];
             for (int i = 0; i < cars.Length; i++)
             {
-                var root = new GameObject("Xe " + (i + 1)); root.transform.SetParent(content.transform, false);
-                var body = Box("Thân", Vector3.zero, new Vector3(level.Cars[i].Len - .18f, .5f, .78f), palette.Car(state.CarAt(i).Color), root.transform, true);
-                var roof = Box("Mui", new Vector3(0, .28f, 0), new Vector3(level.Cars[i].Len * .5f, .18f, .63f), palette.Wall, root.transform);
-                var dirt = Box("Bùn bám", new Vector3(0, .4f, 0), new Vector3(level.Cars[i].Len * .6f, .05f, .55f), palette.Mud, root.transform);
-                var view = root.AddComponent<CarView>(); view.Initialize(i, level.Cars[i].Len, colors, body, dirt);
-                cars[i] = view; Label((i + 1).ToString(), new Vector3(0, .47f, 0), root.transform);
+                var definitionCar = level.Cars[i];
+                var color = state.CarAt(i).Color;
+                var prefab = carCatalog != null ? carCatalog.Prefab(color, definitionCar.Truck) : null;
+                var root = CarView.Usable(prefab, definitionCar.Len) ? Instantiate(prefab, content.transform, false) : new GameObject();
+                root.name = "Xe " + (i + 1);
+                root.transform.SetParent(content.transform, false);
+                var view = root.GetComponent<CarView>();
+                if (view == null) view = root.AddComponent<CarView>();
+                view.Initialize(i, definitionCar.Len, colors, carCatalog, definitionCar.Truck, color, WarnMissingCar);
+                cars[i] = view;
+                view.SetLabel(Label((i + 1).ToString(), new Vector3(0, .47f, 0), root.transform));
             }
             Snap(state);
         }
@@ -100,12 +108,20 @@ namespace SqueakyLane.Presentation
             if (!collider) Release(obj.GetComponent<Collider>());
             var renderer = obj.GetComponent<Renderer>(); renderer.sharedMaterial = palette.Material; Colorize(renderer, color); return renderer;
         }
-        private void Label(string value, Vector3 position, Transform parent = null)
+        private Transform Label(string value, Vector3 position, Transform parent = null)
         {
             var obj = new GameObject(value); obj.transform.SetParent(parent != null ? parent : content.transform, false);
             obj.transform.localPosition = position; obj.transform.localRotation = Quaternion.Euler(90, 0, 0);
             var text = obj.AddComponent<TextMesh>(); text.font = labelFont; text.text = value; text.fontSize = 36; text.characterSize = .08f; text.anchor = TextAnchor.MiddleCenter; text.color = Color.white;
             obj.GetComponent<Renderer>().sharedMaterial = labelFont.material;
+            return obj.transform;
+        }
+        private void WarnMissingCar(TileColor color, bool truck)
+        {
+            // Các test/preview cũ cố ý không dùng catalog. Game thật luôn báo khi phải dự phòng.
+            if (carWarningShown || (!Application.isPlaying && carCatalog == null)) return;
+            carWarningShown = true;
+            Debug.LogWarning("CarCatalog thiếu prefab/material hợp lệ cho " + color + (truck ? " xe tải" : " xe thường") + "; dùng xe khối dự phòng.", this);
         }
         private void AddSwitchWalls(IReadOnlyList<Cell> cells, string label)
         {

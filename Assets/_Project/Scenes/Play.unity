@@ -540,7 +540,7 @@ RectTransform:
   m_Father: {fileID: 588281294}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 1, y: 1}
+  m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -2836,7 +2836,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 2092347886}
   m_Direction: 0
   m_Value: 1
-  m_Size: 1
+  m_Size: 0.99999994
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -3903,7 +3903,7 @@ RectTransform:
   m_Father: {fileID: 2086342972}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 1, y: 1}
+  m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -4143,7 +4143,7 @@ RectTransform:
   m_Father: {fileID: 2086342972}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 0}
-  m_AnchorMax: {x: 1, y: 1}
+  m_AnchorMax: {x: 1, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 18, y: 0}
   m_Pivot: {x: 1, y: 0.5}
@@ -6691,6 +6691,10 @@ PrefabInstance:
       propertyPath: sfxPlayer
       value: 
       objectReference: {fileID: 1837731559}
+    - target: {fileID: 8946588168531518151, guid: f4d0838bef88f4d449e3729e10ecd944, type: 3}
+      propertyPath: carCatalog
+      value: 
+      objectReference: {fileID: 11400000, guid: bee71b9c58ab9c747a8f33722425fb92, type: 2}
     - target: {fileID: 8946588168531518151, guid: f4d0838bef88f4d449e3729e10ecd944, type: 3}
       propertyPath: boardCamera
       value: 

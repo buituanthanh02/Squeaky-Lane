@@ -7,10 +7,12 @@ namespace SqueakyLane.Game
         public GameConfig Game { get; }
         public FeelConfig Feel { get; }
         public CameraConfig Camera { get; }
-        public ConfigProvider(GameConfig game, FeelConfig feel, CameraConfig camera)
+        public CarCatalog Cars { get; }
+        public ConfigProvider(GameConfig game, FeelConfig feel, CameraConfig camera, CarCatalog cars = null)
         {
             if (game == null || feel == null || camera == null) throw new ArgumentException("Thiếu config trên GameRoot; chạy Tools/Squeaky Lane/Setup Play.");
             Game = game; Feel = feel; Camera = camera;
+            Cars = cars;
         }
         // Đây là điểm duy nhất đọc Resources; bootstrap không biết đường dẫn tài nguyên.
         public TextAsset LevelOrder() => LoadText("Levels/level_order");

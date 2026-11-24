@@ -222,6 +222,7 @@ Vắng `timeLimit/hints` thì dùng GameConfig; đặt timeLimit=0 là không t�
   - Quy tắc khi nào dùng config: `AGENTS.md` §7.
 - **Đưa model ngoài vào game (việc 010):** phải qua bước kiểm asset/giấy phép/độ nặng → chuẩn hóa pivot, trục, scale, kích thước → tạo prefab bọc với collider và CarView → nối qua CarCatalog → thử chạy/Undo/xoay/portal/đẩy và đo trên máy. Không coi việc thả model vào Assets là đã tích hợp; luật/kích thước lưới vẫn do Core quyết định. `[CHỐT 23/11 — người làm yêu cầu có bước prefab riêng]`
 - **Ghi đè theo từng màn** trong JSON: `timeLimit`, `hints` (bỏ trống = dùng công thức/config).
+- **010 — xe Kenney:** bảng đã chốt pink → hatchback-sports, blue → sedan, yellow → taxi, green → suv, orange → van, purple → sedan-sports; xe tải dùng truck (delivery dự phòng). Qua sơn thì **đổi cả dáng theo màu mới**, giữ root/CarView/collider lưới và luồng hoạt hình. 6 material/colormap đổi riêng các ô thân theo VisualPalette; kính/bánh giữ nguyên. CarCatalog qua ConfigProvider; thiếu prefab/material thì dùng khối và báo một lần. 7 FBX + colormap đã chuyển vào `Assets/_Project/Art/Cars/Kenney/`, giữ GUID/nội dung; lệnh chuyển tạm đã gỡ. Đã có 6 prefab thường/catalog và gán vào GameRoot, nhưng 4 dáng khác bảng (Blue van, Green truck, Orange sedan-sports, Purple suv), đang hỏi người làm chốt. 6 prefab tải còn thiếu, Run All/Play/Console chưa xác nhận. `[CHỐT/FILE 24/11; chi tiết phiếu 010]`
 - **Test:** nạp cả 25 JSON → solver C# → so `minMoves` trong JSON.
 
 ---
@@ -275,7 +276,8 @@ Assets/_Project/
 │  │  ├─ GameConfig.cs
 │  │  ├─ FeelConfig.cs
 │  │  ├─ CameraConfig.cs
-│  │  └─ ConfigProvider.cs      # điểm đọc Resources duy nhất
+│  │  ├─ ConfigProvider.cs      # điểm đọc Resources duy nhất, nhận CarCatalog bằng tham chiếu
+│  │  └─ CarCatalog.cs         # màu → material + prefab thường/tải; asset chờ tạo trong Editor (010)
 │  ├─ Presentation/             # asmdef SqueakyLane.Presentation → Core, Game, TMP, uGUI
 │  │  ├─ GameBootstrap.cs
 │  │  ├─ BoardView.cs
@@ -293,7 +295,8 @@ Assets/_Project/
 │  └─ Editor/
 │     ├─ PlayTools.cs          # Sync dùng kho thiết kế nếu có, nếu chưa có dùng 31 mẫu golden
 │     ├─ LevelEditorWindow.cs  # lưới, thuộc tính, preview riêng, Undo bản nháp, config ngoài Play
-│     └─ LevelDesignIO.cs      # schema JSON, kiểm/lưu/xuất/thứ tự; không ghi golden
+│     ├─ LevelDesignIO.cs      # schema JSON, kiểm/lưu/xuất/thứ tự; không ghi golden
+│     └─ KenneyCarsWindow.cs  # menu tạo màu/prefab từng xe và nối catalog, không sửa model nguồn/scene (010)
 ├─ Resources/Levels/            # 34 màn thử + level_order (31 gốc, 3 bản sao thử tool), chưa phải 25 màn cuối
 ├─ LevelDesign/                 # kho thiết kế ngoài Play: 34 JSON + level_order; Lưu rồi Xuất/Sync
 ├─ Config/                      # GameConfig, FeelConfig, CameraConfig, VisualPalette, SfxCatalog + BlockMaterial
@@ -443,7 +446,8 @@ namespace SqueakyLane.Game
 | 007 | Solver BFS, tìm thắng/gợi ý theo bước và đo màn 16 | `007-solver` | Codex | Xong (đã merge 22/11); cấp phát kiểm tiếp ở 008 | APPROVE có điều kiện (Claude 22/11) | 003–006 |
 | 008 | Chơi được trên màn hình: phiên chơi, khối 3D, input/animation/nút debug | `008-playable` | Codex | Đã merge 23/11; phần chưa kiểm giữ trong phiếu | APPROVE có điều kiện (Claude 23/11) | 003–007 |
 | 009 | Điều hướng, HUD/panel, âm thanh/rung và tool sửa màn/config ngoài Play | `009-audio-ui` | Codex | Đã vào main 24/11; EditMode352/0/1; còn V3 Android | APPROVE có điều kiện (Claude 24/11) | 008 |
-| 009-01 | Dọn nợ thiết kế 009: Pause nền, setup/metadata/test màn, tách nút bàn xoay và âm/rung, gom schema Editor | `009-01-code-cleanup` | Codex, Claude | Chờ người làm: import .meta, Run All, Play nhanh rồi merge; G hoãn | APPROVE có điều kiện (Claude 24/11) | 009 |
+| 009-01 | Dọn nợ thiết kế 009: Pause nền, setup/metadata/test màn, tách nút bàn xoay và âm/rung, gom schema Editor | `009-01-code-cleanup` | Codex, Claude | Đã vào main 24/11; phần kiểm chưa ghi giữ trong phiếu, G hoãn | APPROVE có điều kiện (Claude 24/11) | 009 |
+| 010 | Xe Kenney: prefab bọc, colormap theo màu, CarCatalog và tích hợp hiển thị | `010-kenney-cars` | Codex, Claude | Người làm chuẩn bị commit WIP 6 xe thường; chưa Run All/Play, còn chốt dáng/UI và xe tải | Chưa review | 008, 009-01 |
 
 **Kế hoạch từ 008:** `docs/handoff/play-plan.md` thay `core-plan.md` §7–9; 008 gộp logic phiên chơi + hiển thị + điều khiển, có thể commit theo mốc A/B/C, Claude review một lần cuối. 008 chưa có Navigator/điều hướng; phần đó là 009-A. `[CHỐT 22/11]`
 

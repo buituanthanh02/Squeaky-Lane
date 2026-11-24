@@ -1,25 +1,179 @@
+using System;
 using UnityEngine;
 using SqueakyLane.Core.Model;
+using SqueakyLane.Game;
 
 namespace SqueakyLane.Presentation
 {
     public sealed class CarView : MonoBehaviour
     {
-        private Renderer body, mud;
+        [SerializeField, Tooltip("Model nguồn đã bù hướng/cỡ ở con; không đặt collider trong đây.")] private Transform modelRoot;
+        [SerializeField, Tooltip("Lớp bùn riêng, nằm trên mái xe.")] private Renderer mudOverlay;
+        [SerializeField, Min(2), Tooltip("Footprint prefab: 2 cho xe thường, 3 cho xe tải.")] private int footprintLength = 2;
+        private Renderer[] modelRenderers;
+        private Renderer blockBody;
+        private BoxCollider footprint;
         private MaterialPropertyBlock block;
         private VisualPalette palette;
+        private CarCatalog catalog;
+        private Action<TileColor, bool> missing;
+        private GameObject sourcePrefab;
+        private Transform numberLabel;
+        private TileColor lastColor;
+        private bool truck, appearanceReady;
         public int Index { get; private set; }
         public int Length { get; private set; }
         public Vector3 PositiveDirection => transform.right;
-        public void Initialize(int index, int length, VisualPalette colors, Renderer bodyRenderer, Renderer mudRenderer)
-        { Index = index; Length = length; palette = colors; body = bodyRenderer; mud = mudRenderer; block = new MaterialPropertyBlock(); }
+        public static bool Usable(GameObject prefab, int length)
+        {
+            if (prefab == null) return false;
+            var view = prefab.GetComponent<CarView>();
+            return view != null && view.modelRoot != null && view.mudOverlay != null &&
+                view.footprintLength == length && prefab.GetComponent<BoxCollider>() != null &&
+                prefab.transform.localPosition == Vector3.zero && prefab.transform.localScale == Vector3.one && prefab.transform.localRotation == Quaternion.identity;
+        }
+
+        public void ConfigurePrefab(Transform model, Renderer dirt, int length)
+        {
+            modelRoot = model;
+            mudOverlay = dirt;
+            footprintLength = length;
+        }
+
+        public void Initialize(int index, int length, VisualPalette colors, CarCatalog vehicles,
+            bool isTruck, TileColor color, Action<TileColor, bool> warnMissing)
+        {
+            Index = index;
+            Length = length;
+            palette = colors;
+            catalog = vehicles;
+            truck = isTruck;
+            missing = warnMissing;
+            block = new MaterialPropertyBlock();
+            footprint = GetComponent<BoxCollider>();
+            if (footprint == null) footprint = gameObject.AddComponent<BoxCollider>();
+            var initial = catalog != null ? catalog.Prefab(color, truck) : null;
+            sourcePrefab = modelRoot != null && Usable(initial, Length) ? initial : null;
+            appearanceReady = false;
+        }
+
+        public void SetLabel(Transform label)
+        {
+            numberLabel = label;
+        }
+
         public void Show(Vector3 position, float yaw, TileColor color, int dirt, bool alive, float scale = 1)
         {
             transform.localPosition = position; transform.localRotation = Quaternion.Euler(0, yaw, 0);
             transform.localScale = Vector3.one * scale;
             gameObject.SetActive(alive);
-            block.SetColor("_Color", palette.Car(color)); body.SetPropertyBlock(block);
-            mud.gameObject.SetActive(dirt > 0);
+            if (!appearanceReady || color != lastColor)
+            {
+                ApplyAppearance(color);
+            }
+            mudOverlay.gameObject.SetActive(dirt > 0);
+        }
+
+        private void ApplyAppearance(TileColor color)
+        {
+            var entry = catalog != null ? catalog.Find(color) : null;
+            var prefab = entry == null ? null : truck ? entry.truckPrefab : entry.carPrefab;
+            if (!Usable(prefab, Length) || entry.material == null)
+            {
+                prefab = null;
+                missing?.Invoke(color, truck);
+            }
+            if (modelRoot == null || sourcePrefab != prefab || (prefab == null && blockBody == null))
+            {
+                ReleaseVisual();
+                if (prefab != null)
+                {
+                    var template = prefab.GetComponent<CarView>();
+                    modelRoot = Instantiate(template.modelRoot, transform, false);
+                    mudOverlay = Instantiate(template.mudOverlay, transform, false);
+                    var templateCollider = prefab.GetComponent<BoxCollider>();
+                    footprint.center = templateCollider.center;
+                    footprint.size = templateCollider.size;
+                }
+                else
+                {
+                    CreateBlock(color);
+                }
+                sourcePrefab = prefab;
+            }
+            // Cache sau spawn/đổi dáng, không dò renderer hoặc đổi material mỗi frame.
+            modelRenderers = modelRoot.GetComponentsInChildren<Renderer>(true);
+            if (prefab != null)
+            {
+                for (int i = 0; i < modelRenderers.Length; i++)
+                {
+                    modelRenderers[i].SetPropertyBlock(null);
+                    modelRenderers[i].sharedMaterial = entry.material;
+                }
+            }
+            else
+            {
+                block.SetColor("_Color", palette.Car(color));
+                blockBody.SetPropertyBlock(block);
+            }
+            block.SetColor("_Color", palette.Mud);
+            mudOverlay.SetPropertyBlock(block);
+            if (numberLabel != null)
+            {
+                numberLabel.localPosition = new Vector3(0, Mathf.Max(.47f, footprint.center.y + footprint.size.y * .5f + .08f), 0);
+            }
+            lastColor = color;
+            appearanceReady = true;
+        }
+
+        private void CreateBlock(TileColor color)
+        {
+            modelRoot = new GameObject("Visual dự phòng").transform;
+            modelRoot.SetParent(transform, false);
+            blockBody = Box("Thân", Vector3.zero, new Vector3(Length - .18f, .5f, .78f), palette.Car(color), modelRoot);
+            Box("Mui", new Vector3(0, .28f, 0), new Vector3(Length * .5f, .18f, .63f), palette.Wall, modelRoot);
+            mudOverlay = Box("Bùn bám", new Vector3(0, .4f, 0), new Vector3(Length * .6f, .05f, .55f), palette.Mud, transform);
+            footprint.center = Vector3.zero;
+            footprint.size = new Vector3(Length - .18f, .5f, .78f);
+        }
+
+        private Renderer Box(string label, Vector3 position, Vector3 size, Color color, Transform parent)
+        {
+            var go = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            go.name = label;
+            go.transform.SetParent(parent, false);
+            go.transform.localPosition = position;
+            go.transform.localScale = size;
+            var collider = go.GetComponent<Collider>();
+            collider.enabled = false;
+            Release(collider);
+            var renderer = go.GetComponent<Renderer>();
+            renderer.sharedMaterial = palette.Material;
+            block.SetColor("_Color", color);
+            renderer.SetPropertyBlock(block);
+            return renderer;
+        }
+
+        private void ReleaseVisual()
+        {
+            if (modelRoot != null)
+            {
+                modelRoot.gameObject.SetActive(false);
+                Release(modelRoot.gameObject);
+            }
+            if (mudOverlay != null)
+            {
+                mudOverlay.gameObject.SetActive(false);
+                Release(mudOverlay.gameObject);
+            }
+            modelRoot = null;
+            mudOverlay = null;
+        }
+
+        private static void Release(UnityEngine.Object value)
+        {
+            if (Application.isPlaying) Destroy(value);
+            else DestroyImmediate(value);
         }
     }
 }

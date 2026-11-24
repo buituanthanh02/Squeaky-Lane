@@ -1086,7 +1086,8 @@ namespace SqueakyLane.EditorTools
                     };
                     preview.AddSingleGO(root);
                     previewBoard = root.GetComponent<BoardView>();
-                    previewBoard.Build(level, GameState.Initial(level), palette);
+                    var cars = AssetDatabase.LoadAssetAtPath<CarCatalog>("Assets/_Project/Config/CarCatalog.asset");
+                    previewBoard.Build(level, GameState.Initial(level), palette, cars);
                     preview.lights[0].intensity = 1.2f;
                     preview.lights[0].transform.rotation = Quaternion.Euler(50, -30, 0);
                     preview.lights[1].intensity = .5f;
