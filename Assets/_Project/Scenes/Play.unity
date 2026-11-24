@@ -6703,6 +6703,10 @@ PrefabInstance:
       propertyPath: navigationView
       value: 
       objectReference: {fileID: 85747639}
+    - target: {fileID: 8946588168531518151, guid: f4d0838bef88f4d449e3729e10ecd944, type: 3}
+      propertyPath: mechanicCatalog
+      value: 
+      objectReference: {fileID: 11400000, guid: d0a0506e5f1b4874ea65590e8b525137, type: 2}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

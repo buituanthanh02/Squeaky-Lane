@@ -19,6 +19,8 @@ namespace SqueakyLane.Presentation
         private CameraConfig cameraConfig;
         [SerializeField, Tooltip("Catalog prefab xe Kenney; thiếu sẽ dùng xe khối dự phòng.")]
         private CarCatalog carCatalog;
+        [SerializeField, Tooltip("Catalog bãi và cơ chế 011; thiếu dùng khối dự phòng.")]
+        private MechanicCatalog mechanicCatalog;
         [SerializeField]
         private VisualPalette palette;
         [SerializeField]
@@ -69,7 +71,7 @@ namespace SqueakyLane.Presentation
 
         private void Awake()
         {
-            configs = new ConfigProvider(gameConfig, feelConfig, cameraConfig, carCatalog);
+            configs = new ConfigProvider(gameConfig, feelConfig, cameraConfig, carCatalog, mechanicCatalog);
             Input.simulateMouseWithTouches = true;
             Application.targetFrameRate = configs.Game.TargetFps;
             Application.runInBackground = true;
@@ -177,7 +179,7 @@ namespace SqueakyLane.Presentation
             timer = new LevelTimer(setup.TimeLimit, gameConfig.UndoPenalty, gameConfig.HintPenalty, gameConfig.Star3Ratio, gameConfig.Star2Ratio, gameConfig.MaxTickSeconds);
             stuck = new StuckDetector(session, gameConfig.SearchMaxStates);
             hints = new HintProvider(session, timer, setup.Hints, gameConfig.SearchMaxStates);
-            board.Build(session.Level, session.State, palette, configs.Cars);
+            board.Build(session.Level, session.State, palette, configs.Cars, configs.Mechanics);
             animator.Initialize(board, feelConfig, session.State);
             input.Initialize(boardCamera, board, gameConfig);
             tableButtons.Bind(session, board, boardCamera, gameConfig);

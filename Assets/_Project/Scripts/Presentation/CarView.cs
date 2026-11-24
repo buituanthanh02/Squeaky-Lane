@@ -24,6 +24,19 @@ namespace SqueakyLane.Presentation
         public int Index { get; private set; }
         public int Length { get; private set; }
         public Vector3 PositiveDirection => transform.right;
+        public bool TryGetVisualBounds(out Bounds bounds)
+        {
+            bounds = default;
+            bool found = false;
+            if (!gameObject.activeInHierarchy || modelRenderers == null) { return false; }
+            foreach (var renderer in modelRenderers)
+            {
+                if (renderer == null || !renderer.enabled || !renderer.gameObject.activeInHierarchy) { continue; }
+                if (found) { bounds.Encapsulate(renderer.bounds); }
+                else { bounds = renderer.bounds; found = true; }
+            }
+            return found;
+        }
         public static bool Usable(GameObject prefab, int length)
         {
             if (prefab == null) return false;

@@ -14,11 +14,16 @@ namespace SqueakyLane.Presentation
         private GameObject content;
         private CarView[] cars;
         private Renderer[] lights, barriers;
+        private MechanicView[] lightViews;
         private GameObject[] muds;
         private Transform[] pylons;
         private Font labelFont;
         private CarCatalog carCatalog;
         private bool carWarningShown;
+        private MechanicCatalog mechanicCatalog;
+        private bool mechanicWarningShown, hasSurface;
+        private Camera occlusionCamera;
+        private readonly List<MechanicOcclusion> occluders = new List<MechanicOcclusion>();
         private readonly List<Renderer> switchWalls = new List<Renderer>();
         private readonly List<Cell> switchWallCells = new List<Cell>();
         public LevelDef Level => level;
@@ -28,26 +33,59 @@ namespace SqueakyLane.Presentation
         public Vector3 Position(CarState car, int length) => Cell(car.R + (car.Axis == Axis.Vertical ? (length - 1) * .5f : 0), car.C + (car.Axis == Axis.Horizontal ? (length - 1) * .5f : 0));
         public static float Yaw(Axis axis) => axis == Axis.Horizontal ? 0 : 90;
 
-        public void Build(LevelDef definition, GameState state, VisualPalette colors, CarCatalog vehicles = null)
+        public void Build(LevelDef definition, GameState state, VisualPalette colors, CarCatalog vehicles = null, MechanicCatalog mechanics = null)
         {
             if (content != null) { content.SetActive(false); Release(content); }
             level = definition; palette = colors; block = new MaterialPropertyBlock();
             carCatalog = vehicles;
+            mechanicCatalog = mechanics;
+            occluders.Clear();
             switchWalls.Clear(); switchWallCells.Clear();
             if (labelFont == null) labelFont = Font.CreateDynamicFontFromOSFont(new[] { "Arial", "Roboto", "Droid Sans", "sans-serif" }, 24);
             content = new GameObject("Board Runtime"); content.transform.SetParent(transform, false);
-            for (int r = 0; r < level.Rows; r++) for (int c = 0; c < level.Cols; c++)
-                Box("Ô " + r + "," + c, Cell(r, c, -.08f), new Vector3(.97f, .14f, .97f), palette.Floor);
+            var surface = SpawnMechanic(MechanicKind.Surface, Vector3.zero);
+            hasSurface = surface != null;
+            if (hasSurface)
+            {
+                surface.GetComponent<LotSurfaceView>().Configure(level, mechanicCatalog.Settings);
+            }
+            else
+            {
+                for (int r = 0; r < level.Rows; r++) for (int c = 0; c < level.Cols; c++)
+                    Box("Ô " + r + "," + c, Cell(r, c, -.08f), new Vector3(.97f, .14f, .97f), palette.Floor);
+            }
             for (int i = 0; i < level.Cols; i++) { Edge(GateEdge.Top, i); Edge(GateEdge.Bottom, i); }
             for (int i = 0; i < level.Rows; i++) { Edge(GateEdge.Left, i); Edge(GateEdge.Right, i); }
-            foreach (var p in level.Cones) Box("Cọc", Cell(p.R, p.C, .24f), new Vector3(.65f, .5f, .65f), palette.Cone);
+            foreach (var p in level.Cones)
+            {
+                if (SpawnMechanic(MechanicKind.Cone, Cell(p.R, p.C, LotSurfaceView.Top)) == null)
+                    Box("Cọc", Cell(p.R, p.C, .24f), new Vector3(.65f, .5f, .65f), palette.Cone);
+            }
             muds = new GameObject[level.Muds.Count];
-            for (int i = 0; i < muds.Length; i++) { var p = level.Muds[i]; muds[i] = Box("Bùn", Cell(p.R, p.C, .015f), new Vector3(.85f, .035f, .85f), palette.Mud).gameObject; }
+            for (int i = 0; i < muds.Length; i++)
+            {
+                var p = level.Muds[i];
+                var visual = SpawnMechanic(MechanicKind.Mud, Cell(p.R, p.C, LotSurfaceView.Top));
+                muds[i] = visual != null ? visual.gameObject : Box("Bùn", Cell(p.R, p.C, .015f), new Vector3(.85f, .035f, .85f), palette.Mud).gameObject;
+            }
             foreach (var p in level.Sprays) { Box("Vòi xịt", Cell(p.R, p.C, .04f), new Vector3(.65f, .07f, .65f), palette.Car(TileColor.Water)); Label("~", Cell(p.R, p.C, .1f)); }
             foreach (var p in level.Paints) Box("Sơn", Cell(p.R, p.C, .035f), new Vector3(.8f, .05f, .8f), palette.Car(p.Color));
-            foreach (var p in level.Tables) { Box("Bàn xoay", Cell(p.R + .5f, p.C + .5f, .02f), new Vector3(1.95f, .04f, 1.95f), palette.Table); Label("↻", Cell(p.R + .5f, p.C + .5f, .8f)); }
+            foreach (var p in level.Tables)
+            {
+                if (SpawnMechanic(MechanicKind.Turntable, Cell(p.R + .5f, p.C + .5f, LotSurfaceView.Top)) == null)
+                {
+                    Box("Bàn xoay", Cell(p.R + .5f, p.C + .5f, .02f), new Vector3(1.95f, .04f, 1.95f), palette.Table);
+                    Label("↻", Cell(p.R + .5f, p.C + .5f, .8f));
+                }
+            }
             lights = new Renderer[level.Lights.Count];
-            for (int i = 0; i < lights.Length; i++) { var p = level.Lights[i]; lights[i] = Box("Đèn", Cell(p.R, p.C, .12f), new Vector3(.75f, .23f, .75f), palette.Closed); }
+            lightViews = new MechanicView[lights.Length];
+            for (int i = 0; i < lights.Length; i++)
+            {
+                var p = level.Lights[i];
+                lightViews[i] = SpawnMechanic(MechanicKind.TrafficLight, Cell(p.R, p.C, LotSurfaceView.Top));
+                if (lightViews[i] == null) lights[i] = Box("Đèn", Cell(p.R, p.C, .12f), new Vector3(.75f, .23f, .75f), palette.Closed);
+            }
             barriers = new Renderer[level.Barriers.Count];
             for (int i = 0; i < barriers.Length; i++) { var p = level.Barriers[i]; barriers[i] = Box("Barie", Cell(p.R, p.C, .18f), new Vector3(.9f, .35f, .3f), palette.Closed); Label(p.Need.ToString(), Cell(p.R, p.C, .5f)); }
             foreach (var p in level.Switches)
@@ -55,18 +93,32 @@ namespace SqueakyLane.Presentation
                 Box("Chốt", Cell(p.R, p.C, .03f), new Vector3(.65f, .06f, .65f), palette.Table); Label("A/B", Cell(p.R, p.C, .1f));
                 AddSwitchWalls(p.A, "A"); AddSwitchWalls(p.B, "B");
             }
-            for (int i = 0; i < level.Portals.Count; i++) { var p = level.Portals[i]; Face(p.A, i + 1); Face(p.B, i + 1); }
+            for (int i = 0; i < level.Portals.Count; i++) { var p = level.Portals[i]; Face(p.A, (i + 1).ToString(), i); Face(p.B, (i + 1).ToString(), i); }
             pylons = new Transform[level.Pylons.Count];
             for (int i = 0; i < pylons.Length; i++)
             {
-                var p = level.Pylons[i]; var core = Box("Trụ xoay " + i, Cell(p.R, p.C, .22f), new Vector3(.75f, .42f, .75f), palette.Portal);
-                pylons[i] = core.transform;
+                var p = level.Pylons[i];
+                var visual = SpawnMechanic(MechanicKind.Pylon, Cell(p.R, p.C, LotSurfaceView.Top));
+                Transform turning;
+                if (visual != null)
+                {
+                    turning = visual.MovingPart;
+                }
+                else
+                {
+                    var core = Box("Trụ xoay " + i, Cell(p.R, p.C, .22f), new Vector3(.75f, .42f, .75f), palette.Portal);
+                    turning = core.transform;
+                    var arm = Box("Hướng trụ", Cell(p.R, p.C, .47f), new Vector3(.15f, .07f, .95f), palette.Wall);
+                    arm.transform.SetParent(core.transform, true);
+                }
+                pylons[i] = turning;
                 // Turns=0: mặt A hướng Bắc, mặt B hướng Nam; xoay âm quanh Y là N→W như Core.
-                var arm = Box("Hướng trụ", Cell(p.R, p.C, .47f), new Vector3(.15f, .07f, .95f), palette.Wall);
-                arm.transform.SetParent(core.transform, true);
                 string link = (level.Portals.Count + 1 + i).ToString();
-                Label(link + "A", new Vector3(0, .85f, .55f), core.transform); Label(link + "B", new Vector3(0, .85f, -.55f), core.transform);
-                Face(p.To[0], link + "A"); Face(p.To[1], link + "B");
+                float labelY = visual != null ? Mathf.Max(mechanicCatalog.Settings.pylonLabelHeight,
+                    mechanicCatalog.Settings.pylonDiscHeight + mechanicCatalog.Settings.pylonDoorHeight + mechanicCatalog.Settings.overlayLift) : .85f;
+                float labelZ = visual != null ? mechanicCatalog.Settings.pylonEntryOffset : .55f;
+                Label(link + "A", new Vector3(0, labelY, labelZ), turning); Label(link + "B", new Vector3(0, labelY, -labelZ), turning);
+                Face(p.To[0], link + "A", level.Portals.Count + i); Face(p.To[1], link + "B", level.Portals.Count + i);
             }
             cars = new CarView[state.CarCount];
             for (int i = 0; i < cars.Length; i++)
@@ -91,15 +143,49 @@ namespace SqueakyLane.Presentation
             float r = edge == GateEdge.Top ? -.65f : edge == GateEdge.Bottom ? level.Rows - .35f : index;
             float c = edge == GateEdge.Left ? -.65f : edge == GateEdge.Right ? level.Cols - .35f : index;
             bool horizontal = edge == GateEdge.Top || edge == GateEdge.Bottom;
+            if (gate.HasValue)
+            {
+                bool water = gate.Value.Color == TileColor.Water;
+                float yaw = edge == GateEdge.Top ? 0 : edge == GateEdge.Bottom ? 180 : edge == GateEdge.Left ? 90 : -90;
+                if (SpawnMechanic(water ? MechanicKind.WaterGate : MechanicKind.ColorGate,
+                    Cell(r, c, LotSurfaceView.Top), water ? 0 : (int)gate.Value.Color, yaw) != null) return;
+            }
+            else if (hasSurface) { return; }
             Box(gate.HasValue ? "Cổng " + gate.Value.Color : "Viền", Cell(r, c, .14f), horizontal ? new Vector3(.97f, .28f, .22f) : new Vector3(.22f, .28f, .97f), gate.HasValue ? palette.Car(gate.Value.Color) : palette.Wall);
         }
-        private void Face(PortalFace p, int link) => Face(p, link.ToString());
-        private void Face(PortalFace p, string link)
+        private void Face(PortalFace p, string link, int pair)
         {
             var offset = p.Side == Side.N ? new Vector3(0, 0, .45f) : p.Side == Side.S ? new Vector3(0, 0, -.45f) : p.Side == Side.W ? Vector3.left * .45f : Vector3.right * .45f;
             bool horizontal = p.Side == Side.N || p.Side == Side.S;
             var pos = Cell(p.R, p.C, .18f) + offset;
+            int count = mechanicCatalog != null && mechanicCatalog.Settings.portalColors != null ? Mathf.Max(1, mechanicCatalog.Settings.portalColors.Length) : 1;
+            var visual = SpawnMechanic(MechanicKind.Portal, Cell(p.R, p.C, LotSurfaceView.Top) + offset,
+                pair % count, horizontal ? 0 : 90);
+            if (visual != null)
+            {
+                Label(link, visual.transform.localPosition + Vector3.up * (mechanicCatalog.Settings.portalHeight + mechanicCatalog.Settings.overlayLift));
+                return;
+            }
             Box("Portal " + link, pos, horizontal ? new Vector3(.82f, .3f, .12f) : new Vector3(.12f, .3f, .82f), palette.Portal); Label(link, pos + Vector3.up * .23f);
+        }
+        private MechanicView SpawnMechanic(MechanicKind kind, Vector3 position, int variant = 0, float yaw = 0)
+        {
+            var prefab = mechanicCatalog != null ? mechanicCatalog.Prefab(kind, variant) : null;
+            if (!MechanicView.Usable(prefab, kind))
+            {
+                if (!mechanicWarningShown && (Application.isPlaying || mechanicCatalog != null))
+                {
+                    mechanicWarningShown = true;
+                    Debug.LogWarning("MechanicCatalog thiếu prefab hợp lệ cho " + kind + "/" + variant + "; dùng khối dự phòng.", this);
+                }
+                return null;
+            }
+            var instance = Instantiate(prefab, content.transform, false);
+            instance.transform.localPosition = position;
+            instance.transform.localRotation = Quaternion.Euler(0, yaw, 0);
+            var occlusion = instance.GetComponent<MechanicOcclusion>();
+            if (occlusion != null && occlusion.IsConfigured) { occluders.Add(occlusion); }
+            return instance.GetComponent<MechanicView>();
         }
         private Renderer Box(string name, Vector3 position, Vector3 size, Color color, Transform parent = null, bool collider = false)
         {
@@ -141,7 +227,12 @@ namespace SqueakyLane.Presentation
         public void RefreshMechanics(GameState state)
         {
             for (int i = 0; i < muds.Length; i++) muds[i].SetActive(state.MudAt(i));
-            for (int i = 0; i < lights.Length; i++) Colorize(lights[i], LightRule.IsRed(state, level.Lights[i]) ? palette.Closed : palette.Open);
+            for (int i = 0; i < lights.Length; i++)
+            {
+                bool red = LightRule.IsRed(state, level.Lights[i]);
+                if (lightViews[i] != null) lightViews[i].SetRed(red);
+                else Colorize(lights[i], red ? palette.Closed : palette.Open);
+            }
             for (int i = 0; i < barriers.Length; i++)
             {
                 var b = level.Barriers[i]; bool open = GameRules.WashedCount(state) >= b.Need;
@@ -172,6 +263,7 @@ namespace SqueakyLane.Presentation
         public Vector3 PylonPosition(int i) { var p = level.Pylons[i]; return transform.TransformPoint(Cell(p.R, p.C, .22f)); }
         public void FitCamera(Camera camera, CameraConfig config, Rect viewport)
         {
+            occlusionCamera = camera;
             // Camera phải xóa nền cả màn: nếu chỉ vẽ vùng bãi, chữ HUD ngoài vùng đó có thể lưu vệt của frame cũ.
             // viewport chỉ dùng để chừa chỗ cho HUD, không giới hạn vùng camera vẽ.
             camera.orthographic = true; camera.rect = new Rect(0, 0, 1, 1);
@@ -188,6 +280,30 @@ namespace SqueakyLane.Presentation
             float offsetY = (center.y * 2 - 1) * camera.orthographicSize;
             camera.transform.position = transform.position - camera.transform.forward * 25
                 - camera.transform.right * offsetX - camera.transform.up * offsetY;
+            RefreshOcclusion();
+        }
+        private void LateUpdate() { RefreshOcclusion(); }
+        public void RefreshOcclusion()
+        {
+            bool enabled = mechanicCatalog != null && mechanicCatalog.Settings.fadeOccluders && occlusionCamera != null && cars != null;
+            foreach (var occluder in occluders)
+            {
+                bool covered = false;
+                if (enabled)
+                {
+                    Bounds obstacle = occluder.VisualBounds;
+                    foreach (var car in cars)
+                    {
+                        if (car != null && car.TryGetVisualBounds(out var bounds) &&
+                            MechanicOcclusion.CoversCar(occlusionCamera, obstacle, bounds, mechanicCatalog.Settings.occlusionPadding))
+                        {
+                            covered = true;
+                            break;
+                        }
+                    }
+                }
+                occluder.SetFaded(covered);
+            }
         }
         private static void Release(Object obj) { if (Application.isPlaying) Destroy(obj); else DestroyImmediate(obj); }
         private void OnDestroy() { if (labelFont != null) Release(labelFont); }
