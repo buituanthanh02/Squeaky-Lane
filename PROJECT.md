@@ -436,7 +436,8 @@ namespace SqueakyLane.Game
 | 006 | Bộ nạp JSON + phát lại golden trace kiểm luật Core | `006-loader-trace` | Codex | Xong (đã merge 22/11) | APPROVE (Claude 22/11) | 003–005 |
 | 007 | Solver BFS, tìm thắng/gợi ý theo bước và đo màn 16 | `007-solver` | Codex | Xong (đã merge 22/11); cấp phát kiểm tiếp ở 008 | APPROVE có điều kiện (Claude 22/11) | 003–006 |
 | 008 | Chơi được trên màn hình: phiên chơi, khối 3D, input/animation/nút debug | `008-playable` | Codex | Đã merge 23/11; phần chưa kiểm giữ trong phiếu | APPROVE có điều kiện (Claude 23/11) | 003–007 |
-| 009 | Điều hướng, HUD/panel, âm thanh/rung và tool sửa màn/config ngoài Play | `009-audio-ui` | Codex | Chờ Claude review A–D; EditMode352/0/1, đã thử tool; còn UI/V3 Android | Chưa review | 008 |
+| 009 | Điều hướng, HUD/panel, âm thanh/rung và tool sửa màn/config ngoài Play | `009-audio-ui` | Codex | Chờ người làm xử lý điều kiện rồi merge; EditMode352/0/1; còn V3 Android | APPROVE có điều kiện (Claude 24/11) | 008 |
+| 009-01 | Dọn nợ thiết kế 009: tự Pause khi vào nền, LevelSetup có test, metadata màn, một chỗ ghi trạng thái, test Level Editor | `009-01-code-cleanup` (mở sau khi 009 merge) | Codex | Plan | — | 009 |
 
 **Kế hoạch từ 008:** `docs/handoff/play-plan.md` thay `core-plan.md` §7–9; 008 gộp logic phiên chơi + hiển thị + điều khiển, có thể commit theo mốc A/B/C, Claude review một lần cuối. 008 chưa có Navigator/điều hướng; phần đó là 009-A. `[CHỐT 22/11]`
 
