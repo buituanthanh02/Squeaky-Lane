@@ -200,6 +200,8 @@ namespace SqueakyLane.Tests.EditMode
             {
                 faded.color = new Color(1, 1, 1, .18f);
                 var occlusion = obj.AddComponent<MechanicOcclusion>();
+                // Test EditMode cần cho instance này nhận callback thật của Unity khi SetActive(false).
+                occlusion.runInEditMode = true;
                 occlusion.Configure(renderer, new[] { material }, new[] { faded });
                 occlusion.SetFaded(true);
                 Assert.That(renderer.sharedMaterial, Is.SameAs(faded));

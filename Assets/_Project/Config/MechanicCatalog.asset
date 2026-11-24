@@ -117,6 +117,20 @@ MonoBehaviour:
     portalHeight: 0.9
     portalRim: 0.055
     portalColors:
-    - {r: 0, g: 0.8980392, b: 1, a: 1}
-    - {r: 1, g: 0.2509804, b: 0.5058824, a: 1}
+    - {r: 1, g: 1, b: 1, a: 1}
     - {r: 0.7764706, g: 1, b: 0, a: 1}
+    - {r: 0, g: 0.8980392, b: 1, a: 1}
+    pylonRingDiameter: 0.9
+    pylonDiscHeight: 0.035
+    pylonRingWidth: 0.055
+    pylonEntryWidth: 0.9
+    pylonEntryHeight: 0.3
+    pylonEntryOffset: 0.5
+    pylonArrowLength: 0.18
+    pylonArrowWidth: 0.2
+    pylonLabelHeight: 0.34
+    pylonDoorHeight: 0.84
+    pylonDoorDepth: 0.14
+    fadeOccluders: 1
+    occludedAlpha: 0.18
+    occlusionPadding: 0.03

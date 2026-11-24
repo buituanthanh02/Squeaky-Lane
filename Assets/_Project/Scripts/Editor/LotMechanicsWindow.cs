@@ -43,6 +43,7 @@ namespace SqueakyLane.EditorTools
                 if (GUILayout.Button("2 · Nhập riêng cone.fbx từ Downloads")) { Run(ImportCone); }
                 if (GUILayout.Button("3 · Tạo prefab P1 còn thiếu")) { Run(() => Build(false)); }
                 if (GUILayout.Button("4 · Cập nhật cổng tele xoay + chống che")) { Run(() => Build(true, true)); }
+                if (GUILayout.Button("5 · Đổi 3 màu portal: trắng / chanh / cyan")) { Run(UpdatePortalColors); }
                 if (GUILayout.Button("Dựng lại P1 theo catalog · sao lưu prefab trước")) { Run(() => Build(true)); }
                 EditorGUILayout.HelpBox("Dựng lại sẽ thay hình trong prefab được sinh bởi tool; bản sao nằm ở Logs/011-prefab-backups. Không thay City/Racing ở bước này. Các prefab không có collider để chạm xuyên tới xe.", MessageType.None);
             }
@@ -125,6 +126,48 @@ namespace SqueakyLane.EditorTools
             Selection.activeObject = catalog;
             status = correctionsOnly ? "Đã cập nhật11 prefab cổng/trụ, giữ catalog/GUID. Run All rồi kiểm màn29/30; backup: " + backup :
                 "Đã nối " + entries.Count + " prefab P1. Gán Mechanic Catalog trên GameRoot ngoài Play; Run All rồi Play kiểm.";
+        }
+        private void UpdatePortalColors()
+        {
+            if (catalog == null) { throw new InvalidOperationException("Gán MechanicCatalog trước."); }
+            var colors = new Color[] { Color.white, new Color32(198, 255, 0, 255), new Color32(0, 229, 255, 255) };
+            string backup = "Logs/011-prefab-backups/" + DateTime.Now.ToString("yyyyMMdd-HHmmss-fff");
+            Directory.CreateDirectory(backup);
+            for (int i = 0; i < colors.Length; i++)
+            {
+                string path = Prefabs + "/Portal_" + i + ".prefab";
+                if (!File.Exists(path)) { throw new InvalidOperationException("Thiếu prefab portal hiện có: " + path); }
+                File.Copy(path, backup + "/" + Path.GetFileName(path));
+            }
+            Undo.RecordObject(catalog, "Đổi ba màu portal011");
+            var data = new SerializedObject(catalog);
+            var values = data.FindProperty("design.portalColors");
+            values.arraySize = colors.Length;
+            for (int i = 0; i < colors.Length; i++) { values.GetArrayElementAtIndex(i).colorValue = colors[i]; }
+            data.ApplyModifiedProperties();
+            AssetDatabase.SaveAssetIfDirty(catalog);
+            materials.Clear();
+            for (int i = 0; i < colors.Length; i++)
+            {
+                string key = "Portal_" + i;
+                BuildPrefab(MechanicKind.Portal, i, key, Prefabs + "/" + key + ".prefab");
+            }
+            // Chỉ cập nhật ba tham chiếu portal; các loại cơ chế khác giữ dữ liệu hiện có.
+            data.Update();
+            var entries = data.FindProperty("entries");
+            for (int i = 0; i < entries.arraySize; i++)
+            {
+                var entry = entries.GetArrayElementAtIndex(i);
+                int variant = entry.FindPropertyRelative("variant").intValue;
+                if (entry.FindPropertyRelative("kind").enumValueIndex == (int)MechanicKind.Portal && variant >= 0 && variant < colors.Length)
+                {
+                    entry.FindPropertyRelative("prefab").objectReferenceValue = AssetDatabase.LoadAssetAtPath<GameObject>(Prefabs + "/Portal_" + variant + ".prefab");
+                }
+            }
+            data.ApplyModifiedProperties();
+            AssetDatabase.SaveAssetIfDirty(catalog);
+            Selection.activeObject = catalog;
+            status = "Đã đổi portal thành #FFFFFF / #C6FF00 / #00E5FF và dựng lại riêng3 prefab portal. Backup: " + backup;
         }
         private void BuildPrefab(MechanicKind kind, int variant, string key, string path)
         {
