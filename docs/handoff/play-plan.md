@@ -81,9 +81,10 @@ Người làm gửi prompt "làm theo play-plan" = **duyệt kế hoạch** vi�
 | Mã | Việc | Ghi chú |
 |---|---|---|
 | 010 | Xe Kenney (mỗi màu một dáng), bảng màu hồng/tím, camera/ánh sáng đẹp, chống che (mờ vật cao) | Nhập asset **qua Unity**, gọn trong `Assets/_Project/Art/Cars/Kenney/`, bỏ OBJ/GLB/ảnh xem trước không dùng (xóa asset cần duyệt) |
-| 011 | VFX và cảm giác: nhún, chúi, nảy, rũ bùn, hạt nước/bùn, rung camera nhẹ, bánh quay | Số trong `FeelConfig`; Claude quyết số cụ thể dựa trên video người làm gửi |
-| 012 | Chọn/sinh **25 màn cuối** + tutorial bằng hình (bàn tay, vòng sáng, mũi tên) + công thức giờ chỉnh theo người chơi thật | Dùng tool/prototype; golden `minMoves` cho từng màn |
-| 013 | Build APK, đo fps (mục tiêu 50–60), nhiệt, dung lượng, sửa lỗi | Người làm build; Android: package name, Portrait, ARM64 cần quyết trước |
+| 011 | **Bãi xe và cơ chế ra hình** (cập nhật 25/11): mặt bãi (nhựa đường, vạch đỗ, viền), hình cho cơ chế bậc A (§5.1): cổng màu, cổng nước, vũng bùn, cọc, đèn, bàn xoay, portal, trụ xoay. `MechanicCatalog` giống `CarCatalog` (cơ chế → prefab), thiếu thì dùng khối cũ | Kenney CC0 cùng phong cách xe (City Kit Roads, Racing Kit…): chỉ nhập model dùng tới. Thứ không có sẵn (cổng rửa, bàn xoay, portal, vũng) dựng từ khối đơn giản theo bảng màu. Bậc B và nhà nền quanh bãi cắt trước |
+| 012 | Chọn/sinh **25 màn cuối** + tutorial bằng hình (bàn tay, vòng sáng, mũi tên) + công thức giờ chỉnh theo người chơi thật | Dùng tool/prototype; golden `minMoves` cho từng màn; bỏ màn thử 32–34 |
+| 013 | Cảm giác và VFX: nhún, chúi, nảy, rũ bùn, hạt nước/bùn, rung camera nhẹ, bánh quay | Số trong `FeelConfig`; Claude quyết số theo video. **Cắt được** |
+| 014 | Build APK cuối, đo fps (50–60), nhiệt, dung lượng, sửa lỗi | APK đầu tiên build ngay sau merge 010; Android: package name, Portrait, IL2CPP + ARM64 |
 
 ### 4.1. Tích hợp prefab xe ngoài — bước bắt buộc trong 010 `[CHỐT 23/11]`
 Người làm nhắc: nhập asset không đồng nghĩa prefab đã dùng được trong game. Làm theo chuỗi sau, không thay trực tiếp model vào scene rồi coi xong:
@@ -101,8 +102,10 @@ Người làm nhắc: nhập asset không đồng nghĩa prefab đã dùng đư�
 | 22/11 (tối) | 007 xong/review |
 | 23/11 | 008 (mốc A–C), người làm chơi thử |
 | 24/11 | 009 (âm thanh, rung, UI) |
-| 25–26/11 | 010, 011 |
-| 27/11 | 012 |
-| 28–29/11 | 013, sửa lỗi |
+| 25/11 | 010 xong, merge, APK đầu tiên |
+| 25–26/11 | 011 bãi xe và cơ chế ra hình |
+| 27/11 | 012 25 màn + tutorial |
+| 28/11 | 013 cảm giác/VFX (cắt được) |
+| 28–29/11 | 014 APK cuối, đo, sửa lỗi |
 | 30/11 | Đánh bóng, video demo, chốt tài liệu |
 **Thứ tự cắt** (từ dưới lên): asset đẹp → VFX phụ → Gợi ý → công tắc cài đặt → tutorial bằng hình. **Không cắt:** chơi được 25 màn, hoàn tác, đồng hồ, thắng/thua, âm thanh, rung (yêu cầu bắt buộc của anh lead: APK hoàn chỉnh, ≥ 25 màn, âm thanh + rung, không crash, 50–60 fps, < 250 MB, máy không nóng).

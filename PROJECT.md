@@ -449,6 +449,7 @@ namespace SqueakyLane.Game
 | 009 | Điều hướng, HUD/panel, âm thanh/rung và tool sửa màn/config ngoài Play | `009-audio-ui` | Codex | Đã vào main 24/11; EditMode352/0/1; còn V3 Android | APPROVE có điều kiện (Claude 24/11) | 008 |
 | 009-01 | Dọn nợ thiết kế 009: Pause nền, setup/metadata/test màn, tách nút bàn xoay và âm/rung, gom schema Editor | `009-01-code-cleanup` | Codex, Claude | Đã vào main 24/11; phần kiểm chưa ghi giữ trong phiếu, G hoãn | APPROVE có điều kiện (Claude 24/11) | 009 |
 | 010 | Xe Kenney: prefab bọc, colormap theo màu, CarCatalog và tích hợp hiển thị | `010-kenney-cars` | Codex, Claude | Đủ12 prefab, tải nối thùng2.82ô; chờ Run All mới/Play/ảnh20 trước merge | APPROVE có điều kiện (Claude 25/11) | 008, 009-01 |
+| 011 | Bãi xe và cơ chế ra hình: MechanicCatalog, mặt bãi, cơ chế bậc A | `011-lot-mechanics` (mở sau khi 010 merge) | Codex, Claude | Plan | — | 010 |
 
 **Kế hoạch từ 008:** `docs/handoff/play-plan.md` thay `core-plan.md` §7–9; 008 gộp logic phiên chơi + hiển thị + điều khiển, có thể commit theo mốc A/B/C, Claude review một lần cuối. 008 chưa có Navigator/điều hướng; phần đó là 009-A. `[CHỐT 22/11]`
 
