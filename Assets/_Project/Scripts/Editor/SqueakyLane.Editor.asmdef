@@ -1,0 +1,11 @@
+{
+    "name": "SqueakyLane.Editor",
+    "references": [
+        "SqueakyLane.Core",
+        "SqueakyLane.Game",
+        "SqueakyLane.Presentation",
+        "UnityEngine.UI"
+    ],
+    "includePlatforms": ["Editor"],
+    "autoReferenced": true
+}

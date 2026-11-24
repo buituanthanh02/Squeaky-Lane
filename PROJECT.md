@@ -39,6 +39,7 @@ Hai AI **không nói chuyện trực tiếp với nhau**. Mọi thứ đi qua ng
 3. **Quy tắc trong tài liệu này có thể sai hoặc rườm.** Người làm là người mới, AI thấy quy tắc nào vô lý/thừa/mâu thuẫn thì **nói ra và bàn lại**, không im lặng làm theo.
 4. **Việc thất bại hoặc vượt giới hạn → dừng lại và nói chuyện với người làm**, không tự vòng vèo/làm tắt phá hoại.
 5. Luôn trả lời bằng **tiếng Việt**. Code sạch, chia class theo trách nhiệm, comment tiếng Việt giải thích rõ; khi giao code mẫu thì kèm cấu trúc thư mục. Viết vừa sức junior đọc và giải thích; **không chia vụn thành một file cho mọi kiểu dữ liệu**. Enum/struct và kiểu nhỏ liên quan được gom chung; component Unity vẫn một class một file. `[CHỐT — người làm nhắc lại 22/11]`
+6. Các file thuộc phiếu 009-01: mỗi dòng một lệnh; `if`/`for` luôn có ngoặc `{}`. Không format file ngoài phạm vi. `[CHỐT 24/11]`
 
 ### 2.3. Ranh giới tự làm / phải hỏi `[CHỐT]`
 - **Tự làm trên nhánh riêng:** sửa/viết code, chạy test, viết tài liệu trong nhánh đó.
@@ -227,7 +228,7 @@ Vắng `timeLimit/hints` thì dùng GameConfig; đặt timeLimit=0 là không t�
 
 ## 8. Kiến trúc đề xuất `[ĐỀ XUẤT]`
 
-**Hiện trạng việc 001:** đã có `Scripts/Core/SqueakyLane.Core.asmdef` (`noEngineReferences = true`), `Scripts/Game/SqueakyLane.Game.asmdef` (tham chiếu Core) và `Tests/EditMode/SqueakyLane.Tests.EditMode.asmdef` (chỉ Editor; tham chiếu Core, Game, TestRunner và NUnit). Core/Game có marker rỗng để Unity tạo DLL; một EditMode test reflection kiểm Core không tham chiếu `UnityEngine*` đã qua trong Test Runner. Các đường dẫn này nằm dưới `Assets/_Project/`. Game marker là bổ sung được người làm duyệt trong việc 001 để khắc phục cảnh báo asmdef không có script. `[FILE; CHỐT 22/11]`
+**Hiện trạng assembly:** `Scripts/Core/SqueakyLane.Core.asmdef` không tham chiếu UnityEngine; Game → Core; Presentation → Game, Core, TMP, uGUI. Việc 009-01 thêm `Scripts/Editor/SqueakyLane.Editor.asmdef` chỉ dành cho Editor → Core, Game, Presentation, uGUI; test EditMode → các assembly trên, uGUI, TestRunner và NUnit. `LevelDesignIO` giữ `internal`, cấp quyền cho test qua `InternalsVisibleTo`; không có cạnh runtime → Editor. Người làm duyệt đổi asmdef 24/11; Run All A–E qua 504/0/1 (ảnh người làm), thay đổi F/H/I chưa chạy lại Run All. Các đường dẫn này nằm dưới `Assets/_Project/`. `[FILE; CHỐT 24/11]`
 
 **Nguyên tắc:** 3 tầng, tầng trên gọi tầng dưới, không ngược lại.
 `Core` (luật thuần C#, không dùng `UnityEngine`) ← `Game` (phiên chơi, input, đồng hồ, tutorial) ← `Presentation/UI` (hình, âm, hiệu ứng).
@@ -264,9 +265,10 @@ Assets/_Project/
 │  │     ├─ Solver.cs           # BFS ít lượt nhất + lệnh/kết quả
 │  │     └─ StepSearch.cs       # WinSearch/PathSearch theo ngân sách node
 │  ├─ Game/                     # asmdef "SqueakyLane.Game" → tham chiếu Core
-│  │  ├─ LevelJsonLoader.cs     # nhận JSON + tên nguồn → LevelDef; DTO cùng file
+│  │  ├─ LevelJsonLoader.cs     # JSON → LevelDef + LevelInfo trong cùng một lần parse; DTO cùng file
+│  │  ├─ LevelSetup.cs          # dữ liệu thường → giờ, gợi ý, tutorial; không nhận ScriptableObject
 │  │  ├─ GameSession.cs         # snapshot, lịch sử Undo/Restart, dùng lại SolverMove
-│  │  ├─ LevelTimer.cs          # dt từ ngoài, phạt Undo/Hint, sao
+│  │  ├─ LevelTimer.cs          # dt từ ngoài, giới hạn mỗi tick theo GameConfig; phạt Undo/Hint, sao
 │  │  ├─ SearchServices.cs      # SearchBudget theo ms, StuckDetector, HintProvider
 │  │  ├─ Navigator.cs           # luồng chọn/chơi/pause/thắng/thua; trả lệnh
 │  │  ├─ ProgressStore.cs       # sao tốt nhất và công tắc âm/rung
@@ -280,7 +282,9 @@ Assets/_Project/
 │  │  ├─ CarView.cs
 │  │  ├─ InputController.cs     # chạm/vuốt → lệnh; ưu tiên raycast UI
 │  │  ├─ ActionAnimator.cs      # events, hàng đợi mỗi xe và đặt chỗ đường hình
-│  │  ├─ DebugHud.cs            # HUD cũ và nút bàn xoay; NavigationView nhận UI 009
+│  │  ├─ DebugHud.cs            # chỉ HUD gỡ lỗi; không tạo font/object khi không dùng
+│  │  ├─ TableButtons.cs        # class thường, nút bàn xoay độc lập với DebugHud
+│  │  ├─ FeedbackRouter.cs      # class thường, nối input/animator/UI với âm/rung và cài đặt
 │  │  ├─ NavigationView.cs      # tham chiếu UI do người làm dựng trong Canvas
 │  │  ├─ SfxCatalog.cs
 │  │  ├─ SfxPlayer.cs
@@ -299,6 +303,8 @@ Assets/_Project/
 ```
 
 **Tạo tài nguyên:** menu Setup Play tạo khung chơi ban đầu bằng API Unity. UI 009, LevelButton và SfxCatalog do người làm tạo/gắn qua Inspector; code điều hướng/âm/rung đã có nhưng chưa xác nhận đủ V2/V3. Người làm duyệt Codex căn thông số UI bằng sửa YAML khi Unity đã đóng (23/11); không dùng tool căn UI, các giá trị nằm trong scene/prefab để chỉnh qua Inspector. ClockFill còn thiếu Source Image, StuckBanner còn thiếu chữ con; chưa xác nhận bằng Play. Catalog art và tutorial làm ở các việc sau; không tạo thư mục rỗng phòng xa.
+
+**009-01 ngày 24/11:** đã viết A–F/H–I, không đổi scene/prefab. Người làm yêu cầu bỏ bước Editor vì sát hạn nên **hoãn G**: chưa dùng `PlayArea`, giữ vùng camera cũ theo safe area; không cần gán ô mới. Level Editor dùng chung bảng `DesignKinds` cho schema/nhãn và lấy màu lưới từ `VisualPalette`. Chờ kiểm bản sau F/H/I trong Unity; chi tiết ở phiếu 009-01. `[FILE; CHỐT 24/11]`
 
 ### 8.1. Code mẫu (minh hoạ cấu trúc; luật chính xác xem `logic.js`)
 
@@ -436,8 +442,8 @@ namespace SqueakyLane.Game
 | 006 | Bộ nạp JSON + phát lại golden trace kiểm luật Core | `006-loader-trace` | Codex | Xong (đã merge 22/11) | APPROVE (Claude 22/11) | 003–005 |
 | 007 | Solver BFS, tìm thắng/gợi ý theo bước và đo màn 16 | `007-solver` | Codex | Xong (đã merge 22/11); cấp phát kiểm tiếp ở 008 | APPROVE có điều kiện (Claude 22/11) | 003–006 |
 | 008 | Chơi được trên màn hình: phiên chơi, khối 3D, input/animation/nút debug | `008-playable` | Codex | Đã merge 23/11; phần chưa kiểm giữ trong phiếu | APPROVE có điều kiện (Claude 23/11) | 003–007 |
-| 009 | Điều hướng, HUD/panel, âm thanh/rung và tool sửa màn/config ngoài Play | `009-audio-ui` | Codex | Chờ người làm xử lý điều kiện rồi merge; EditMode352/0/1; còn V3 Android | APPROVE có điều kiện (Claude 24/11) | 008 |
-| 009-01 | Dọn nợ thiết kế 009: tự Pause khi vào nền, LevelSetup có test, metadata màn, một chỗ ghi trạng thái, test Level Editor | `009-01-code-cleanup` (mở sau khi 009 merge) | Codex | Plan | — | 009 |
+| 009 | Điều hướng, HUD/panel, âm thanh/rung và tool sửa màn/config ngoài Play | `009-audio-ui` | Codex | Đã vào main 24/11; EditMode352/0/1; còn V3 Android | APPROVE có điều kiện (Claude 24/11) | 008 |
+| 009-01 | Dọn nợ thiết kế 009: Pause nền, setup/metadata/test màn, tách nút bàn xoay và âm/rung, gom schema Editor | `009-01-code-cleanup` | Codex, Claude | Chờ người làm: import .meta, Run All, Play nhanh rồi merge; G hoãn | APPROVE có điều kiện (Claude 24/11) | 009 |
 
 **Kế hoạch từ 008:** `docs/handoff/play-plan.md` thay `core-plan.md` §7–9; 008 gộp logic phiên chơi + hiển thị + điều khiển, có thể commit theo mốc A/B/C, Claude review một lần cuối. 008 chưa có Navigator/điều hướng; phần đó là 009-A. `[CHỐT 22/11]`
 
