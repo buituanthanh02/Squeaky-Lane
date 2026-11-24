@@ -84,7 +84,7 @@ Người làm gửi prompt "làm theo play-plan" = **duyệt kế hoạch** vi�
 | 011 | **Bãi xe và cơ chế ra hình** (cập nhật 25/11): mặt bãi (nhựa đường, vạch đỗ, viền), hình cho cơ chế bậc A (§5.1): cổng màu, cổng nước, vũng bùn, cọc, đèn, bàn xoay, portal, trụ xoay. `MechanicCatalog` giống `CarCatalog` (cơ chế → prefab), thiếu thì dùng khối cũ | Kenney CC0 cùng phong cách xe (City Kit Roads, Racing Kit…): chỉ nhập model dùng tới. Thứ không có sẵn (cổng rửa, bàn xoay, portal, vũng) dựng từ khối đơn giản theo bảng màu. Bậc B và nhà nền quanh bãi cắt trước |
 | 012 | Chọn/sinh **25 màn cuối** + tutorial bằng hình (bàn tay, vòng sáng, mũi tên) + công thức giờ chỉnh theo người chơi thật | Dùng tool/prototype; golden `minMoves` cho từng màn; bỏ màn thử 32–34 |
 | 013 | Cảm giác và VFX: nhún, chúi, nảy, rũ bùn, hạt nước/bùn, rung camera nhẹ, bánh quay | Số trong `FeelConfig`; Claude quyết số theo video. **Cắt được** |
-| 014 | Build APK cuối, đo fps (50–60), nhiệt, dung lượng, sửa lỗi | APK đầu tiên build ngay sau merge 010; Android: package name, Portrait, IL2CPP + ARM64 |
+| 014 | Build APK cuối, đo fps (50–60), nhiệt, dung lượng, sửa lỗi | APK đầu tiên build khi 011 xong (muộn nhất 26/11); Android: package name, Portrait, IL2CPP + ARM64 |
 
 ### 4.1. Tích hợp prefab xe ngoài — bước bắt buộc trong 010 `[CHỐT 23/11]`
 Người làm nhắc: nhập asset không đồng nghĩa prefab đã dùng được trong game. Làm theo chuỗi sau, không thay trực tiếp model vào scene rồi coi xong:
@@ -102,8 +102,8 @@ Người làm nhắc: nhập asset không đồng nghĩa prefab đã dùng đư�
 | 22/11 (tối) | 007 xong/review |
 | 23/11 | 008 (mốc A–C), người làm chơi thử |
 | 24/11 | 009 (âm thanh, rung, UI) |
-| 25/11 | 010 xong, merge, APK đầu tiên |
-| 25–26/11 | 011 bãi xe và cơ chế ra hình |
+| 25/11 | 010 xong, merge |
+| 25–26/11 | 011 bãi xe và cơ chế ra hình; **APK đầu tiên ngay khi 011 xong, muộn nhất 26/11** `[CHỐT 25/11: người làm muốn build sau khi có visual]` |
 | 27/11 | 012 25 màn + tutorial |
 | 28/11 | 013 cảm giác/VFX (cắt được) |
 | 28–29/11 | 014 APK cuối, đo, sửa lỗi |
