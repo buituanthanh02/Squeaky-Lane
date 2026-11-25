@@ -11,9 +11,9 @@ TICKET="${2:?thiếu <file-phiếu.md>}"
 EXTRA="${3:-}"
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 OUT="$ROOT/Logs/codex"
-# Model và mức suy luận: mặc định gpt-6.1-sol, medium (rẻ, nhanh). Việc khó hoặc review thấy lỗi thì nâng: CODEX_EFFORT=high tools/codex-run.sh ...
-# (Sol 6.2 chưa có trong danh mục tài khoản ChatGPT này, 26/11; xem `codex debug models`. Muốn đổi model: CODEX_MODEL=<slug>.)
-MODEL="${CODEX_MODEL:-gpt-6.1-sol}"
+# Model và mức suy luận: mặc định gpt-6.2-sol, medium (rẻ, nhanh). Việc khó hoặc review thấy lỗi thì nâng: CODEX_EFFORT=high tools/codex-run.sh ...
+# (gpt-6.2-sol cần Codex CLI >= 0.172.0; xem `codex debug models`. Muốn đổi model: CODEX_MODEL=<slug>.)
+MODEL="${CODEX_MODEL:-gpt-6.2-sol}"
 EFFORT="${CODEX_EFFORT:-medium}"
 mkdir -p "$OUT"
 PROMPT="$OUT/$NAME.prompt.md"
