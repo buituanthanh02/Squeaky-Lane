@@ -15,6 +15,8 @@ namespace SqueakyLane.EditorTools
         private const string ArtFolder = "Assets/_Project/Art/VFX";
         private const string PrefabFolder = "Assets/_Project/Prefabs/VFX";
         private const string PreviewPath = "Logs/014-car-vfx-preview.png";
+        private const string MudPreviewPath = "Logs/014-mud-preview.png";
+        private const string MudBlobName = "MudBlob";
         private const string ShaderName = "Legacy Shaders/Particles/Alpha Blended";
         private const string Tint = "_TintColor";
         private const int Width = 64;
@@ -39,6 +41,11 @@ namespace SqueakyLane.EditorTools
             {
                 throw new InvalidOperationException($"Không tìm thấy shader {ShaderName}.");
             }
+            var standard = Shader.Find("Standard");
+            if (standard == null)
+            {
+                throw new InvalidOperationException("Không tìm thấy shader Standard cho cục bùn.");
+            }
 
             EnsureFolder(ArtFolder + "/Textures");
             EnsureFolder(ArtFolder + "/Materials");
@@ -51,20 +58,25 @@ namespace SqueakyLane.EditorTools
             // Claude 26/11: .55/.50 → .85/.80 sau ảnh Play: trên nhựa đường tối tia đèn gần như không thấy.
             var head = SaveMaterial("M_Headlight", shader, beamTexture, BeamTint(new Color32(255, 243, 196, 255), .85f));
             var tail = SaveMaterial("M_Taillight", shader, beamTexture, BeamTint(new Color32(255, 74, 61, 255), .80f));
+            var mudTrail = SaveMaterial("M_MudTrail", shader, trailTexture, BeamTint(new Color32(150, 98, 47, 255), .95f)); // Claude 26/11: #6B4423/.75 chìm trên nhựa đường #3A3F4B → sáng hơn, đậm hơn
+            var mudMaterial = SaveMudBlobMaterial(standard);
+            var mudMesh = SaveMudBlobMesh();
             var quad = SaveBeamQuad();
             var scene = EditorSceneManager.NewPreviewScene();
             try
             {
                 var headPrefab = SavePrefab(scene, "HeadlightBeams", quad, head, HeadlightLength, HeadlightWidth);
                 var tailPrefab = SavePrefab(scene, "TaillightBeams", quad, tail, TaillightLength, TaillightWidth);
+                var mudPrefab = SaveMudBlobPrefab(scene, mudMesh, mudMaterial);
                 SavePreview(scene, quad, trail, headPrefab, tailPrefab);
+                SaveMudPreview(scene, quad, mudTrail, mudPrefab, standard);
             }
             finally
             {
                 EditorSceneManager.ClosePreviewScene(scene);
             }
 
-            Debug.Log($"014 Car VFX: đã tạo hoặc xác nhận texture, material, prefab và {PreviewPath}.");
+            Debug.Log($"014 Car VFX: đã tạo hoặc xác nhận texture, material, mesh, prefab và ảnh {PreviewPath}, {MudPreviewPath}.");
         }
 
         private static float TrailAlpha(int x, int y)
@@ -173,6 +185,182 @@ namespace SqueakyLane.EditorTools
             return material;
         }
 
+        private static Material SaveMudBlobMaterial(Shader shader)
+        {
+            const string name = "M_MudBlob";
+            string path = ArtFolder + "/Materials/" + name + ".mat";
+            Color mudColor = new Color32(90, 52, 24, 255);
+            const float smoothness = .65f;
+            var material = AssetDatabase.LoadAssetAtPath<Material>(path);
+            bool isNew = material == null;
+            if (isNew)
+            {
+                material = new Material(shader) { name = name };
+            }
+            else if (material.shader == shader && material.color.Equals(mudColor) && material.mainTexture == null &&
+                     material.GetFloat("_Glossiness") == smoothness && material.GetFloat("_Metallic") == 0f &&
+                     material.GetFloat("_Mode") == 0f && material.GetFloat("_ZWrite") == 1f &&
+                     material.GetFloat("_SrcBlend") == (float)BlendMode.One &&
+                     material.GetFloat("_DstBlend") == (float)BlendMode.Zero &&
+                     material.renderQueue == (int)RenderQueue.Geometry && material.GetTag("RenderType", false) == "Opaque" &&
+                     !material.IsKeywordEnabled("_ALPHATEST_ON") && !material.IsKeywordEnabled("_ALPHABLEND_ON") &&
+                     !material.IsKeywordEnabled("_ALPHAPREMULTIPLY_ON"))
+            {
+                return material;
+            }
+
+            material.shader = shader;
+            material.color = mudColor;
+            material.mainTexture = null;
+            material.SetFloat("_Glossiness", smoothness);
+            material.SetFloat("_Metallic", 0f);
+            material.SetFloat("_Mode", 0f);
+            material.SetFloat("_ZWrite", 1f);
+            material.SetFloat("_SrcBlend", (float)BlendMode.One);
+            material.SetFloat("_DstBlend", (float)BlendMode.Zero);
+            material.SetOverrideTag("RenderType", "Opaque");
+            material.DisableKeyword("_ALPHATEST_ON");
+            material.DisableKeyword("_ALPHABLEND_ON");
+            material.DisableKeyword("_ALPHAPREMULTIPLY_ON");
+            material.renderQueue = -1;
+            if (isNew)
+            {
+                AssetDatabase.CreateAsset(material, path);
+            }
+            else
+            {
+                EditorUtility.SetDirty(material);
+                AssetDatabase.SaveAssetIfDirty(material);
+            }
+            return material;
+        }
+
+        private static Mesh SaveMudBlobMesh()
+        {
+            string path = ArtFolder + "/Meshes/" + MudBlobName + ".asset";
+            BuildMudGeometry(out var vertices, out var triangles);
+            var uv = new Vector2[vertices.Length];
+            for (int i = 0; i < vertices.Length; i++)
+            {
+                uv[i] = new Vector2(vertices[i].x / 1.4f + .5f, vertices[i].z / 1.4f + .5f);
+            }
+
+            var generated = new Mesh { name = MudBlobName };
+            try
+            {
+                generated.vertices = vertices;
+                generated.uv = uv;
+                generated.triangles = triangles;
+                generated.RecalculateNormals();
+                generated.RecalculateBounds();
+
+                var saved = AssetDatabase.LoadAssetAtPath<Mesh>(path);
+                if (saved == null)
+                {
+                    AssetDatabase.CreateAsset(generated, path);
+                    saved = generated;
+                    generated = null;
+                }
+                else if (!saved.vertices.SequenceEqual(vertices) || !saved.uv.SequenceEqual(uv) ||
+                         !saved.triangles.SequenceEqual(triangles) || !saved.normals.SequenceEqual(generated.normals) ||
+                         !saved.bounds.Equals(generated.bounds))
+                {
+                    EditorUtility.CopySerialized(generated, saved);
+                    EditorUtility.SetDirty(saved);
+                    AssetDatabase.SaveAssetIfDirty(saved);
+                }
+                return saved;
+            }
+            finally
+            {
+                if (generated != null)
+                {
+                    Object.DestroyImmediate(generated);
+                }
+            }
+        }
+
+        private static void BuildMudGeometry(out Vector3[] vertices, out int[] triangles)
+        {
+            const int segments = 48;
+            // Từng vòng đi từ đáy lên đỉnh. Hai hệ số cuối kéo bán kính và hạ giọt ở vòng đó.
+            var rings = new (float radius, float height, float reach, float drop)[]
+            {
+                (.58f, .000f, .00f, .00f),
+                (.86f, .003f, .65f, .88f),
+                (1.0f, .021f, 1.0f, 1.0f),
+                (.94f, .052f, .96f, .64f),
+                (.77f, .084f, .51f, .25f),
+                (.51f, .108f, .16f, .07f),
+                (.26f, .122f, .00f, .00f)
+            };
+            // ±Z và +X, với bề rộng và tầm vươn khác nhau để viền bùn không đối xứng.
+            var drips = new (int segment, float width, float tipRadius, float drop)[]
+            {
+                (12, .44f, .66f, .162f),
+                (36, .37f, .63f, .149f),
+                (0, .39f, .66f, .153f)
+            };
+            int top = segments * rings.Length + 1;
+            vertices = new Vector3[top + 1];
+            triangles = new int[segments * rings.Length * 6];
+            vertices[0] = Vector3.zero;
+            vertices[top] = new Vector3(-.018f, .129f, .012f);
+            for (int i = 0; i < segments; i++)
+            {
+                float angle = i * (2f * Mathf.PI / segments);
+                float x = Mathf.Cos(angle);
+                float z = Mathf.Sin(angle);
+                // Các sóng có pha cố định, cho cùng hình mỗi lần chạy và liền tại điểm khép vòng.
+                float radius = .451f + .018f * Mathf.Cos(3f * angle + .6f)
+                    + .016f * Mathf.Sin(5f * angle - .4f) + .013f * Mathf.Cos(8f * angle + .2f);
+                float ripple = .004f * Mathf.Sin(4f * angle) + .003f * Mathf.Cos(7f * angle + .8f);
+                float reach = 0f;
+                float drop = 0f;
+                foreach (var drip in drips)
+                {
+                    int distance = Mathf.Abs(i - drip.segment);
+                    distance = Mathf.Min(distance, segments - distance);
+                    float strength = Mathf.SmoothStep(1f, 0f, distance * (2f * Mathf.PI / segments) / drip.width);
+                    reach += (drip.tipRadius - radius) * strength;
+                    drop += drip.drop * strength;
+                }
+                for (int ring = 0; ring < rings.Length; ring++)
+                {
+                    var profile = rings[ring];
+                    float r = radius * profile.radius + reach * profile.reach;
+                    float y = Mathf.Max(0f, profile.height + ripple * profile.height / .129f) - drop * profile.drop;
+                    vertices[1 + ring * segments + i] = new Vector3(r * x, y, r * z);
+                }
+            }
+
+            int index = 0;
+            for (int i = 0; i < segments; i++)
+            {
+                int current = 1 + i;
+                int next = 1 + (i + 1) % segments;
+                triangles[index++] = 0;
+                triangles[index++] = current;
+                triangles[index++] = next;
+                for (int ring = 1; ring < rings.Length; ring++)
+                {
+                    int upperCurrent = current + segments;
+                    int upperNext = next + segments;
+                    triangles[index++] = current;
+                    triangles[index++] = upperCurrent;
+                    triangles[index++] = next;
+                    triangles[index++] = next;
+                    triangles[index++] = upperCurrent;
+                    triangles[index++] = upperNext;
+                    current = upperCurrent;
+                    next = upperNext;
+                }
+                triangles[index++] = current;
+                triangles[index++] = top;
+                triangles[index++] = next;
+            }
+        }
+
         private static Mesh SaveBeamQuad()
         {
             string path = ArtFolder + "/Meshes/CarVfxQuad.asset";
@@ -253,12 +441,45 @@ namespace SqueakyLane.EditorTools
             {
                 return false;
             }
-            return child.TryGetComponent<MeshFilter>(out var filter) && filter.sharedMesh == quad &&
-                   child.TryGetComponent<MeshRenderer>(out var renderer) && renderer.enabled &&
+            return MatchesRenderer(child.gameObject, quad, material);
+        }
+
+        private static bool MatchesRenderer(GameObject target, Mesh mesh, Material material)
+        {
+            return target.TryGetComponent<MeshFilter>(out var filter) && filter.sharedMesh == mesh &&
+                   target.TryGetComponent<MeshRenderer>(out var renderer) && renderer.enabled &&
                    renderer.sharedMaterials.Length == 1 && renderer.sharedMaterial == material &&
                    renderer.shadowCastingMode == ShadowCastingMode.Off && !renderer.receiveShadows &&
                    renderer.lightProbeUsage == LightProbeUsage.Off &&
                    renderer.reflectionProbeUsage == ReflectionProbeUsage.Off;
+        }
+
+        private static GameObject SaveMudBlobPrefab(Scene scene, Mesh mesh, Material material)
+        {
+            string path = PrefabFolder + "/" + MudBlobName + ".prefab";
+            var saved = AssetDatabase.LoadAssetAtPath<GameObject>(path);
+            if (saved != null && saved.name == MudBlobName && saved.activeSelf && saved.transform.childCount == 0 &&
+                saved.GetComponents<Component>().Length == 3 &&
+                MatchesTransform(saved.transform, Vector3.zero, Vector3.one) && MatchesRenderer(saved, mesh, material))
+            {
+                return saved;
+            }
+
+            var root = CreatePreviewObject(scene, MudBlobName, typeof(MeshFilter), typeof(MeshRenderer));
+            try
+            {
+                SetRenderer(root, mesh, material);
+                var prefab = PrefabUtility.SaveAsPrefabAsset(root, path);
+                if (prefab == null)
+                {
+                    throw new InvalidOperationException($"Lưu prefab thất bại: {path}.");
+                }
+                return prefab;
+            }
+            finally
+            {
+                Object.DestroyImmediate(root);
+            }
         }
 
         private static bool MatchesTransform(Transform transform, Vector3 position, Vector3 scale)
@@ -350,6 +571,70 @@ namespace SqueakyLane.EditorTools
             tailPair.transform.position = new Vector3(240f - scale * TaillightLength * .5f, 0f, row);
             headPair.transform.localScale = Vector3.one * scale;
             tailPair.transform.localScale = Vector3.one * scale;
+        }
+
+        private static void SaveMudPreview(Scene scene, Mesh quad, Material trail, GameObject mudPrefab, Shader standard)
+        {
+            const int width = 640;
+            const int height = 360;
+            var roofCenter = new Vector3(-.53f, 0f, 0f);
+            var roofMaterial = new Material(standard) { color = new Color32(192, 57, 43, 255) };
+            var roof = CreatePreviewObject(scene, "Red Roof", typeof(MeshFilter), typeof(MeshRenderer));
+            roof.transform.position = roofCenter;
+            roof.transform.localScale = new Vector3(.9f, 1f, .7f);
+            SetRenderer(roof, quad, roofMaterial);
+            for (int i = 0; i < 4; i++)
+            {
+                bool ends = i % 2 == 0;
+                var yaw = Quaternion.Euler(0f, i * 90f, 0f);
+                var side = CreatePreviewObject(scene, "Red Roof Side", typeof(MeshFilter), typeof(MeshRenderer));
+                side.transform.SetPositionAndRotation(roofCenter + Vector3.down * .1f +
+                    yaw * Vector3.forward * (ends ? .35f : .45f), yaw * Quaternion.Euler(90f, 0f, 0f));
+                side.transform.localScale = new Vector3(ends ? .9f : .7f, 1f, .2f);
+                SetRenderer(side, quad, roofMaterial);
+            }
+
+            var mud = (GameObject)PrefabUtility.InstantiatePrefab(mudPrefab, scene);
+            mud.transform.position = roofCenter + Vector3.up * .002f;
+            mud.transform.localScale = new Vector3(.69f, 1f, .56f);
+            var ribbon = CreatePreviewObject(scene, "Mud Trail Preview", typeof(MeshFilter), typeof(MeshRenderer));
+            ribbon.transform.SetPositionAndRotation(new Vector3(.53f, 0f, 0f), Quaternion.Euler(0f, 90f, 0f));
+            ribbon.transform.localScale = new Vector3(.30f, 1f, .82f);
+            SetRenderer(ribbon, quad, trail);
+
+            var light = CreatePreviewObject(scene, "Mud Preview Light", typeof(Light)).GetComponent<Light>();
+            light.type = LightType.Directional;
+            light.intensity = 1.1f;
+            light.transform.rotation = Quaternion.Euler(52f, -24f, 0f);
+
+            var camera = CreatePreviewObject(scene, "Mud Preview Camera", typeof(Camera)).GetComponent<Camera>();
+            var angle = Quaternion.Euler(70f, 0f, 0f);
+            camera.transform.SetPositionAndRotation(angle * Vector3.back * 4f, angle);
+            camera.cameraType = CameraType.Preview;
+            camera.scene = scene;
+            camera.enabled = false;
+            camera.orthographic = true;
+            camera.orthographicSize = .61f;
+            camera.aspect = (float)width / height;
+            camera.clearFlags = CameraClearFlags.SolidColor;
+            camera.allowHDR = false;
+            var previous = RenderTexture.active;
+            var target = RenderTexture.GetTemporary(width, height, 24, RenderTextureFormat.ARGB32);
+            var preview = new Texture2D(width, height, TextureFormat.RGB24, false);
+            try
+            {
+                camera.targetTexture = target;
+                RenderPanel(camera, target, preview, new Color32(58, 63, 75, 255), 0);
+                WriteIfDifferent(MudPreviewPath, preview.EncodeToPNG());
+            }
+            finally
+            {
+                camera.targetTexture = null;
+                RenderTexture.active = previous;
+                RenderTexture.ReleaseTemporary(target);
+                Object.DestroyImmediate(preview);
+                Object.DestroyImmediate(roofMaterial);
+            }
         }
 
         private static void RenderPanel(Camera camera, RenderTexture target, Texture2D preview, Color background, int y)

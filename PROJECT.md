@@ -129,7 +129,7 @@ Người làm đã tạo project 3D trống và sẽ bổ sung thông tin sau. *
 | Cơ chế | Quyết định | Ghi chú |
 |---|---|---|
 | Cổng màu (rửa + ra) | **Giữ** (lõi) | |
-| **Bùn bám** (mud 1) | **Giữ** `[CHỐT]` | Xe còn bùn không qua được cổng màu. |
+| **Bùn bám** (mud 1) | **Giữ** `[CHỐT]` | Xe còn bùn không qua được cổng màu. **Hình `[CHỐT 26/11]`:** kiểu "D + vệt bùn": cục bùn khối trên nóc có giọt chảy xuống mép, giọt bùn rơi khi xe chạy, vệt bánh đổi nâu khi xe dính bùn; **không** phủ/đổi màu cả thân (màu xe phải đọc được để chọn cổng). Phiếu 014. |
 | **Vòi phun / cổng nước** (xịt sạch rồi đẩy ngược vào bãi) | **Giữ** `[CHỐT]` | Làm sạch bùn trước cổng màu. Nếu sau này bỏ ô vòi xịt trong bãi thì đây là nơi duy nhất làm sạch → màn có bùn phải có cổng nước. |
 | **Vũng bùn** | **Giữ** `[CHỐT]` | Nguồn tạo bùn bám. |
 | **Bàn xoay** (2×2) | **Giữ** `[CHỐT]` | Xoay 90° bằng **nút ở trung tâm**, xem mục 6.3. |

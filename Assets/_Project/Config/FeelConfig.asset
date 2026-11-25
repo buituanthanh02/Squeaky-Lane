@@ -130,3 +130,18 @@ MonoBehaviour:
   taillightPrefab: {fileID: 7924610862451442990, guid: 6d57d970afb59c344b7732d9aafec38c, type: 3}
   lightResponse: 10
   roadFxLift: 0.015
+  mudBlobPrefab: {fileID: 940138206466710623, guid: be0af2c4cb71c5d4298bc776d692dca6, type: 3}
+  mudTrailMaterial: {fileID: 2100000, guid: 66f9a8d814ddd9c48beb4401271f70cc, type: 2}
+  mudDripsEnabled: 1
+  mudDrip:
+    count: 2
+    lifetime: 0.5
+    size: 0.2
+    speed: 0.5
+    gravity: 1.2
+  mudSplash:
+    count: 8
+    lifetime: 0.4
+    size: 0.16
+    speed: 1.6
+    gravity: 1.2

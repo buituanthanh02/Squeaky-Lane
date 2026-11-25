@@ -1,7 +1,9 @@
 using System.Reflection;
 using NUnit.Framework;
 using UnityEngine;
+using SqueakyLane.Core.Model;
 using SqueakyLane.Game;
+using SqueakyLane.Presentation;
 
 namespace SqueakyLane.Tests.EditMode
 {
@@ -75,6 +77,92 @@ namespace SqueakyLane.Tests.EditMode
         private void Set(string field, object value)
         {
             typeof(FeelConfig).GetField(field, BindingFlags.Instance | BindingFlags.NonPublic).SetValue(feel, value);
+        }
+    }
+
+    // 014 bùn kiểu D: cục bùn khối thay tấm bùn phẳng; đặc khi bẩn, mờ dần cùng màu khi rửa, Hoàn tác trả lại.
+    public sealed class MudBlob014Tests
+    {
+        private GameObject root, blob;
+        private BoardView board;
+        private ActionAnimator animator;
+        private FeelConfig feel;
+        private VisualPalette palette;
+        private Material block, solid, fade;
+
+        [SetUp]
+        public void Setup()
+        {
+            root = new GameObject("014 mud test");
+            board = root.AddComponent<BoardView>();
+            animator = root.AddComponent<ActionAnimator>();
+            feel = ScriptableObject.CreateInstance<FeelConfig>();
+            palette = ScriptableObject.CreateInstance<VisualPalette>();
+            block = new Material(Shader.Find("Standard"));
+            solid = new Material(Shader.Find("Standard")) { color = new Color(.35f, .2f, .09f, 1) };
+            fade = new Material(Shader.Find("Standard"));
+            Set(palette, "material", block);
+            blob = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            Object.DestroyImmediate(blob.GetComponent<Collider>());
+            blob.GetComponent<Renderer>().sharedMaterial = solid;
+            Set(feel, "mudBlobPrefab", blob);
+            Set(feel, "mudFadeMaterial", fade);
+        }
+
+        [TearDown]
+        public void Cleanup()
+        {
+            Object.DestroyImmediate(root);
+            Object.DestroyImmediate(blob);
+            Object.DestroyImmediate(feel);
+            Object.DestroyImmediate(palette);
+            Object.DestroyImmediate(block);
+            Object.DestroyImmediate(solid);
+            Object.DestroyImmediate(fade);
+        }
+
+        [Test]
+        public void BlobReplacesFlatMudFadesInSolidColourAndUndoRestores()
+        {
+            var builder = new LevelDefBuilder(5, 2);
+            builder.Cars.Add(new CarDef(Axis.Horizontal, 0, 0, TileColor.Pink, mud: 1));
+            var session = new GameSession(builder.Build());
+            board.Build(session.Level, session.State, palette);
+            animator.Initialize(board, feel, session.State);
+            var car = board.Car(0);
+            var dirt = Mud(car);
+            Assert.That(dirt.name, Is.EqualTo("014 Mud Blob"));
+            Assert.That(dirt.sharedMaterial, Is.SameAs(solid), "Bẩn hẳn dùng material đặc của cục bùn");
+            Assert.That(dirt.gameObject.activeSelf, Is.True);
+            Assert.That(car.HasMud, Is.True);
+            int flat = 0;
+            foreach (Transform child in car.transform) { if (child.name.StartsWith("Bùn bám") && child.gameObject.activeSelf) { flat++; } }
+            Assert.That(flat, Is.Zero, "Tấm bùn phẳng cũ phải bị thay");
+
+            car.PlayFeel(new MoveEvent(MoveEventKind.Spray));
+            car.Show(car.transform.localPosition, 0, TileColor.Pink, 0, true);
+            car.AdvanceFeel(feel.MudFadeSeconds * .5f);
+            var props = new MaterialPropertyBlock();
+            dirt.GetPropertyBlock(props);
+            Assert.That(car.HasMud, Is.False);
+            Assert.That(dirt.sharedMaterial, Is.SameAs(fade));
+            Assert.That(props.GetColor("_Color").r, Is.EqualTo(solid.color.r).Within(.001f), "Mờ dần cùng màu cục bùn, không nhảy màu");
+            Assert.That(props.GetColor("_Color").a, Is.EqualTo(.5f).Within(.01f));
+
+            animator.CancelAndSnap(session.State);
+            Assert.That(Mud(car), Is.SameAs(dirt));
+            Assert.That(dirt.sharedMaterial, Is.SameAs(solid));
+            Assert.That(dirt.gameObject.activeSelf, Is.True);
+        }
+
+        private static Renderer Mud(CarView car)
+        {
+            return (Renderer)typeof(CarView).GetField("mudOverlay", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(car);
+        }
+
+        private static void Set(object target, string name, object value)
+        {
+            target.GetType().GetField(name, BindingFlags.Instance | BindingFlags.NonPublic).SetValue(target, value);
         }
     }
 }

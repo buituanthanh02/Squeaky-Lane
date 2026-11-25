@@ -61,6 +61,15 @@ namespace SqueakyLane.Presentation
         }
 
         // Tốc độ có dấu, đã chuẩn hóa theo tốc độ tối đa: +1 chạy tới hết tốc, -1 lùi hết tốc, 0 đứng yên.
+        // 014 bùn: xe dính bùn để lại vệt nâu, sạch thì vệt trắng. Đổi sharedMaterial có sẵn, không tạo material.
+        // Cả vệt đang có đổi màu theo; chấp nhận vì vệt chỉ sống 0,6 s.
+        public void SetMud(bool muddy)
+        {
+            if (trail == null) { return; }
+            var wanted = muddy && feel.MudTrailMaterial != null ? feel.MudTrailMaterial : feel.TireTrailMaterial;
+            if (trail.sharedMaterial != wanted) { trail.sharedMaterial = wanted; }
+        }
+
         // Đèn bật ít nhất 55% chiều dài ngay khi xe lăn bánh (đọc được hướng chạy từ khung hình đầu), rồi dài thêm theo tốc độ.
         public void Drive(float signedSpeed)
         {

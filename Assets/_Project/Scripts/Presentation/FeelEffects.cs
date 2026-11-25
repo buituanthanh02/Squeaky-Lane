@@ -102,6 +102,17 @@ namespace SqueakyLane.Presentation
                 }
                 if (feel.PopupTextEnabled) { ShowExitText(direction, position); }
             }
+            else if (ev.Kind == MoveEventKind.Step && feel.MudDripsEnabled && car.HasMud)
+            {
+                // 014 bùn: xe bẩn nhỏ giọt bùn sau đuôi mỗi ô chạy qua (dùng chung pool hạt và trần MaxLiveParticles).
+                var tail = car.transform.position - direction * (car.Length * .4f) + Vector3.up * .3f;
+                Emit(smoke, feel.MudDrip, tail, palette.Mud, feel.MudDrip.Count);
+            }
+            else if (ev.Kind == MoveEventKind.Mud && feel.MudDripsEnabled)
+            {
+                // Lội vào vũng bùn: bùn bắn quanh thân.
+                Emit(smoke, feel.MudSplash, car.transform.position + Vector3.up * .15f, palette.Mud, feel.MudSplash.Count);
+            }
             else if (ev.Kind == MoveEventKind.Stop && IsImpact(ev.Reason))
             {
                 // Va mạnh theo số ô xe vừa trượt; bị chặn ngay hoặc trượt 1 ô là mức nhẹ nhất.

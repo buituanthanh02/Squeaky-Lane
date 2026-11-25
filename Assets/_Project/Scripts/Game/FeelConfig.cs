@@ -102,6 +102,12 @@ namespace SqueakyLane.Game
         [SerializeField, Tooltip("Prefab tia đèn khi lùi (Prefabs/VFX/TaillightBeams).")] private GameObject taillightPrefab = null;
         [SerializeField, Range(1, 40), Tooltip("Tốc độ tia đèn dài ra/thu lại theo tốc độ xe, đơn vị tỉ lệ/giây.")] private float lightResponse = 10;
         [SerializeField, Range(0, .1f), Tooltip("Nâng vệt và tia đèn khỏi mặt bãi để không z-fight, ô.")] private float roadFxLift = .015f;
+        [Header("014 — Bùn kiểu D: cục bùn trên nóc, giọt rơi, vệt bùn (người làm chốt 26/11)")]
+        [SerializeField, Tooltip("Prefab cục bùn khối (Prefabs/VFX/MudBlob), thay tấm bùn phẳng của prefab xe; trống = giữ tấm cũ.")] private GameObject mudBlobPrefab = null;
+        [SerializeField, Tooltip("Material vệt bánh khi xe dính bùn (Art/VFX/Materials/M_MudTrail); trống = vệt trắng như thường.")] private Material mudTrailMaterial = null;
+        [SerializeField, Tooltip("Bật giọt bùn rơi sau đuôi mỗi ô xe bẩn chạy qua, và bùn bắn khi lội vũng bùn.")] private bool mudDripsEnabled = true;
+        [SerializeField, Tooltip("Giọt bùn mỗi ô xe bẩn chạy: 1 giọt/0,45s, rơi nhanh.")] private ParticleFeel mudDrip = new ParticleFeel(2, .5f, .2f, .5f, 1.2f);
+        [SerializeField, Tooltip("Bùn bắn khi xe lội vào vũng bùn.")] private ParticleFeel mudSplash = new ParticleFeel(8, .4f, .16f, 1.6f, 1.2f);
 
         public bool BodyEnabled => bodyEnabled;
         public bool WheelsEnabled => wheelsEnabled;
@@ -176,6 +182,11 @@ namespace SqueakyLane.Game
         public GameObject TaillightPrefab => taillightPrefab;
         public float LightResponse => lightResponse;
         public float RoadFxLift => roadFxLift;
+        public GameObject MudBlobPrefab => mudBlobPrefab;
+        public Material MudTrailMaterial => mudTrailMaterial;
+        public bool MudDripsEnabled => mudDripsEnabled;
+        public ParticleFeel MudDrip => mudDrip;
+        public ParticleFeel MudSplash => mudSplash;
 
         // 014: thời điểm xe tới mốc `cells` ô kể từ lúc đứng yên. Gia tốc đều tới tốc độ tối đa v = 1/stepSeconds
         // sau accelCells ô, rồi chạy đều. Đoạn tăng tốc: s = v²t²/(4a) => t = 2·√(s·a)/v; sau đó t = (s + a)/v.
@@ -292,6 +303,8 @@ namespace SqueakyLane.Game
             sparkles.Validate();
             impact.Validate();
             confetti.Validate();
+            mudDrip.Validate();
+            mudSplash.Validate();
         }
 
         private static float Limit(float value, float min, float max, float fallback)
