@@ -86,7 +86,9 @@ namespace SqueakyLane.Presentation
         {
             var direction = car.PositiveDirection * ev.Sign;
             var position = car.transform.position + direction * (car.Length * .5f);
-            if ((ev.Kind == MoveEventKind.Water || ev.Kind == MoveEventKind.Spray) && feel.WaterParticlesEnabled)
+            // Ô vòi xịt có trạm rửa (WashStationView) tự phun bọt suốt lượt bò qua: bỏ cú xịt chung cũ để khỏi phun hai lần.
+            bool washedByStation = ev.Kind == MoveEventKind.Spray && board != null && board.HasWashStations;
+            if ((ev.Kind == MoveEventKind.Water || ev.Kind == MoveEventKind.Spray) && feel.WaterParticlesEnabled && !washedByStation)
             {
                 if (ev.Kind == MoveEventKind.Spray) { position = car.transform.position; }
                 int jetCount = Mathf.RoundToInt(feel.Water.Count * feel.WaterJetRatio);

@@ -132,6 +132,14 @@ MonoBehaviour:
   roadFxLift: 0.015
   mudBlobPrefab: {fileID: 940138206466710623, guid: be0af2c4cb71c5d4298bc776d692dca6, type: 3}
   mudTrailMaterial: {fileID: 2100000, guid: 66f9a8d814ddd9c48beb4401271f70cc, type: 2}
+  mudSplatPrefabs:
+  - {fileID: 5056864148731796829, guid: b0027dac2d5e26642b2b3fdbff971821, type: 3}
+  - {fileID: 7974592799048176571, guid: 45bd058e78765df42a6d266f1fc62c0e, type: 3}
+  - {fileID: 580561552060222473, guid: 8f29ed741dc1f3d4ba4d8fcb7e1ea13d, type: 3}
+  washCrawlSeconds: 0.7
+  washMudDelaySeconds: 0.2
+  washMudFadeSeconds: 0.4
+  washRollerSpinDegrees: 720
   mudDripsEnabled: 1
   mudDrip:
     count: 2

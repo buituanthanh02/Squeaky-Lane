@@ -30,6 +30,18 @@ namespace SqueakyLane.Presentation
         private readonly List<MechanicOcclusion> occluders = new List<MechanicOcclusion>();
         private readonly List<Renderer> switchWalls = new List<Renderer>();
         private readonly List<Cell> switchWallCells = new List<Cell>();
+        // 014: trạm rửa theo ô (r * Cols + c); rỗng khi màn không có vòi xịt hoặc thiếu prefab (dùng khối dự phòng).
+        private readonly Dictionary<int, WashStationView> washStations = new Dictionary<int, WashStationView>();
+        public bool HasWashStations => washStations.Count > 0;
+        public WashStationView WashStationAt(int r, int c)
+        {
+            return level != null && washStations.TryGetValue(r * level.Cols + c, out var station) ? station : null;
+        }
+        // Tắt mọi trạm đang chạy (Hoàn tác/Chơi lại/hủy hoạt hình).
+        public void CancelWash()
+        {
+            foreach (var station in washStations.Values) { if (station != null) { station.Cancel(); } }
+        }
         public LevelDef Level => level;
         public CarView Car(int index) => cars[index];
         public void SetVisible(bool visible) { if (content != null) content.SetActive(visible); }
@@ -45,6 +57,7 @@ namespace SqueakyLane.Presentation
             carCatalog = vehicles;
             mechanicCatalog = mechanics;
             occluders.Clear();
+            washStations.Clear();
             switchWalls.Clear(); switchWallCells.Clear();
             if (labelFont == null) labelFont = Font.CreateDynamicFontFromOSFont(new[] { "Arial", "Roboto", "Droid Sans", "sans-serif" }, 24);
             content = new GameObject("Board Runtime"); content.transform.SetParent(transform, false);
@@ -73,7 +86,14 @@ namespace SqueakyLane.Presentation
                 var visual = SpawnMechanic(MechanicKind.Mud, Cell(p.R, p.C, LotSurfaceView.Top));
                 muds[i] = visual != null ? visual.gameObject : Box("Bùn", Cell(p.R, p.C, .015f), new Vector3(.85f, .035f, .85f), palette.Mud).gameObject;
             }
-            foreach (var p in level.Sprays) { Box("Vòi xịt", Cell(p.R, p.C, .04f), new Vector3(.65f, .07f, .65f), palette.Car(TileColor.Water)); Label("~", Cell(p.R, p.C, .1f)); }
+            foreach (var p in level.Sprays)
+            {
+                var station = SpawnMechanic(MechanicKind.WashStation, Cell(p.R, p.C, LotSurfaceView.Top));
+                var washView = station != null ? station.GetComponent<WashStationView>() : null;
+                if (washView != null) { washStations[p.R * level.Cols + p.C] = washView; continue; }
+                if (station != null) { station.gameObject.SetActive(false); Release(station.gameObject); }
+                Box("Vòi xịt", Cell(p.R, p.C, .04f), new Vector3(.65f, .07f, .65f), palette.Car(TileColor.Water)); Label("~", Cell(p.R, p.C, .1f));
+            }
             foreach (var p in level.Paints) Box("Sơn", Cell(p.R, p.C, .035f), new Vector3(.8f, .05f, .8f), palette.Car(p.Color));
             foreach (var p in level.Tables)
             {
@@ -198,7 +218,7 @@ namespace SqueakyLane.Presentation
             var instance = Instantiate(prefab, content.transform, false);
             instance.transform.localPosition = position;
             instance.transform.localRotation = Quaternion.Euler(0, yaw, 0);
-            if (kind != MechanicKind.Surface && kind != MechanicKind.Mud)
+            if (kind != MechanicKind.Surface && kind != MechanicKind.Mud && kind != MechanicKind.WashStation)
             {
                 var bounds = SceneThemeView.LocalBounds(instance);
                 if (bounds.size.sqrMagnitude > 0)

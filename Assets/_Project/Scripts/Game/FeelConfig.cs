@@ -105,6 +105,13 @@ namespace SqueakyLane.Game
         [Header("014 — Bùn kiểu D: cục bùn trên nóc, giọt rơi, vệt bùn (người làm chốt 26/11)")]
         [SerializeField, Tooltip("Prefab cục bùn khối (Prefabs/VFX/MudBlob), thay tấm bùn phẳng của prefab xe; trống = giữ tấm cũ.")] private GameObject mudBlobPrefab = null;
         [SerializeField, Tooltip("Material vệt bánh khi xe dính bùn (Art/VFX/Materials/M_MudTrail); trống = vệt trắng như thường.")] private Material mudTrailMaterial = null;
+        [SerializeField, Tooltip("Các kiểu vẩy bùn (Prefabs/VFX/MudSplat_N), mỗi xe lấy theo chỉ số xe; có thì dùng thay cho Mud Blob Prefab.")] private GameObject[] mudSplatPrefabs = System.Array.Empty<GameObject>();
+        [SerializeField, Range(.5f, 2.5f), Tooltip("Phóng to vẩy bùn trên mui (giữ nguyên bố cục); to hơn thì dễ thấy trên điện thoại, nhưng giọt chảy sẽ thòng ra ngoài thân.")] private float mudSplatScale = 1.3f;
+        [Header("014 — Trạm rửa: xe bò chậm qua ô vòi xịt, chổi quay, xịt bọt")]
+        [SerializeField, Range(0, 1.5f), Tooltip("Thời gian xe bò qua ô vòi xịt khi đang dính bùn, giây (bình thường 1 ô mất Step Seconds). 0 = tắt, chạy thường.")] private float washCrawlSeconds = .7f;
+        [SerializeField, Range(0, 1), Tooltip("Bùn bắt đầu trôi sau bao nhiêu giây kể từ lúc xe vào ô rửa (chổi cần chạm xe trước).")] private float washMudDelaySeconds = .2f;
+        [SerializeField, Range(.05f, 1), Tooltip("Bùn trôi hết trong bao nhiêu giây ở trạm rửa (cổng nước/lúc khác vẫn theo Mud Fade Seconds).")] private float washMudFadeSeconds = .4f;
+        [SerializeField, Range(0, 1440), Tooltip("Tốc độ quay chổi lăn khi đang rửa, độ/giây.")] private float washRollerSpinDegrees = 720;
         [SerializeField, Tooltip("Bật giọt bùn rơi sau đuôi mỗi ô xe bẩn chạy qua, và bùn bắn khi lội vũng bùn.")] private bool mudDripsEnabled = true;
         [SerializeField, Tooltip("Giọt bùn mỗi ô xe bẩn chạy: 1 giọt/0,45s, rơi nhanh.")] private ParticleFeel mudDrip = new ParticleFeel(2, .5f, .2f, .5f, 1.2f);
         [SerializeField, Tooltip("Bùn bắn khi xe lội vào vũng bùn.")] private ParticleFeel mudSplash = new ParticleFeel(8, .4f, .16f, 1.6f, 1.2f);
@@ -184,6 +191,12 @@ namespace SqueakyLane.Game
         public float RoadFxLift => roadFxLift;
         public GameObject MudBlobPrefab => mudBlobPrefab;
         public Material MudTrailMaterial => mudTrailMaterial;
+        public GameObject[] MudSplatPrefabs => mudSplatPrefabs;
+        public float MudSplatScale => mudSplatScale;
+        public float WashCrawlSeconds => washCrawlSeconds;
+        public float WashMudDelaySeconds => washMudDelaySeconds;
+        public float WashMudFadeSeconds => washMudFadeSeconds;
+        public float WashRollerSpinDegrees => washRollerSpinDegrees;
         public bool MudDripsEnabled => mudDripsEnabled;
         public ParticleFeel MudDrip => mudDrip;
         public ParticleFeel MudSplash => mudSplash;
@@ -303,6 +316,11 @@ namespace SqueakyLane.Game
             sparkles.Validate();
             impact.Validate();
             confetti.Validate();
+            mudSplatScale = Limit(mudSplatScale, .5f, 2.5f, 1.3f);
+            washCrawlSeconds = Limit(washCrawlSeconds, 0, 1.5f, .7f);
+            washMudDelaySeconds = Limit(washMudDelaySeconds, 0, 1, .2f);
+            washMudFadeSeconds = Limit(washMudFadeSeconds, .05f, 1, .4f);
+            washRollerSpinDegrees = Limit(washRollerSpinDegrees, 0, 1440, 720);
             mudDrip.Validate();
             mudSplash.Validate();
         }

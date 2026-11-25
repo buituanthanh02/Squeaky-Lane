@@ -31,6 +31,7 @@ namespace SqueakyLane.Presentation
         // 014 bùn kiểu D: mudOverlay có thể là cục bùn khối (prefab FeelConfig) thay cho tấm phẳng của prefab xe.
         private bool mudIsBlob;
         private Material mudSolid;
+        private float fadeDuration = 1;
         public TileColor Color => lastColor;
         // Xe đang mang bùn (chưa rửa); FeelEffects dùng để thả giọt bùn khi chạy.
         public bool HasMud => lastDirt > 0 && !fadingMud;
@@ -78,7 +79,7 @@ namespace SqueakyLane.Presentation
             if (roadFx != null) { roadFx.Advance(seconds); }
             if (!fadingMud || feel == null) { return; }
             mudFadeTime += seconds;
-            mudAlpha = 1 - Mathf.Clamp01(mudFadeTime / feel.MudFadeSeconds);
+            mudAlpha = 1 - Mathf.Clamp01(mudFadeTime / fadeDuration);
             ApplyMudAlpha();
             if (mudAlpha <= 0) { fadingMud = false; }
         }
@@ -94,6 +95,18 @@ namespace SqueakyLane.Presentation
             if (feel == null || !feel.MudBodyEnabled || mudAlpha <= 0 || fadingMud) { return; }
             fadingMud = true;
             mudFadeTime = 0;
+            fadeDuration = feel.MudFadeSeconds;
+        }
+
+        // 014: xe bò qua trạm rửa trong `seconds` giây: thân lắc theo chổi; bùn bắt đầu trôi sau WashMudDelaySeconds
+        // (chổi chạm xe trước) và trôi hết trong WashMudFadeSeconds. Sự kiện Spray cuối lượt không bắt đầu lại.
+        public void BeginWash(float seconds)
+        {
+            if (body != null) { body.BeginWash(seconds); }
+            if (feel == null || !feel.MudBodyEnabled || mudAlpha <= 0 || fadingMud) { return; }
+            fadingMud = true;
+            fadeDuration = feel.WashMudFadeSeconds;
+            mudFadeTime = -feel.WashMudDelaySeconds;
         }
         private void ApplyMudAlpha()
         {
@@ -123,9 +136,14 @@ namespace SqueakyLane.Presentation
         // và giãn X/Z theo cỡ tấm cũ (Y giữ đơn vị thế giới). Chạy một lần mỗi lần dựng hình xe.
         private void SwapMudBlob()
         {
-            if (mudIsBlob || feel == null || feel.MudBlobPrefab == null || mudOverlay == null) { return; }
+            if (mudIsBlob || feel == null || mudOverlay == null) { return; }
+            // Vẩy bùn (nhiều đảo rời nhau) theo chỉ số xe cho mỗi xe một kiểu; không có thì dùng cục bùn cũ.
+            var splats = feel.MudSplatPrefabs;
+            bool splat = splats != null && splats.Length > 0 && splats[Mathf.Abs(Index) % splats.Length] != null;
+            var source = splat ? splats[Mathf.Abs(Index) % splats.Length] : feel.MudBlobPrefab;
+            if (source == null) { return; }
             var old = mudOverlay.transform;
-            var blob = Instantiate(feel.MudBlobPrefab, transform, false);
+            var blob = Instantiate(source, transform, false);
             blob.name = "014 Mud Blob";
             var renderer = blob.GetComponent<Renderer>();
             if (renderer == null)
@@ -135,7 +153,9 @@ namespace SqueakyLane.Presentation
             }
             blob.transform.localPosition = old.localPosition - new Vector3(0, old.localScale.y * .5f, 0);
             blob.transform.localRotation = old.localRotation;
-            blob.transform.localScale = new Vector3(old.localScale.x, 1, old.localScale.z);
+            // Vẩy bùn thiết kế cho mui xe 2 ô (tấm cũ dài ~1,03): giãn theo chiều dài mui, giữ Z để đốm không méo bề ngang.
+            float splatScale = feel.MudSplatScale;
+            blob.transform.localScale = splat ? new Vector3(Mathf.Max(.5f, old.localScale.x / 1.03f) * splatScale, splatScale, splatScale) : new Vector3(old.localScale.x, 1, old.localScale.z);
             blob.SetActive(old.gameObject.activeSelf);
             mudSolid = renderer.sharedMaterial;
             old.gameObject.SetActive(false);

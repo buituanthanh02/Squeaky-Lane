@@ -16,6 +16,9 @@ namespace SqueakyLane.Presentation
         private float pitchTime, pitchDuration, pitchAmount, squashTime, mudTime, washTime, hitTime;
         // 014: lắc lư sau va; biên độ (độ) có dấu để xe đâm và xe bị đụng lắc ngược chiều nhau.
         private float wobbleTime, wobbleAmount;
+        // 014: rửa ở trạm kéo dài theo thời gian xe bò qua; envelope hình sin (rung đều giữa chừng) thay vì tắt dần.
+        private float washDuration = 1;
+        private bool washSine, crawlWash;
         private float exitSign, rollAngle;
         private float impactScale = 1;
         private Vector3 hitDirection;
@@ -100,9 +103,23 @@ namespace SqueakyLane.Presentation
                     break;
                 case MoveEventKind.Water:
                 case MoveEventKind.Spray:
+                    // Spray sau một lượt bò qua trạm: rung đã chạy từ BeginWash, không bắt đầu lại.
+                    if (ev.Kind == MoveEventKind.Spray && crawlWash) { crawlWash = false; break; }
+                    washDuration = feel.WashSeconds;
+                    washSine = false;
                     washTime = 0;
                     break;
             }
+        }
+
+        // 014: xe bắt đầu bò qua trạm rửa: lắc theo nhịp chổi suốt `seconds` giây (cùng tần số rũ bùn cũ, biên độ Wash Roll).
+        public void BeginWash(float seconds)
+        {
+            if (feel == null) { return; }
+            washDuration = Mathf.Max(.05f, seconds);
+            washSine = true;
+            crawlWash = true;
+            washTime = 0;
         }
 
         public void Hit(Vector3 worldDirection)
@@ -155,8 +172,10 @@ namespace SqueakyLane.Presentation
                     float sink = Mathf.Sin(Mathf.Clamp01(mudTime / feel.MudSeconds) * Mathf.PI);
                     offset.y = -feel.MudSink * sink;
                     scale.y *= Mathf.Lerp(1, feel.MudHeight, sink);
-                    float wash = Mathf.Clamp01(washTime / feel.WashSeconds);
-                    roll = Mathf.Sin(wash * feel.WashCycles * 2 * Mathf.PI) * feel.WashRoll * (1 - wash);
+                    float wash = Mathf.Clamp01(washTime / washDuration);
+                    float cycles = feel.WashCycles * washDuration / Mathf.Max(.05f, feel.WashSeconds);
+                    float envelope = washSine ? Mathf.Sin(wash * Mathf.PI) : 1 - wash;
+                    roll = Mathf.Sin(wash * cycles * 2 * Mathf.PI) * feel.WashRoll * envelope;
                 }
                 // 014: lắc lư tắt dần sau va: nghiêng quanh trục thân + lắc đầu nhẹ (camera nhìn từ trên thấy rõ lắc đầu hơn).
                 float wobble = wobbleAmount * feel.CrashWobble(wobbleTime);
@@ -195,6 +214,8 @@ namespace SqueakyLane.Presentation
             pitchTime = squashTime = mudTime = washTime = hitTime = wobbleTime = float.MaxValue;
             pitchDuration = 1;
             pitchAmount = rollAngle = wobbleAmount = 0;
+            washDuration = 1;
+            washSine = crawlWash = false;
             impactScale = 1;
             exiting = braking = false;
             if (visual != null)

@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace SqueakyLane.Game
 {
-    public enum MechanicKind { Surface, ColorGate, WaterGate, Mud, Cone, Turntable, TrafficLight, Pylon, Portal }
+    public enum MechanicKind { Surface, ColorGate, WaterGate, Mud, Cone, Turntable, TrafficLight, Pylon, Portal, WashStation }
 
     [CreateAssetMenu(menuName = "Squeaky Lane/Mechanic Catalog")]
     public sealed class MechanicCatalog : ScriptableObject

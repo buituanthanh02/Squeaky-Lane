@@ -46,8 +46,9 @@ namespace SqueakyLane.Presentation
             ExitCombo = 0; LastSlideCells = 0; lastExitClock = float.NegativeInfinity;
             for (int i = 0; i < lanes.Length; i++) { lanes[i].Clips.Clear(); lanes[i].Head = 0; poses[i] = FromState(state.CarAt(i), i); lanes[i].End = clock; board.Car(i).ResetFeel(); }
             board.Snap(state);
-            // Xe vừa nhảy về tư thế của Core: bỏ vệt cũ để không kéo vạch từ chỗ cũ tới chỗ mới.
+            // Xe vừa nhảy về tư thế của Core: bỏ vệt cũ để không kéo vạch từ chỗ cũ tới chỗ mới; tắt trạm rửa đang chạy.
             for (int i = 0; i < lanes.Length; i++) { board.Car(i).ClearTrail(); }
+            board.CancelWash();
             Cancelled?.Invoke();
         }
         public void Enqueue(SolverMove command, GameState before, MoveResult result)
@@ -64,6 +65,7 @@ namespace SqueakyLane.Presentation
             }
             int selected = command.Index; float cursor = 0;
             int slid = 0; // số ô xe đã trượt trước sự kiện hiện tại; Stop dùng để biết va nhẹ hay mạnh
+            int accelStep = 0; // chỉ số ô tính từ lúc (re)lăn bánh: về 0 sau khi bò qua trạm rửa để bứt tốc lại
             var events = result.Events;
             for (int e = 0; e < events.Count; e++)
             {
@@ -74,9 +76,14 @@ namespace SqueakyLane.Presentation
                     case MoveEventKind.Step:
                     {
                         // 014: bứt tốc: ô đầu chậm, nhanh dần tới tốc độ tối đa sau AccelCells ô (FeelConfig.TimeToCell).
-                        float step = feel.StepDuration(slid);
+                        // Ô kế tiếp có Spray (xe còn bùn vào ô vòi xịt) thì bò chậm WashCrawlSeconds để chổi/bọt kịp rửa.
+                        bool crawl = feel.WashCrawlSeconds > 0 && e + 1 < events.Count && events[e + 1].Kind == MoveEventKind.Spray;
+                        float step = crawl ? feel.WashCrawlSeconds : feel.StepDuration(accelStep);
                         to.Position = Position(ev.R, ev.C, pose.Yaw, selected);
-                        Add(selected, cursor, step, to, true); cursor += step; slid++; break;
+                        Add(selected, cursor, step, to, true); cursor += step; slid++;
+                        accelStep = crawl ? 0 : accelStep + 1;
+                        if (crawl) { var washClip = draft[draft.Count - 1]; washClip.Crawl = true; draft[draft.Count - 1] = washClip; }
+                        break;
                     }
                     case MoveEventKind.Water:
                         to.Position += Direction(pose.Yaw) * (ev.Sign * feel.WaterDipCells); to.Mud = 0;
@@ -104,7 +111,7 @@ namespace SqueakyLane.Presentation
                     case MoveEventKind.Push:
                     {
                         // Hàng bị đẩy đi cùng nhịp với bước kế tiếp của xe tải (cùng chỉ số slid).
-                        float pushStep = feel.StepDuration(slid);
+                        float pushStep = feel.StepDuration(accelStep);
                         for (int k = 0; k < ev.PushedCars.Count; k++)
                         {
                             var push = ev.PushedCars[k]; var pushed = poses[push.Car];
@@ -224,6 +231,13 @@ namespace SqueakyLane.Presentation
                             board.Car(i).StartMotion(clip.StartSign);
                             CarStarted?.Invoke();
                         }
+                        if (clip.Crawl)
+                        {
+                            // Xe bắt đầu bò qua trạm rửa: lắc theo chổi, bùn trôi giữa chừng, chổi quay + xịt bọt.
+                            board.Car(i).BeginWash(clip.Duration);
+                            var station = board.WashStationAt(clip.EventData.R, clip.EventData.C);
+                            if (station != null) { station.Begin(clip.Duration, feel.WashRollerSpinDegrees); }
+                        }
                         if (clip.HasEvent)
                         {
                             LastSlideCells = clip.Slide;
@@ -287,11 +301,12 @@ namespace SqueakyLane.Presentation
                 if (board != null && board.Car(i) != null) { board.Car(i).ResetFeel(); }
             }
             pylons.Clear();
+            if (board != null) { board.CancelWash(); }
             Cancelled?.Invoke();
         }
         private sealed class Lane { public readonly List<Clip> Clips = new List<Clip>(64); public int Head; public float End; }
         private struct Pose { public Vector3 Position; public float Yaw, Scale; public TileColor Color; public int Mud; public bool Alive; }
-        private struct Clip { public int Car, ConsumedMud, StartSign, Slide; public bool Accelerate; public float ShrinkStart; public float Start, Duration, RollDistance, RollProgress; public float End => Start + Duration; public Pose From, To; public Rect Swept; public bool Started, HasEvent, StartsMove; public MoveEventKind EventKind; public StopReason? Reason; public MoveEvent EventData; }
+        private struct Clip { public int Car, ConsumedMud, StartSign, Slide; public bool Accelerate; public float ShrinkStart; public float Start, Duration, RollDistance, RollProgress; public float End => Start + Duration; public Pose From, To; public Rect Swept; public bool Started, HasEvent, StartsMove, Crawl; public MoveEventKind EventKind; public StopReason? Reason; public MoveEvent EventData; }
         private struct PylonClip { public int Index; public float Start, End, From, To; public bool Started; }
     }
 }

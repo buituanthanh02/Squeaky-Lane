@@ -61,6 +61,9 @@ MonoBehaviour:
   - kind: 8
     variant: 2
     prefab: {fileID: 98723834520208392, guid: 2152d75012f645f489e29daa12a90136, type: 3}
+  - kind: 9
+    variant: 0
+    prefab: {fileID: 2665249846974517261, guid: 68c9a317cb5eb2c44a3f905e77575d32, type: 3}
   design:
     asphalt: {r: 0.22745098, g: 0.24705882, b: 0.2784314, a: 1}
     markings: {r: 1, g: 1, b: 1, a: 0.6}
