@@ -11,6 +11,10 @@ TICKET="${2:?thiếu <file-phiếu.md>}"
 EXTRA="${3:-}"
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 OUT="$ROOT/Logs/codex"
+# Model và mức suy luận: mặc định gpt-6.1-sol, medium (rẻ, nhanh). Việc khó hoặc review thấy lỗi thì nâng: CODEX_EFFORT=high tools/codex-run.sh ...
+# (Sol 6.2 chưa có trong danh mục tài khoản ChatGPT này, 26/11; xem `codex debug models`. Muốn đổi model: CODEX_MODEL=<slug>.)
+MODEL="${CODEX_MODEL:-gpt-6.1-sol}"
+EFFORT="${CODEX_EFFORT:-medium}"
 mkdir -p "$OUT"
 PROMPT="$OUT/$NAME.prompt.md"
 
@@ -27,8 +31,8 @@ EOF
 
 # Sandbox workspace-write: ghi được trong repo, không đụng ngoài repo. Lời nhắc đi qua stdin để giữ nguyên UTF-8.
 cd "$ROOT" || exit 1
-codex exec -C "$ROOT" -s workspace-write --color never --skip-git-repo-check \
+codex exec -C "$ROOT" -m "$MODEL" -c "model_reasoning_effort=\"$EFFORT\"" -s workspace-write --color never --skip-git-repo-check \
   -o "$OUT/$NAME.last.txt" - < "$PROMPT" > "$OUT/$NAME.log" 2>&1
 CODE=$?
-echo "codex exit=$CODE · log: Logs/codex/$NAME.log · trả lời cuối: Logs/codex/$NAME.last.txt"
+echo "codex model=$MODEL effort=$EFFORT exit=$CODE · log: Logs/codex/$NAME.log · trả lời cuối: Logs/codex/$NAME.last.txt"
 exit $CODE
