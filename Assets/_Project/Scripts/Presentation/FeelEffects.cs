@@ -61,6 +61,11 @@ namespace SqueakyLane.Presentation
                 main.maxParticles = config.MaxLiveParticles;
                 main.simulationSpace = ParticleSystemSimulationSpace.World;
                 main.playOnAwake = false;
+                var emission = systems[i].emission;
+                emission.enabled = true;
+                emission.rateOverTime = 0;
+                emission.rateOverDistance = 0;
+                emission.burstCount = 0;
                 // Simulate điều khiển thời gian và tự pause. Hạt dùng cùng đồng hồ với animator.
                 systems[i].Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
             }
@@ -181,7 +186,12 @@ namespace SqueakyLane.Presentation
             if (systems == null) { return; }
             for (int i = 0; i < systems.Length; i++)
             {
-                if (systems[i] != null) { systems[i].Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear); }
+                if (systems[i] != null)
+                {
+                    systems[i].Stop(false, ParticleSystemStopBehavior.StopEmittingAndClear);
+                    // Reset bộ mô phỏng ở t=0 rồi pause trước khi Emit, kể cả pool vừa tạo trong EditMode.
+                    systems[i].Simulate(0, false, true, false);
+                }
             }
         }
         private void Disconnect()

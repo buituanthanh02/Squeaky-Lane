@@ -23,16 +23,17 @@ namespace SqueakyLane.Game
         [Header("012 — Thân và bánh (số khởi điểm Claude)")]
         [SerializeField, Tooltip("Bật nhún/chúi/rướn thân xe.")] private bool bodyEnabled = true;
         [SerializeField, Tooltip("Bật quay bánh theo quãng đường trượt.")] private bool wheelsEnabled = true;
-        [SerializeField, Tooltip("Bật lún/rũ bùn và giật xe bị va.")] private bool mudBodyEnabled = true;
+        [SerializeField, Tooltip("Bật lún/rũ bùn; cú giật khi bị va thuộc nhóm thân xe.")] private bool mudBodyEnabled = true;
         [SerializeField, Range(-15, 0), Tooltip("Độ ngóc mũi lúc khởi hành, độ.")] private float launchPitch = -5;
         [SerializeField, Range(.01f, .5f), Tooltip("Nhịp khởi hành, giây.")] private float launchSeconds = .08f;
         [SerializeField, Range(0, 20), Tooltip("Độ chúi mũi khi phanh/va, độ.")] private float brakePitch = 8;
         [SerializeField, Range(0, 10), Tooltip("Độ bật ngược sau khi chúi, độ.")] private float brakeRebound = 3;
         [SerializeField, Range(.05f, 1), Tooltip("Tổng nhịp phanh và bật lại, giây.")] private float brakeSeconds = .22f;
-        [SerializeField, Range(.5f, 1), Tooltip("Ép chiều dài khi phanh.")] private float brakeLength = .94f;
+        [SerializeField, Range(.5f, 1), Tooltip("Ép chiều dài khi phanh.")] private float brakeLength = .90f;
+        [SerializeField, Range(1, 1.5f), Tooltip("Phình ngang khi phanh để đọc được ở góc nhìn từ trên xuống.")] private float brakeWidth = 1.06f;
         [SerializeField, Range(1, 1.5f), Tooltip("Nở chiều cao khi phanh.")] private float brakeHeight = 1.04f;
-        [SerializeField, Range(.01f, .5f), Tooltip("Nhịp ép thân khi phanh, giây.")] private float squashSeconds = .06f;
-        [SerializeField, Range(1, 1.5f), Tooltip("Kéo dài theo thân khi ra cổng.")] private float exitStretch = 1.06f;
+        [SerializeField, Range(.01f, .5f), Tooltip("Nhịp ép thân khi phanh, giây.")] private float squashSeconds = .10f;
+        [SerializeField, Range(1, 1.5f), Tooltip("Kéo dài theo thân khi ra cổng.")] private float exitStretch = 1.10f;
         [SerializeField, Range(-15, 0), Tooltip("Độ ngóc mũi khi ra cổng, độ.")] private float exitPitch = -4;
         [SerializeField, Range(0, .2f), Tooltip("Hạ thân khi lội bùn, ô.")] private float mudSink = .03f;
         [SerializeField, Range(.5f, 1), Tooltip("Ép chiều cao lúc lội bùn.")] private float mudHeight = .97f;
@@ -41,7 +42,7 @@ namespace SqueakyLane.Game
         [SerializeField, Range(1, 6), Tooltip("Số nhịp rũ bùn.")] private int washCycles = 3;
         [SerializeField, Range(.05f, 1), Tooltip("Tổng nhịp rũ bùn, giây.")] private float washSeconds = .35f;
         [SerializeField, Range(.01f, 1), Tooltip("Thời gian lớp bùn mờ dần, giây.")] private float mudFadeSeconds = .2f;
-        [SerializeField, Range(0, .2f), Tooltip("Giật xe đứng yên bị đụng theo hướng va, ô.")] private float hitDistance = .05f;
+        [SerializeField, Range(0, .2f), Tooltip("Giật xe đứng yên bị đụng theo hướng va, ô.")] private float hitDistance = .08f;
         [SerializeField, Range(.01f, .5f), Tooltip("Nhịp xe bị đụng, giây.")] private float hitSeconds = .12f;
         [Header("012 — Hạt và camera")]
         [SerializeField, Tooltip("Bật hạt ở cổng nước/vòi xịt.")] private bool waterParticlesEnabled = true;
@@ -54,19 +55,19 @@ namespace SqueakyLane.Game
         [SerializeField, Range(1, 12), Tooltip("Số dao động trong nhịp rung camera.")] private int shakeCycles = 3;
         [SerializeField, Range(1, 60), Tooltip("Trần hạt sống chung cho cả bãi.")] private int maxLiveParticles = 60;
         [SerializeField, Range(0, 4), Tooltip("Độ cao phát pháo giấy trên bãi, ô.")] private float confettiHeight = 3;
-        [SerializeField, Range(0, 2), Tooltip("Nửa góc nón phun; tỉ lệ vận tốc ngang / vận tốc lên.")] private float particleSpread = .7f;
+        [SerializeField, Range(0, 2), Tooltip("Nửa góc nón phun; tỉ lệ vận tốc ngang / vận tốc lên.")] private float particleSpread = 1.2f;
         [SerializeField, Range(0, 2), Tooltip("Độ tản nguồn pháo giấy theo kích thước bãi.")] private float confettiSpread = .4f;
         [SerializeField, Range(0, 1), Tooltip("Tỉ lệ hạt nước màu xanh, còn lại trắng.")] private float waterTintRatio = .65f;
         [SerializeField, Range(0, 1), Tooltip("Tỉ lệ tia nước, còn lại hơi nước.")] private float waterJetRatio = .7f;
         [SerializeField, Tooltip("Màu nước và hơi trắng theo phiếu012.")] private Color waterColor = new Color32(79, 195, 247, 255);
         [SerializeField, Tooltip("Màu hơi nước và sao.")] private Color sparkleColor = Color.white;
-        [SerializeField, Tooltip("Màu bụi khi va.")] private Color impactColor = Color.gray;
+        [SerializeField, Tooltip("Màu bụi khi va.")] private Color impactColor = new Color32(217, 212, 199, 255);
         [SerializeField, Tooltip("Material bùn alpha tạo sẵn bằng Core Feel; không tạo material khi Play.")] private Material mudFadeMaterial = null;
-        [SerializeField, Tooltip("14 hạt/0.4s: nước + hơi.")] private ParticleFeel water = new ParticleFeel(14, .4f, .13f, 1.8f, .2f);
-        [SerializeField, Tooltip("10 bọt/0.5s theo màu xe.")] private ParticleFeel bubbles = new ParticleFeel(10, .5f, .17f, 1.2f, .1f);
-        [SerializeField, Tooltip("4 sao/0.5s.")] private ParticleFeel sparkles = new ParticleFeel(4, .5f, .2f, 1.4f, .1f);
-        [SerializeField, Tooltip("6 bụi/0.25s.")] private ParticleFeel impact = new ParticleFeel(6, .25f, .18f, .7f, .2f);
-        [SerializeField, Tooltip("30 pháo giấy/1s, 6 màu xe.")] private ParticleFeel confetti = new ParticleFeel(30, 1, .14f, 1.5f, 1);
+        [SerializeField, Tooltip("14 hạt/0.4s: nước + hơi.")] private ParticleFeel water = new ParticleFeel(14, .4f, .25f, 1.8f, .2f);
+        [SerializeField, Tooltip("12 bọt/0.5s theo màu xe.")] private ParticleFeel bubbles = new ParticleFeel(12, .5f, .34f, 1.2f, .1f);
+        [SerializeField, Tooltip("6 sao/0.5s.")] private ParticleFeel sparkles = new ParticleFeel(6, .5f, .4f, 1.4f, .1f);
+        [SerializeField, Tooltip("6 bụi/0.25s.")] private ParticleFeel impact = new ParticleFeel(6, .25f, .30f, .7f, .2f);
+        [SerializeField, Tooltip("30 pháo giấy/1s, 6 màu xe.")] private ParticleFeel confetti = new ParticleFeel(30, 1, .25f, 1.5f, 1);
 
         public bool BodyEnabled => bodyEnabled;
         public bool WheelsEnabled => wheelsEnabled;
@@ -77,6 +78,7 @@ namespace SqueakyLane.Game
         public float BrakeRebound => brakeRebound;
         public float BrakeSeconds => brakeSeconds;
         public float BrakeLength => brakeLength;
+        public float BrakeWidth => brakeWidth;
         public float BrakeHeight => brakeHeight;
         public float SquashSeconds => squashSeconds;
         public float ExitStretch => exitStretch;
@@ -136,10 +138,11 @@ namespace SqueakyLane.Game
             brakePitch = Limit(brakePitch, 0, 20, 8);
             brakeRebound = Limit(brakeRebound, 0, 10, 3);
             brakeSeconds = Limit(brakeSeconds, .05f, 1, .22f);
-            brakeLength = Limit(brakeLength, .5f, 1, .94f);
+            brakeLength = Limit(brakeLength, .5f, 1, .90f);
+            brakeWidth = Limit(brakeWidth, 1, 1.5f, 1.06f);
             brakeHeight = Limit(brakeHeight, 1, 1.5f, 1.04f);
-            squashSeconds = Limit(squashSeconds, .01f, .5f, .06f);
-            exitStretch = Limit(exitStretch, 1, 1.5f, 1.06f);
+            squashSeconds = Limit(squashSeconds, .01f, .5f, .10f);
+            exitStretch = Limit(exitStretch, 1, 1.5f, 1.10f);
             exitPitch = Limit(exitPitch, -15, 0, -4);
             mudSink = Limit(mudSink, 0, .2f, .03f);
             mudHeight = Limit(mudHeight, .5f, 1, .97f);
@@ -148,14 +151,14 @@ namespace SqueakyLane.Game
             washCycles = Mathf.Clamp(washCycles, 1, 6);
             washSeconds = Limit(washSeconds, .05f, 1, .35f);
             mudFadeSeconds = Limit(mudFadeSeconds, .01f, 1, .2f);
-            hitDistance = Limit(hitDistance, 0, .2f, .05f);
+            hitDistance = Limit(hitDistance, 0, .2f, .08f);
             hitSeconds = Limit(hitSeconds, .01f, .5f, .12f);
             shakeDistance = Limit(shakeDistance, 0, .15f, .04f);
             shakeSeconds = Limit(shakeSeconds, .01f, .5f, .1f);
             shakeCycles = Mathf.Clamp(shakeCycles, 1, 12);
             maxLiveParticles = Mathf.Clamp(maxLiveParticles, 1, 60);
             confettiHeight = Limit(confettiHeight, 0, 4, 3);
-            particleSpread = Limit(particleSpread, 0, 2, .7f);
+            particleSpread = Limit(particleSpread, 0, 2, 1.2f);
             confettiSpread = Limit(confettiSpread, 0, 2, .4f);
             waterTintRatio = Limit(waterTintRatio, 0, 1, .65f);
             waterJetRatio = Limit(waterJetRatio, 0, 1, .7f);

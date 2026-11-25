@@ -191,6 +191,7 @@ namespace SqueakyLane.Tests.EditMode
             effects.ConfigurePrefab(systems[0], systems[1], systems[2], systems[3], systems[4]);
             effects.Initialize(animator, board, null, feel, palette);
             effects.Celebrate();
+            Assert.That(effects.LiveCount, Is.EqualTo(feel.Confetti.Count), "Pool mới phải Emit được ngay trước frame mô phỏng đầu tiên.");
             effects.Celebrate();
             effects.Celebrate();
             Assert.That(effects.LiveCount, Is.EqualTo(feel.MaxLiveParticles));
@@ -240,6 +241,52 @@ namespace SqueakyLane.Tests.EditMode
             Assert.That(feel.MaxLiveParticles, Is.EqualTo(60));
             Assert.That(feel.ShakeDistance, Is.EqualTo(.04f));
             Assert.That(feel.StepSeconds, Is.EqualTo(step));
+        }
+
+        [TestCase(-1f, 1f)]
+        [TestCase(2f, 1.5f)]
+        [TestCase(float.NaN, 1.06f)]
+        [TestCase(float.PositiveInfinity, 1.06f)]
+        public void BrakeWidthValidationKeepsFiniteSafeScale(float input, float expected)
+        {
+            Set(feel, "brakeWidth", input);
+            typeof(FeelConfig).GetMethod("OnValidate", BindingFlags.NonPublic | BindingFlags.Instance).Invoke(feel, null);
+            Assert.That(feel.BrakeWidth, Is.EqualTo(expected).Within(.0001f));
+        }
+
+        [Test]
+        public void HitStillMovesVisualWhenMudGroupIsDisabled()
+        {
+            Set(feel, "mudBodyEnabled", false);
+            Bind();
+            var car = board.Car(0);
+            var model = Model(car);
+            var rest = model.localPosition;
+            var rootPosition = car.transform.localPosition;
+            var body = car.GetComponent<CarBody>();
+            body.Hit(Vector3.right);
+            body.Advance(feel.HitSeconds * .5f);
+            Assert.That(model.localPosition.x - rest.x, Is.EqualTo(feel.HitDistance).Within(.0001f));
+            Assert.That(car.transform.localPosition, Is.EqualTo(rootPosition));
+            body.ResetPose();
+            Assert.That(model.localPosition, Is.EqualTo(rest));
+        }
+
+        [Test]
+        public void BrakeSquashesLengthAndWidensOnlyVisualThenResets()
+        {
+            Bind();
+            var car = board.Car(0);
+            var model = Model(car);
+            var rest = model.localScale;
+            var body = car.GetComponent<CarBody>();
+            body.Play(new MoveEvent(MoveEventKind.Stop, sign: 1, reason: StopReason.Wall));
+            body.Advance(0);
+            Assert.That(model.localScale.x, Is.EqualTo(rest.x * feel.BrakeLength).Within(.0001f));
+            Assert.That(model.localScale.z, Is.EqualTo(rest.z * feel.BrakeWidth).Within(.0001f));
+            Assert.That(car.transform.localScale, Is.EqualTo(Vector3.one));
+            body.ResetPose();
+            Assert.That(model.localScale, Is.EqualTo(rest));
         }
 
         private GameSession Bind(int mud = 0)

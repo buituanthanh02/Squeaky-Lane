@@ -127,6 +127,8 @@ namespace SqueakyLane.Presentation
                 float squash = EaseReturn(squashTime, feel.SquashSeconds);
                 scale.x = exiting ? feel.ExitStretch : Mathf.Lerp(1, feel.BrakeLength, squash);
                 scale.y = Mathf.Lerp(1, feel.BrakeHeight, squash);
+                scale.z = Mathf.Lerp(1, feel.BrakeWidth, squash);
+                offset += hitDirection * (feel.HitDistance * Mathf.Sin(Mathf.Clamp01(hitTime / feel.HitSeconds) * Mathf.PI));
                 if (feel.MudBodyEnabled)
                 {
                     float sink = Mathf.Sin(Mathf.Clamp01(mudTime / feel.MudSeconds) * Mathf.PI);
@@ -134,7 +136,6 @@ namespace SqueakyLane.Presentation
                     scale.y *= Mathf.Lerp(1, feel.MudHeight, sink);
                     float wash = Mathf.Clamp01(washTime / feel.WashSeconds);
                     roll = Mathf.Sin(wash * feel.WashCycles * 2 * Mathf.PI) * feel.WashRoll * (1 - wash);
-                    offset += hitDirection * (feel.HitDistance * Mathf.Sin(Mathf.Clamp01(hitTime / feel.HitSeconds) * Mathf.PI));
                 }
             }
             // +X là đầu xe: pitch dương chúi xuống => quay âm quanh Z. Roll quanh X.
