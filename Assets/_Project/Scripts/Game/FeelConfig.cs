@@ -84,6 +84,24 @@ namespace SqueakyLane.Game
         [SerializeField, Range(1, 8), Tooltip("Chỉ rung camera khi xe trượt ít nhất ngần này ô trước khi va.")] private int shakeMinCells = 2;
         [SerializeField, Range(0, 12), Tooltip("Số tia sao ở đầu xe khi va nhẹ nhất.")] private int impactSparksMin = 2;
         [SerializeField, Range(0, 12), Tooltip("Số tia sao ở đầu xe khi va mạnh nhất.")] private int impactSparksMax = 7;
+        [Header("014 — Xe chạy: bứt tốc, lắc khi đâm, vệt bánh, đèn (số khởi điểm Claude)")]
+        [SerializeField, Range(0, 4), Tooltip("Số ô xe cần để tăng tốc từ đứng yên lên tốc độ tối đa (1/Step Seconds ô/giây). 0 = trượt đều như cũ. Mỗi lượt chạy chậm hơn đúng Accel Cells × Step Seconds giây.")] private float accelCells = 1.2f;
+        [SerializeField, Tooltip("Bật lắc lư thân khi đâm/bị đụng.")] private bool crashWobbleEnabled = true;
+        [SerializeField, Range(0, 20), Tooltip("Biên độ lắc nghiêng quanh trục thân khi đâm, độ (nhân hệ số va theo số ô đã trượt).")] private float crashWobbleDegrees = 8;
+        [SerializeField, Range(0, 1), Tooltip("Lắc đầu (quay quanh trục đứng) bằng tỉ lệ này của độ nghiêng; nhìn từ trên xuống dễ thấy hơn nghiêng.")] private float crashWobbleYawRatio = .8f;
+        [SerializeField, Range(.1f, 1.5f), Tooltip("Tổng thời gian lắc tắt dần, giây.")] private float crashWobbleSeconds = .5f;
+        [SerializeField, Range(.5f, 6), Tooltip("Số nhịp lắc trong thời gian lắc.")] private float crashWobbleCycles = 2.5f;
+        [SerializeField, Range(0, 1), Tooltip("Xe đứng yên bị đụng lắc bằng tỉ lệ này của xe đâm.")] private float hitWobbleRatio = .6f;
+        [SerializeField, Tooltip("Bật vệt khói/bánh sau xe.")] private bool trailEnabled = true;
+        [SerializeField, Tooltip("Material vệt bánh tạo sẵn (Art/VFX/Materials/M_TireTrail); trống = không có vệt.")] private Material tireTrailMaterial = null;
+        [SerializeField, Range(.1f, 2), Tooltip("Vệt tồn tại bao lâu rồi mờ hết, giây.")] private float trailSeconds = .6f;
+        [SerializeField, Range(.05f, .8f), Tooltip("Bề rộng vệt, ô.")] private float trailWidth = .4f;
+        [SerializeField, Range(0, 1), Tooltip("Độ đục đầu vệt (sát xe); đuôi về 0.")] private float trailAlpha = .8f;
+        [SerializeField, Tooltip("Bật tia đèn ở đầu đang chạy (trắng khi tới, đỏ khi lùi).")] private bool headlightsEnabled = true;
+        [SerializeField, Tooltip("Prefab tia đèn trước (Prefabs/VFX/HeadlightBeams); +X là hướng chiếu, gốc ở đáy tia.")] private GameObject headlightPrefab = null;
+        [SerializeField, Tooltip("Prefab tia đèn khi lùi (Prefabs/VFX/TaillightBeams).")] private GameObject taillightPrefab = null;
+        [SerializeField, Range(1, 40), Tooltip("Tốc độ tia đèn dài ra/thu lại theo tốc độ xe, đơn vị tỉ lệ/giây.")] private float lightResponse = 10;
+        [SerializeField, Range(0, .1f), Tooltip("Nâng vệt và tia đèn khỏi mặt bãi để không z-fight, ô.")] private float roadFxLift = .015f;
 
         public bool BodyEnabled => bodyEnabled;
         public bool WheelsEnabled => wheelsEnabled;
@@ -143,6 +161,46 @@ namespace SqueakyLane.Game
         public int ShakeMinCells => shakeMinCells;
         public int ImpactSparksMin => impactSparksMin;
         public int ImpactSparksMax => impactSparksMax;
+        public float AccelCells => accelCells;
+        public bool CrashWobbleEnabled => crashWobbleEnabled;
+        public float CrashWobbleDegrees => crashWobbleDegrees;
+        public float CrashWobbleYawRatio => crashWobbleYawRatio;
+        public float HitWobbleRatio => hitWobbleRatio;
+        public bool TrailEnabled => trailEnabled;
+        public Material TireTrailMaterial => tireTrailMaterial;
+        public float TrailSeconds => trailSeconds;
+        public float TrailWidth => trailWidth;
+        public float TrailAlpha => trailAlpha;
+        public bool HeadlightsEnabled => headlightsEnabled;
+        public GameObject HeadlightPrefab => headlightPrefab;
+        public GameObject TaillightPrefab => taillightPrefab;
+        public float LightResponse => lightResponse;
+        public float RoadFxLift => roadFxLift;
+
+        // 014: thời điểm xe tới mốc `cells` ô kể từ lúc đứng yên. Gia tốc đều tới tốc độ tối đa v = 1/stepSeconds
+        // sau accelCells ô, rồi chạy đều. Đoạn tăng tốc: s = v²t²/(4a) => t = 2·√(s·a)/v; sau đó t = (s + a)/v.
+        // Với accelCells = 0 thì t = s·stepSeconds, đúng nhịp trượt đều cũ.
+        public float TimeToCell(float cells)
+        {
+            if (cells <= 0) { return 0; }
+            float a = accelCells;
+            return cells <= a ? 2 * Mathf.Sqrt(cells * a) * stepSeconds : (cells + a) * stepSeconds;
+        }
+
+        // Thời lượng trượt ô thứ `index` (0 = ô đầu tiên của lượt chạy).
+        public float StepDuration(int index)
+        {
+            int k = Mathf.Max(0, index);
+            return Mathf.Max(.01f, TimeToCell(k + 1) - TimeToCell(k));
+        }
+
+        // Hệ số lắc chuẩn hóa (-1..1) tại `elapsed` giây sau va: sin tắt dần theo bình phương, về 0 đúng lúc hết giờ.
+        public float CrashWobble(float elapsed)
+        {
+            if (elapsed < 0 || elapsed >= crashWobbleSeconds) { return 0; }
+            float t = elapsed / crashWobbleSeconds;
+            return Mathf.Sin(t * crashWobbleCycles * 2 * Mathf.PI) * (1 - t) * (1 - t);
+        }
 
         // Hệ số va theo số ô xe trượt trước khi dừng: 0 ô (bị chặn ngay) và 1 ô = 1, đủ ImpactFullCells ô = ImpactMaxScale.
         public float ImpactPower(int slideCells)
@@ -218,6 +276,17 @@ namespace SqueakyLane.Game
             shakeMinCells = Mathf.Clamp(shakeMinCells, 1, 8);
             impactSparksMin = Mathf.Clamp(impactSparksMin, 0, 12);
             impactSparksMax = Mathf.Clamp(impactSparksMax, impactSparksMin, 12);
+            accelCells = Limit(accelCells, 0, 4, 1.2f);
+            crashWobbleDegrees = Limit(crashWobbleDegrees, 0, 20, 8);
+            crashWobbleYawRatio = Limit(crashWobbleYawRatio, 0, 1, .8f);
+            crashWobbleSeconds = Limit(crashWobbleSeconds, .1f, 1.5f, .5f);
+            crashWobbleCycles = Limit(crashWobbleCycles, .5f, 6, 2.5f);
+            hitWobbleRatio = Limit(hitWobbleRatio, 0, 1, .6f);
+            trailSeconds = Limit(trailSeconds, .1f, 2, .6f);
+            trailWidth = Limit(trailWidth, .05f, .8f, .4f);
+            trailAlpha = Limit(trailAlpha, 0, 1, .8f);
+            lightResponse = Limit(lightResponse, 1, 40, 10);
+            roadFxLift = Limit(roadFxLift, 0, .1f, .015f);
             water.Validate();
             bubbles.Validate();
             sparkles.Validate();

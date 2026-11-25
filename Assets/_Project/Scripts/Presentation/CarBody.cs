@@ -14,6 +14,8 @@ namespace SqueakyLane.Presentation
         private Quaternion visualRotation, dirtRotation;
         private Wheel[] wheels = System.Array.Empty<Wheel>();
         private float pitchTime, pitchDuration, pitchAmount, squashTime, mudTime, washTime, hitTime;
+        // 014: lắc lư sau va; biên độ (độ) có dấu để xe đâm và xe bị đụng lắc ngược chiều nhau.
+        private float wobbleTime, wobbleAmount;
         private float exitSign, rollAngle;
         private float impactScale = 1;
         private Vector3 hitDirection;
@@ -83,6 +85,11 @@ namespace SqueakyLane.Presentation
                     pitchTime = 0;
                     pitchDuration = feel.BrakeSeconds;
                     squashTime = 0;
+                    if (feel.CrashWobbleEnabled)
+                    {
+                        wobbleTime = 0;
+                        wobbleAmount = feel.CrashWobbleDegrees * impactScale * ev.Sign;
+                    }
                     break;
                 case MoveEventKind.Exit:
                     exiting = true;
@@ -102,6 +109,13 @@ namespace SqueakyLane.Presentation
         {
             hitDirection = transform.InverseTransformDirection(worldDirection).normalized;
             hitTime = 0;
+            if (feel != null && feel.CrashWobbleEnabled)
+            {
+                // Bị đụng từ bên (hướng va gần trục ngang của xe) thì nghiêng theo hướng va; đụng dọc thân thì lắc theo chiều đẩy.
+                float side = Mathf.Abs(hitDirection.z) > Mathf.Abs(hitDirection.x) ? Mathf.Sign(hitDirection.z) : Mathf.Sign(hitDirection.x);
+                wobbleTime = 0;
+                wobbleAmount = -feel.CrashWobbleDegrees * feel.HitWobbleRatio * side;
+            }
         }
 
         public void Roll(float signedDistance)
@@ -118,7 +132,9 @@ namespace SqueakyLane.Presentation
             mudTime += seconds;
             washTime += seconds;
             hitTime += seconds;
+            wobbleTime += seconds;
             float pitch = 0;
+            float yaw = 0;
             var scale = Vector3.one;
             var offset = Vector3.zero;
             float roll = 0;
@@ -142,9 +158,13 @@ namespace SqueakyLane.Presentation
                     float wash = Mathf.Clamp01(washTime / feel.WashSeconds);
                     roll = Mathf.Sin(wash * feel.WashCycles * 2 * Mathf.PI) * feel.WashRoll * (1 - wash);
                 }
+                // 014: lắc lư tắt dần sau va: nghiêng quanh trục thân + lắc đầu nhẹ (camera nhìn từ trên thấy rõ lắc đầu hơn).
+                float wobble = wobbleAmount * feel.CrashWobble(wobbleTime);
+                roll += wobble;
+                yaw = wobble * feel.CrashWobbleYawRatio;
             }
-            // +X là đầu xe: pitch dương chúi xuống => quay âm quanh Z. Roll quanh X.
-            var rotation = Quaternion.Euler(roll, 0, -pitch);
+            // +X là đầu xe: pitch dương chúi xuống => quay âm quanh Z. Roll quanh X, lắc đầu quanh Y.
+            var rotation = Quaternion.Euler(roll, yaw, -pitch);
             visual.localPosition = offset + rotation * Vector3.Scale(visualPosition, scale);
             visual.localRotation = rotation * visualRotation;
             visual.localScale = Vector3.Scale(visualScale, scale);
@@ -172,9 +192,9 @@ namespace SqueakyLane.Presentation
 
         public void ResetPose()
         {
-            pitchTime = squashTime = mudTime = washTime = hitTime = float.MaxValue;
+            pitchTime = squashTime = mudTime = washTime = hitTime = wobbleTime = float.MaxValue;
             pitchDuration = 1;
-            pitchAmount = rollAngle = 0;
+            pitchAmount = rollAngle = wobbleAmount = 0;
             impactScale = 1;
             exiting = braking = false;
             if (visual != null)

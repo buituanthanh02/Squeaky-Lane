@@ -46,6 +46,8 @@ namespace SqueakyLane.Presentation
             ExitCombo = 0; LastSlideCells = 0; lastExitClock = float.NegativeInfinity;
             for (int i = 0; i < lanes.Length; i++) { lanes[i].Clips.Clear(); lanes[i].Head = 0; poses[i] = FromState(state.CarAt(i), i); lanes[i].End = clock; board.Car(i).ResetFeel(); }
             board.Snap(state);
+            // Xe vừa nhảy về tư thế của Core: bỏ vệt cũ để không kéo vạch từ chỗ cũ tới chỗ mới.
+            for (int i = 0; i < lanes.Length; i++) { board.Car(i).ClearTrail(); }
             Cancelled?.Invoke();
         }
         public void Enqueue(SolverMove command, GameState before, MoveResult result)
@@ -70,8 +72,12 @@ namespace SqueakyLane.Presentation
                 switch (ev.Kind)
                 {
                     case MoveEventKind.Step:
+                    {
+                        // 014: bứt tốc: ô đầu chậm, nhanh dần tới tốc độ tối đa sau AccelCells ô (FeelConfig.TimeToCell).
+                        float step = feel.StepDuration(slid);
                         to.Position = Position(ev.R, ev.C, pose.Yaw, selected);
-                        Add(selected, cursor, feel.StepSeconds, to, true); cursor += feel.StepSeconds; slid++; break;
+                        Add(selected, cursor, step, to, true); cursor += step; slid++; break;
+                    }
                     case MoveEventKind.Water:
                         to.Position += Direction(pose.Yaw) * (ev.Sign * feel.WaterDipCells); to.Mud = 0;
                         Add(selected, cursor, feel.ExitSeconds * .5f, to, true); cursor += feel.ExitSeconds * .5f;
@@ -96,12 +102,16 @@ namespace SqueakyLane.Presentation
                     case MoveEventKind.Splash:
                         if (ev.OtherCar >= 0) { var splash = poses[ev.OtherCar]; splash.Mud = 1; Add(ev.OtherCar, cursor, 0, splash); } break;
                     case MoveEventKind.Push:
+                    {
+                        // Hàng bị đẩy đi cùng nhịp với bước kế tiếp của xe tải (cùng chỉ số slid).
+                        float pushStep = feel.StepDuration(slid);
                         for (int k = 0; k < ev.PushedCars.Count; k++)
                         {
                             var push = ev.PushedCars[k]; var pushed = poses[push.Car];
-                            pushed.Position = Position(push.R, push.C, pushed.Yaw, push.Car); Add(push.Car, cursor, feel.StepSeconds, pushed, true);
-                            for (int fx = 0; fx < push.Effects.Count; fx++) Effect(push.Car, push.Effects[fx], cursor + feel.StepSeconds);
+                            pushed.Position = Position(push.R, push.C, pushed.Yaw, push.Car); Add(push.Car, cursor, pushStep, pushed, true);
+                            for (int fx = 0; fx < push.Effects.Count; fx++) Effect(push.Car, push.Effects[fx], cursor + pushStep);
                         }
+                    }
                         // Step tiếp theo của xe tải dùng cùng cursor, để cả hàng chuyển động đồng thời.
                         break;
                     case MoveEventKind.Tele:
@@ -202,6 +212,7 @@ namespace SqueakyLane.Presentation
             for (int i = 0; i < lanes.Length; i++)
             {
                 var lane = lanes[i];
+                float drive = 0;
                 while (lane.Head < lane.Clips.Count)
                 {
                     var clip = lane.Clips[lane.Head]; if (clock < clip.Start) break;
@@ -241,11 +252,19 @@ namespace SqueakyLane.Presentation
                     board.Car(i).Roll(clip.RollDistance * (travel - clip.RollProgress));
                     clip.RollProgress = travel;
                     lane.Clips[lane.Head] = clip;
-                    if (t < 1) break;
+                    // Đoạn tức thời đổi chỗ (portal): bỏ vệt để không kéo vạch xuyên bãi.
+                    if (clip.Duration <= 0 && (clip.To.Position - clip.From.Position).sqrMagnitude > .0001f) { board.Car(i).ClearTrail(); }
+                    if (t < 1)
+                    {
+                        // Tốc độ đang chạy, chuẩn hóa theo tốc độ tối đa 1/StepSeconds; có dấu theo chiều thân xe.
+                        if (clip.Duration > 0) { drive = clip.RollDistance / clip.Duration * feel.StepSeconds; }
+                        break;
+                    }
                     if (clip.ConsumedMud >= 0) board.ConsumeMud(clip.ConsumedMud);
                     lane.Head++;
                 }
                 if (lane.Head == lane.Clips.Count && lane.Head > 0) { lane.Head = 0; lane.Clips.Clear(); }
+                board.Car(i).Drive(drive);
             }
             for (int i = 0; i < lanes.Length; i++)
             {

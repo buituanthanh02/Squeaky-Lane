@@ -27,6 +27,7 @@ namespace SqueakyLane.Presentation
         private float mudAlpha, mudFadeTime;
         private bool fadingMud;
         private ContactShadowView contactShadow;
+        private CarRoadFx roadFx;
         public TileColor Color => lastColor;
         public int Index { get; private set; }
         public int Length { get; private set; }
@@ -44,7 +45,12 @@ namespace SqueakyLane.Presentation
             body = GetComponent<CarBody>();
             if (body == null) { body = gameObject.AddComponent<CarBody>(); }
             BindBody();
+            // Vệt bánh/đèn dựng một lần cho mỗi xe; thân dài Length - 0,2 ô như bao chiếm chỗ của ActionAnimator.
+            if (roadFx == null && config != null) { roadFx = new CarRoadFx(transform, config, Length - .2f, LotSurfaceView.Top); }
         }
+        // 014: tốc độ có dấu đã chuẩn hóa (+1 chạy tới hết tốc, -1 lùi hết tốc); ActionAnimator gọi mỗi frame.
+        public void Drive(float signedSpeed) { if (roadFx != null) { roadFx.Drive(signedSpeed); } }
+        public void ClearTrail() { if (roadFx != null) { roadFx.Clear(); } }
         private void BindBody()
         {
             if (body != null && modelRoot != null && mudOverlay != null)
@@ -63,6 +69,7 @@ namespace SqueakyLane.Presentation
         public void AdvanceFeel(float seconds)
         {
             if (body != null) { body.Advance(seconds); }
+            if (roadFx != null) { roadFx.Advance(seconds); }
             if (!fadingMud || feel == null) { return; }
             mudFadeTime += seconds;
             mudAlpha = 1 - Mathf.Clamp01(mudFadeTime / feel.MudFadeSeconds);
@@ -72,6 +79,7 @@ namespace SqueakyLane.Presentation
         public void ResetFeel()
         {
             if (body != null) { body.ResetPose(); }
+            if (roadFx != null) { roadFx.Clear(); }
             fadingMud = false;
             lastDirt = -1;
         }
@@ -150,6 +158,7 @@ namespace SqueakyLane.Presentation
             transform.localScale = Vector3.one * scale;
             gameObject.SetActive(alive);
             if (alive && contactShadow != null) { contactShadow.Project(); }
+            if (alive && roadFx != null) { roadFx.Project(); }
             if (!appearanceReady || color != lastColor)
             {
                 ApplyAppearance(color);

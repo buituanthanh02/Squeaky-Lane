@@ -113,3 +113,20 @@ MonoBehaviour:
   shakeMinCells: 2
   impactSparksMin: 2
   impactSparksMax: 7
+  accelCells: 1.2
+  crashWobbleEnabled: 1
+  crashWobbleDegrees: 8
+  crashWobbleYawRatio: 0.8
+  crashWobbleSeconds: 0.5
+  crashWobbleCycles: 2.5
+  hitWobbleRatio: 0.6
+  trailEnabled: 1
+  tireTrailMaterial: {fileID: 2100000, guid: a052f0c2dd74bd64c9e1ea36aeda5b17, type: 2}
+  trailSeconds: 0.6
+  trailWidth: 0.4
+  trailAlpha: 0.8
+  headlightsEnabled: 1
+  headlightPrefab: {fileID: 3620061802002346379, guid: 0db33800065fab54289f676729d20001, type: 3}
+  taillightPrefab: {fileID: 7924610862451442990, guid: 6d57d970afb59c344b7732d9aafec38c, type: 3}
+  lightResponse: 10
+  roadFxLift: 0.015
