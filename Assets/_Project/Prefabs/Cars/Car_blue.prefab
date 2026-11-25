@@ -126,6 +126,7 @@ GameObject:
   - component: {fileID: 2483817657644600700}
   - component: {fileID: 1217507298400257357}
   - component: {fileID: 1213797145316994392}
+  - component: {fileID: 8859246335504876801}
   m_Layer: 0
   m_Name: Car_blue
   m_TagString: Untagged
@@ -186,6 +187,18 @@ MonoBehaviour:
   modelRoot: {fileID: 4266267023736554258}
   mudOverlay: {fileID: 8479159384884240198}
   footprintLength: 2
+--- !u!114 &8859246335504876801
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8395491849939900703}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aef5a98d40f59814ca1e78001937bfe7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &2803450433538780896
 PrefabInstance:
   m_ObjectHideFlags: 0

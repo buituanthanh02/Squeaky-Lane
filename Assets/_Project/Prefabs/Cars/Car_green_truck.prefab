@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 671518773302023459}
   - component: {fileID: 6224016183871439248}
   - component: {fileID: 3968786985623140400}
+  - component: {fileID: 4873036567091477386}
   m_Layer: 0
   m_Name: Car_green_truck
   m_TagString: Untagged
@@ -71,6 +72,18 @@ MonoBehaviour:
   modelRoot: {fileID: 3106771127782394250}
   mudOverlay: {fileID: 6889315451754677514}
   footprintLength: 3
+--- !u!114 &4873036567091477386
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2519845982999974841}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aef5a98d40f59814ca1e78001937bfe7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &3130377962320161463
 GameObject:
   m_ObjectHideFlags: 0

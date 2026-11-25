@@ -51,6 +51,8 @@ MonoBehaviour:
   gameConfig: {fileID: 11400000, guid: b7f93c11d7e27764b9129fc232cb0ba4, type: 2}
   feelConfig: {fileID: 11400000, guid: 94f00bd27b29e6f47ab820457504cdd7, type: 2}
   cameraConfig: {fileID: 11400000, guid: 58e976b4b518b454a9ae77839ad88b7f, type: 2}
+  carCatalog: {fileID: 0}
+  mechanicCatalog: {fileID: 0}
   palette: {fileID: 11400000, guid: af7d155515e3f0a4c8f095d68718843d, type: 2}
   boardCamera: {fileID: 0}
   canvas: {fileID: 0}
@@ -58,6 +60,10 @@ MonoBehaviour:
   animator: {fileID: 3040706176131027763}
   input: {fileID: 5102960225896293144}
   hud: {fileID: 6008188235077695433}
+  navigationView: {fileID: 0}
+  sfxPlayer: {fileID: 0}
+  haptics: {fileID: 0}
+  feelEffectsPrefab: {fileID: 853908289119290809, guid: d234793779a5df24cb2c12cd2dedf37a, type: 3}
 --- !u!114 &305265878934969917
 MonoBehaviour:
   m_ObjectHideFlags: 0

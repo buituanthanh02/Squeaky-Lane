@@ -42,6 +42,9 @@ namespace SqueakyLane.Presentation
         private SfxPlayer sfxPlayer;
         [SerializeField]
         private Haptics haptics;
+        [SerializeField, Tooltip("Prefab hạt dùng chung tạo bởi Tools/Squeaky Lane/Core Feel.")]
+        private FeelEffects feelEffectsPrefab = null;
+        private FeelEffects feelEffects;
         private Navigator navigator;
         private FeedbackRouter feedback;
         private TableButtons tableButtons;
@@ -78,6 +81,10 @@ namespace SqueakyLane.Presentation
             progress = new ProgressStore();
             feedback = new FeedbackRouter(sfxPlayer, haptics, feelConfig, progress);
             tableButtons = new TableButtons();
+            if (feelEffectsPrefab != null)
+            {
+                feelEffects = Instantiate(feelEffectsPrefab, transform, false);
+            }
         }
 
         private void OnEnable()
@@ -89,6 +96,11 @@ namespace SqueakyLane.Presentation
             hud.Hint += RequestHint;
             hud.ChangeLevel += ChangeLevel;
             feedback.Connect(input, animator, navigationView);
+            if (feelEffects != null)
+            {
+                feelEffects.enabled = true;
+                feelEffects.Initialize(animator, board, boardCamera, feelConfig, palette);
+            }
             if (navigationView != null)
             {
                 navigationView.Navigate += Navigate;
@@ -114,6 +126,10 @@ namespace SqueakyLane.Presentation
             hud.Hint -= RequestHint;
             hud.ChangeLevel -= ChangeLevel;
             feedback.Disconnect();
+            if (feelEffects != null)
+            {
+                feelEffects.enabled = false;
+            }
             if (navigationView != null)
             {
                 navigationView.Navigate -= Navigate;
@@ -223,7 +239,15 @@ namespace SqueakyLane.Presentation
             if (!result.Moved)
             {
                 message = "Hướng này đang bị chặn";
-                feedback.Play(SoundCue.StopWall);
+                if (command.Kind == SolverMoveKind.MoveCar && result.Events.Count > 0)
+                {
+                    // Không thêm lượt/đổi Core, chỉ diễn Stop đã có cả khi xe bị chặn ngay ô đầu.
+                    animator.Enqueue(command, before, result);
+                }
+                else
+                {
+                    feedback.Play(SoundCue.StopWall);
+                }
                 RefreshHud();
                 return;
             }
@@ -324,6 +348,10 @@ namespace SqueakyLane.Presentation
                             winCelebrating = true;
                             winDelayRemaining = feelConfig.WinDialogDelaySeconds;
                             feedback.Result(true);
+                            if (feelEffects != null)
+                            {
+                                feelEffects.Celebrate();
+                            }
                         }
                         else
                         {

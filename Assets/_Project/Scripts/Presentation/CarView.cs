@@ -21,9 +21,70 @@ namespace SqueakyLane.Presentation
         private Transform numberLabel;
         private TileColor lastColor;
         private bool truck, appearanceReady;
+        private CarBody body;
+        private FeelConfig feel;
+        private int lastDirt = -1;
+        private float mudAlpha, mudFadeTime;
+        private bool fadingMud;
+        public TileColor Color => lastColor;
         public int Index { get; private set; }
         public int Length { get; private set; }
         public Vector3 PositiveDirection => transform.right;
+        public void ConfigureFeel(FeelConfig config)
+        {
+            feel = config;
+            body = GetComponent<CarBody>();
+            if (body == null) { body = gameObject.AddComponent<CarBody>(); }
+            BindBody();
+        }
+        private void BindBody()
+        {
+            if (body != null && modelRoot != null && mudOverlay != null)
+            {
+                body.Bind(feel, modelRoot, mudOverlay.transform);
+            }
+        }
+        public void StartMotion(int sign) { if (body != null) { body.StartMotion(sign); } }
+        public void PlayFeel(MoveEvent ev)
+        {
+            if (body != null) { body.Play(ev); }
+            if (ev.Kind == MoveEventKind.Water || ev.Kind == MoveEventKind.Spray) { WashMud(); }
+        }
+        public void Hit(Vector3 worldDirection) { if (body != null) { body.Hit(worldDirection); } }
+        public void Roll(float distance) { if (body != null) { body.Roll(distance); } }
+        public void AdvanceFeel(float seconds)
+        {
+            if (body != null) { body.Advance(seconds); }
+            if (!fadingMud || feel == null) { return; }
+            mudFadeTime += seconds;
+            mudAlpha = 1 - Mathf.Clamp01(mudFadeTime / feel.MudFadeSeconds);
+            ApplyMudAlpha();
+            if (mudAlpha <= 0) { fadingMud = false; }
+        }
+        public void ResetFeel()
+        {
+            if (body != null) { body.ResetPose(); }
+            fadingMud = false;
+            lastDirt = -1;
+        }
+        private void WashMud()
+        {
+            if (feel == null || !feel.MudBodyEnabled || mudAlpha <= 0 || fadingMud) { return; }
+            fadingMud = true;
+            mudFadeTime = 0;
+        }
+        private void ApplyMudAlpha()
+        {
+            if (feel != null && feel.MudFadeMaterial != null && mudOverlay.sharedMaterial != feel.MudFadeMaterial)
+            {
+                mudOverlay.sharedMaterial = feel.MudFadeMaterial;
+            }
+            var color = palette.Mud;
+            color.a *= mudAlpha;
+            block.SetColor("_Color", color);
+            mudOverlay.SetPropertyBlock(block);
+            mudOverlay.gameObject.SetActive(mudAlpha > 0);
+        }
         public bool TryGetVisualBounds(out Bounds bounds)
         {
             bounds = default;
@@ -84,7 +145,21 @@ namespace SqueakyLane.Presentation
             {
                 ApplyAppearance(color);
             }
-            mudOverlay.gameObject.SetActive(dirt > 0);
+            if (dirt != lastDirt)
+            {
+                bool snap = lastDirt < 0;
+                if (!snap && dirt == 0 && feel != null && feel.MudBodyEnabled && mudAlpha > 0)
+                {
+                    WashMud();
+                }
+                else
+                {
+                    fadingMud = false;
+                    mudAlpha = dirt > 0 ? 1 : 0;
+                }
+                lastDirt = dirt;
+            }
+            ApplyMudAlpha();
         }
 
         private void ApplyAppearance(TileColor color)
@@ -137,6 +212,7 @@ namespace SqueakyLane.Presentation
             }
             lastColor = color;
             appearanceReady = true;
+            BindBody();
         }
 
         private void CreateBlock(TileColor color)
@@ -169,6 +245,7 @@ namespace SqueakyLane.Presentation
 
         private void ReleaseVisual()
         {
+            if (body != null) { body.ResetPose(); }
             if (modelRoot != null)
             {
                 modelRoot.gameObject.SetActive(false);

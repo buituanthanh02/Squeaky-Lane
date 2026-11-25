@@ -94,6 +94,7 @@ GameObject:
   - component: {fileID: 3475052018569411078}
   - component: {fileID: 1639769774424496176}
   - component: {fileID: 8886348654249174818}
+  - component: {fileID: 1663810690702487226}
   m_Layer: 0
   m_Name: Car_yellow_truck
   m_TagString: Untagged
@@ -154,6 +155,18 @@ MonoBehaviour:
   modelRoot: {fileID: 7085605066561239259}
   mudOverlay: {fileID: 1312664329032329934}
   footprintLength: 3
+--- !u!114 &1663810690702487226
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8158870893902466835}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aef5a98d40f59814ca1e78001937bfe7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &9016194179194276957
 GameObject:
   m_ObjectHideFlags: 0

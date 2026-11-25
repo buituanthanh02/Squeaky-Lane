@@ -19,6 +19,8 @@ namespace SqueakyLane.Presentation
         public bool Paused { get; set; }
         public event System.Action<MoveEventKind, StopReason?> EventStarted;
         public event System.Action CarStarted;
+        public event System.Action<CarView, MoveEvent> CarEventStarted;
+        public event System.Action Cancelled;
         public bool IsBusy
         {
             get { if (lanes == null) return false; for (int i = 0; i < lanes.Length; i++) if (lanes[i].Head < lanes[i].Clips.Count) return true; return pylons.Count > 0; }
@@ -28,14 +30,16 @@ namespace SqueakyLane.Presentation
             board = view; feel = config; clock = 0; draft.Clear(); pylons.Clear();
             lanes = new Lane[state.CarCount]; poses = new Pose[state.CarCount]; affected = new bool[state.CarCount];
             for (int i = 0; i < lanes.Length; i++) lanes[i] = new Lane();
+            for (int i = 0; i < lanes.Length; i++) { board.Car(i).ConfigureFeel(config); }
             CancelAndSnap(state);
         }
         public void CancelAndSnap(GameState state)
         {
             if (lanes == null) return;
             draft.Clear(); pylons.Clear();
-            for (int i = 0; i < lanes.Length; i++) { lanes[i].Clips.Clear(); lanes[i].Head = 0; poses[i] = FromState(state.CarAt(i), i); lanes[i].End = clock; }
+            for (int i = 0; i < lanes.Length; i++) { lanes[i].Clips.Clear(); lanes[i].Head = 0; poses[i] = FromState(state.CarAt(i), i); lanes[i].End = clock; board.Car(i).ResetFeel(); }
             board.Snap(state);
+            Cancelled?.Invoke();
         }
         public void Enqueue(SolverMove command, GameState before, MoveResult result)
         {
@@ -59,14 +63,14 @@ namespace SqueakyLane.Presentation
                 {
                     case MoveEventKind.Step:
                         to.Position = Position(ev.R, ev.C, pose.Yaw, selected);
-                        Add(selected, cursor, feel.StepSeconds, to); cursor += feel.StepSeconds; break;
+                        Add(selected, cursor, feel.StepSeconds, to, true); cursor += feel.StepSeconds; break;
                     case MoveEventKind.Water:
                         to.Position += Direction(pose.Yaw) * (ev.Sign * feel.WaterDipCells); to.Mud = 0;
-                        Add(selected, cursor, feel.ExitSeconds * .5f, to); cursor += feel.ExitSeconds * .5f;
-                        pose.Mud = 0; Add(selected, cursor, feel.ExitSeconds * .5f, pose); cursor += feel.ExitSeconds * .5f; break;
+                        Add(selected, cursor, feel.ExitSeconds * .5f, to, true); cursor += feel.ExitSeconds * .5f;
+                        pose.Mud = 0; Add(selected, cursor, feel.ExitSeconds * .5f, pose, true); cursor += feel.ExitSeconds * .5f; break;
                     case MoveEventKind.Exit:
                         to.Position += Direction(pose.Yaw) * (ev.Sign * (board.Car(selected).Length + 1)); to.Scale = 0; to.Alive = false;
-                        Add(selected, cursor, feel.ExitSeconds, to); cursor += feel.ExitSeconds; break;
+                        Add(selected, cursor, feel.ExitSeconds, to, true); cursor += feel.ExitSeconds; break;
                     case MoveEventKind.Stop:
                         to.Position += Direction(pose.Yaw) * (ev.Sign * feel.BumpDistance);
                         Add(selected, cursor, feel.BumpSeconds * .5f, to); cursor += feel.BumpSeconds * .5f;
@@ -79,7 +83,7 @@ namespace SqueakyLane.Presentation
                         for (int k = 0; k < ev.PushedCars.Count; k++)
                         {
                             var push = ev.PushedCars[k]; var pushed = poses[push.Car];
-                            pushed.Position = Position(push.R, push.C, pushed.Yaw, push.Car); Add(push.Car, cursor, feel.StepSeconds, pushed);
+                            pushed.Position = Position(push.R, push.C, pushed.Yaw, push.Car); Add(push.Car, cursor, feel.StepSeconds, pushed, true);
                             for (int fx = 0; fx < push.Effects.Count; fx++) Effect(push.Car, push.Effects[fx], cursor + feel.StepSeconds);
                         }
                         // Step tiếp theo của xe tải dùng cùng cursor, để cả hàng chuyển động đồng thời.
@@ -97,10 +101,10 @@ namespace SqueakyLane.Presentation
                         to.Yaw = pose.Yaw + 90; Add(selected, cursor, feel.RotateSeconds * .5f, to); cursor += feel.RotateSeconds * .5f; break;
                 }
                 if (draft.Count > firstClip)
-                { var clip = draft[firstClip]; clip.HasEvent = true; clip.EventKind = ev.Kind; clip.Reason = ev.Reason; draft[firstClip] = clip; }
+                { var clip = draft[firstClip]; clip.HasEvent = true; clip.EventKind = ev.Kind; clip.Reason = ev.Reason; clip.EventData = ev; draft[firstClip] = clip; }
             }
-            if (command.Kind == SolverMoveKind.MoveCar)
-                for (int i = 0; i < draft.Count; i++) if (draft[i].Car == selected) { var clip = draft[i]; clip.StartsMove = true; draft[i] = clip; break; }
+            if (command.Kind == SolverMoveKind.MoveCar && result.Moved)
+                for (int i = 0; i < draft.Count; i++) if (draft[i].Car == selected) { var clip = draft[i]; clip.StartsMove = true; clip.StartSign = command.Sign; draft[i] = clip; break; }
             // Tư thế cuối lấy từ Core; không tự suy luật dựa vào vị trí đang render.
             for (int i = 0; i < affected.Length; i++) if (affected[i]) Add(i, cursor, 0, FromState(result.State.CarAt(i), i));
             float start = clock;
@@ -145,17 +149,18 @@ namespace SqueakyLane.Presentation
             if (ev.Kind == MoveEventKind.Mud) to.Mud = 1;
             if (ev.Kind == MoveEventKind.Spray) to.Mud = 0;
             Add(car, time, 0, to);
-            var effect = draft[draft.Count - 1]; effect.HasEvent = true; effect.EventKind = ev.Kind; draft[draft.Count - 1] = effect;
+            var effect = draft[draft.Count - 1]; effect.HasEvent = true; effect.EventKind = ev.Kind; effect.EventData = ev; draft[draft.Count - 1] = effect;
             if (ev.Kind == MoveEventKind.Mud)
             { var clip = draft[draft.Count - 1]; clip.ConsumedMud = ev.MudIndex; draft[draft.Count - 1] = clip; }
         }
-        private void Add(int car, float start, float duration, Pose to)
+        private void Add(int car, float start, float duration, Pose to, bool rolling = false)
         {
             var from = poses[car];
             // Xe đang bị push/splash cũng được gom vào cùng lệnh; không tự chạy trước xe tải.
             var swept = Bounds(from, car); var end = Bounds(to, car);
             swept = Rect.MinMaxRect(Mathf.Min(swept.xMin, end.xMin), Mathf.Min(swept.yMin, end.yMin), Mathf.Max(swept.xMax, end.xMax), Mathf.Max(swept.yMax, end.yMax));
-            draft.Add(new Clip { Car = car, Start = start, Duration = duration, From = from, To = to, Swept = swept, ConsumedMud = -1 });
+            draft.Add(new Clip { Car = car, Start = start, Duration = duration, From = from, To = to, Swept = swept, ConsumedMud = -1,
+                RollDistance = rolling ? Vector3.Dot(to.Position - from.Position, Direction(from.Yaw)) : 0 });
             poses[car] = to; affected[car] = true;
         }
         private Rect Bounds(Pose pose, int car)
@@ -187,18 +192,39 @@ namespace SqueakyLane.Presentation
                     if (!clip.Started)
                     {
                         clip.Started = true; lane.Clips[lane.Head] = clip;
-                        if (clip.StartsMove) CarStarted?.Invoke();
-                        if (clip.HasEvent) EventStarted?.Invoke(clip.EventKind, clip.Reason);
+                        if (clip.StartsMove)
+                        {
+                            board.Car(i).StartMotion(clip.StartSign);
+                            CarStarted?.Invoke();
+                        }
+                        if (clip.HasEvent)
+                        {
+                            board.Car(i).PlayFeel(clip.EventData);
+                            if (clip.EventData.Kind == MoveEventKind.Stop && clip.EventData.OtherCar >= 0)
+                            {
+                                var direction = board.transform.TransformDirection(Direction(clip.From.Yaw) * clip.EventData.Sign);
+                                board.Car(clip.EventData.OtherCar).Hit(direction);
+                            }
+                            CarEventStarted?.Invoke(board.Car(i), clip.EventData);
+                            EventStarted?.Invoke(clip.EventKind, clip.Reason);
+                        }
                     }
                     float t = clip.Duration <= 0 ? 1 : Mathf.Clamp01((clock - clip.Start) / clip.Duration);
                     var from = clip.From; var to = clip.To;
                     board.Car(i).Show(Vector3.Lerp(from.Position, to.Position, t), Mathf.LerpAngle(from.Yaw, to.Yaw, t),
                         t >= 1 ? to.Color : from.Color, t >= 1 ? to.Mud : from.Mud, t >= 1 ? to.Alive : from.Alive, Mathf.Lerp(from.Scale, to.Scale, t));
+                    board.Car(i).Roll(clip.RollDistance * (t - clip.RollProgress));
+                    clip.RollProgress = t;
+                    lane.Clips[lane.Head] = clip;
                     if (t < 1) break;
                     if (clip.ConsumedMud >= 0) board.ConsumeMud(clip.ConsumedMud);
                     lane.Head++;
                 }
                 if (lane.Head == lane.Clips.Count && lane.Head > 0) { lane.Head = 0; lane.Clips.Clear(); }
+            }
+            for (int i = 0; i < lanes.Length; i++)
+            {
+                if (board.Car(i).gameObject.activeSelf) { board.Car(i).AdvanceFeel(seconds); }
             }
             for (int i = 0; i < pylons.Count;)
             {
@@ -208,10 +234,20 @@ namespace SqueakyLane.Presentation
                 if (t >= 1) pylons.RemoveAt(i); else i++;
             }
         }
-        private void OnDisable() { if (lanes != null) { for (int i = 0; i < lanes.Length; i++) { lanes[i].Clips.Clear(); lanes[i].Head = 0; lanes[i].End = clock; } pylons.Clear(); } }
+        private void OnDisable()
+        {
+            if (lanes == null) { return; }
+            for (int i = 0; i < lanes.Length; i++)
+            {
+                lanes[i].Clips.Clear(); lanes[i].Head = 0; lanes[i].End = clock;
+                if (board != null && board.Car(i) != null) { board.Car(i).ResetFeel(); }
+            }
+            pylons.Clear();
+            Cancelled?.Invoke();
+        }
         private sealed class Lane { public readonly List<Clip> Clips = new List<Clip>(64); public int Head; public float End; }
         private struct Pose { public Vector3 Position; public float Yaw, Scale; public TileColor Color; public int Mud; public bool Alive; }
-        private struct Clip { public int Car, ConsumedMud; public float Start, Duration; public float End => Start + Duration; public Pose From, To; public Rect Swept; public bool Started, HasEvent, StartsMove; public MoveEventKind EventKind; public StopReason? Reason; }
+        private struct Clip { public int Car, ConsumedMud, StartSign; public float Start, Duration, RollDistance, RollProgress; public float End => Start + Duration; public Pose From, To; public Rect Swept; public bool Started, HasEvent, StartsMove; public MoveEventKind EventKind; public StopReason? Reason; public MoveEvent EventData; }
         private struct PylonClip { public int Index; public float Start, End, From, To; public bool Started; }
     }
 }
