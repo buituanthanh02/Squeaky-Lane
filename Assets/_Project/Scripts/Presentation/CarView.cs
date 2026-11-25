@@ -45,9 +45,9 @@ namespace SqueakyLane.Presentation
             }
         }
         public void StartMotion(int sign) { if (body != null) { body.StartMotion(sign); } }
-        public void PlayFeel(MoveEvent ev)
+        public void PlayFeel(MoveEvent ev, int slideCells = 0)
         {
-            if (body != null) { body.Play(ev); }
+            if (body != null) { body.Play(ev, slideCells); }
             if (ev.Kind == MoveEventKind.Water || ev.Kind == MoveEventKind.Spray) { WashMud(); }
         }
         public void Hit(Vector3 worldDirection) { if (body != null) { body.Hit(worldDirection); } }

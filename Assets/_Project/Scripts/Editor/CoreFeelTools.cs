@@ -56,6 +56,33 @@ namespace SqueakyLane.EditorTools
             Debug.Log(changes.ToString());
         }
 
+        // Gói B/C (25/11): nhịp va đủ lớn để thấy được từ camera gần thẳng đứng. Field mới của B/C lấy mặc định trong code
+        // và được Unity ghi vào asset khi lưu; menu này chỉ đổi hai field cũ đang nằm trong asset.
+        [MenuItem("Tools/Squeaky Lane/Core Feel/Apply Gate and Impact Tuning")]
+        public static void ApplyGateAndImpactTuning()
+        {
+            if (EditorApplication.isPlayingOrWillChangePlaymode)
+            {
+                throw new InvalidOperationException("Thoát Play trước khi ghi số feeling.");
+            }
+            const string path = "Assets/_Project/Config/FeelConfig.asset";
+            var feel = AssetDatabase.LoadAssetAtPath<FeelConfig>(path);
+            if (feel == null) { throw new InvalidOperationException("Thiếu FeelConfig.asset."); }
+            string backup = "Logs/012-asset-backups/" + DateTime.Now.ToString("yyyyMMdd-HHmmss-fff");
+            Directory.CreateDirectory(backup);
+            Backup(path, backup);
+            var data = new SerializedObject(feel);
+            var changes = new System.Text.StringBuilder("012 gói B/C · số Claude chốt 25/11:\n");
+            SetFloat(data, "bumpDistance", .10f, changes);
+            SetFloat(data, "bumpSeconds", .12f, changes);
+            data.ApplyModifiedProperties();
+            EditorUtility.SetDirty(feel);
+            AssetDatabase.SaveAssetIfDirty(feel);
+            Selection.activeObject = feel;
+            changes.AppendLine("Field mới (gatePassSeconds, popupText…, impact…) dùng mặc định trong code. Backup: " + backup);
+            Debug.Log(changes.ToString());
+        }
+
         private static void SetFloat(SerializedObject data, string path, float value, System.Text.StringBuilder changes)
         {
             var property = data.FindProperty(path);

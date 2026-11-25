@@ -21,6 +21,12 @@ namespace SqueakyLane.Presentation
         public event System.Action CarStarted;
         public event System.Action<CarView, MoveEvent> CarEventStarted;
         public event System.Action Cancelled;
+        // Số ô xe vừa trượt trước khi dừng, đặt ngay trước khi bắn CarEventStarted/EventStarted của chính sự kiện đó.
+        // Người nghe chỉ đọc trong callback; cách này giữ nguyên chữ ký sự kiện cũ.
+        public int LastSlideCells { get; private set; }
+        // Xe thứ mấy trong chuỗi ra cổng liên tiếp (1 = xe đầu). Dùng đồng hồ của animator nên Pause không làm chuỗi hết hạn.
+        public int ExitCombo { get; private set; }
+        private float lastExitClock = float.NegativeInfinity;
         public bool IsBusy
         {
             get { if (lanes == null) return false; for (int i = 0; i < lanes.Length; i++) if (lanes[i].Head < lanes[i].Clips.Count) return true; return pylons.Count > 0; }
@@ -37,6 +43,7 @@ namespace SqueakyLane.Presentation
         {
             if (lanes == null) return;
             draft.Clear(); pylons.Clear();
+            ExitCombo = 0; LastSlideCells = 0; lastExitClock = float.NegativeInfinity;
             for (int i = 0; i < lanes.Length; i++) { lanes[i].Clips.Clear(); lanes[i].Head = 0; poses[i] = FromState(state.CarAt(i), i); lanes[i].End = clock; board.Car(i).ResetFeel(); }
             board.Snap(state);
             Cancelled?.Invoke();
@@ -54,6 +61,7 @@ namespace SqueakyLane.Presentation
                 return;
             }
             int selected = command.Index; float cursor = 0;
+            int slid = 0; // số ô xe đã trượt trước sự kiện hiện tại; Stop dùng để biết va nhẹ hay mạnh
             var events = result.Events;
             for (int e = 0; e < events.Count; e++)
             {
@@ -63,16 +71,24 @@ namespace SqueakyLane.Presentation
                 {
                     case MoveEventKind.Step:
                         to.Position = Position(ev.R, ev.C, pose.Yaw, selected);
-                        Add(selected, cursor, feel.StepSeconds, to, true); cursor += feel.StepSeconds; break;
+                        Add(selected, cursor, feel.StepSeconds, to, true); cursor += feel.StepSeconds; slid++; break;
                     case MoveEventKind.Water:
                         to.Position += Direction(pose.Yaw) * (ev.Sign * feel.WaterDipCells); to.Mud = 0;
                         Add(selected, cursor, feel.ExitSeconds * .5f, to, true); cursor += feel.ExitSeconds * .5f;
                         pose.Mud = 0; Add(selected, cursor, feel.ExitSeconds * .5f, pose, true); cursor += feel.ExitSeconds * .5f; break;
                     case MoveEventKind.Exit:
+                    {
                         to.Position += Direction(pose.Yaw) * (ev.Sign * (board.Car(selected).Length + 1)); to.Scale = 0; to.Alive = false;
-                        Add(selected, cursor, feel.ExitSeconds, to, true); cursor += feel.ExitSeconds; break;
+                        Add(selected, cursor, feel.GatePassSeconds, to, true); cursor += feel.GatePassSeconds;
+                        // Xe lướt xuyên cổng nhanh dần và giữ nguyên cỡ; chỉ thu nhỏ ở phần đuôi khi đã ra ngoài.
+                        var exitClip = draft[draft.Count - 1];
+                        exitClip.Accelerate = true; exitClip.ShrinkStart = 1 - feel.GateTailRatio;
+                        draft[draft.Count - 1] = exitClip;
+                        break;
+                    }
                     case MoveEventKind.Stop:
-                        to.Position += Direction(pose.Yaw) * (ev.Sign * feel.BumpDistance);
+                        // Va mạnh hơn khi xe đã trượt dài trước khi dừng.
+                        to.Position += Direction(pose.Yaw) * (ev.Sign * feel.BumpDistance * feel.ImpactScale(slid));
                         Add(selected, cursor, feel.BumpSeconds * .5f, to); cursor += feel.BumpSeconds * .5f;
                         Add(selected, cursor, feel.BumpSeconds * .5f, pose); cursor += feel.BumpSeconds * .5f; break;
                     case MoveEventKind.Paint: case MoveEventKind.Mud: case MoveEventKind.Spray:
@@ -101,7 +117,7 @@ namespace SqueakyLane.Presentation
                         to.Yaw = pose.Yaw + 90; Add(selected, cursor, feel.RotateSeconds * .5f, to); cursor += feel.RotateSeconds * .5f; break;
                 }
                 if (draft.Count > firstClip)
-                { var clip = draft[firstClip]; clip.HasEvent = true; clip.EventKind = ev.Kind; clip.Reason = ev.Reason; clip.EventData = ev; draft[firstClip] = clip; }
+                { var clip = draft[firstClip]; clip.HasEvent = true; clip.EventKind = ev.Kind; clip.Reason = ev.Reason; clip.EventData = ev; clip.Slide = slid; draft[firstClip] = clip; }
             }
             if (command.Kind == SolverMoveKind.MoveCar && result.Moved)
                 for (int i = 0; i < draft.Count; i++) if (draft[i].Car == selected) { var clip = draft[i]; clip.StartsMove = true; clip.StartSign = command.Sign; draft[i] = clip; break; }
@@ -199,7 +215,13 @@ namespace SqueakyLane.Presentation
                         }
                         if (clip.HasEvent)
                         {
-                            board.Car(i).PlayFeel(clip.EventData);
+                            LastSlideCells = clip.Slide;
+                            if (clip.EventData.Kind == MoveEventKind.Exit)
+                            {
+                                ExitCombo = clock - lastExitClock <= feel.ComboWindowSeconds ? ExitCombo + 1 : 1;
+                                lastExitClock = clock;
+                            }
+                            board.Car(i).PlayFeel(clip.EventData, clip.Slide);
                             if (clip.EventData.Kind == MoveEventKind.Stop && clip.EventData.OtherCar >= 0)
                             {
                                 var direction = board.transform.TransformDirection(Direction(clip.From.Yaw) * clip.EventData.Sign);
@@ -211,10 +233,13 @@ namespace SqueakyLane.Presentation
                     }
                     float t = clip.Duration <= 0 ? 1 : Mathf.Clamp01((clock - clip.Start) / clip.Duration);
                     var from = clip.From; var to = clip.To;
-                    board.Car(i).Show(Vector3.Lerp(from.Position, to.Position, t), Mathf.LerpAngle(from.Yaw, to.Yaw, t),
-                        t >= 1 ? to.Color : from.Color, t >= 1 ? to.Mud : from.Mud, t >= 1 ? to.Alive : from.Alive, Mathf.Lerp(from.Scale, to.Scale, t));
-                    board.Car(i).Roll(clip.RollDistance * (t - clip.RollProgress));
-                    clip.RollProgress = t;
+                    // Ra cổng: vị trí theo t² (nhanh dần), cỡ chỉ đổi ở phần đuôi; các đoạn khác tuyến tính như cũ.
+                    float travel = clip.Accelerate ? t * t : t;
+                    float shrink = clip.ShrinkStart > 0 ? Mathf.Clamp01((t - clip.ShrinkStart) / Mathf.Max(.0001f, 1 - clip.ShrinkStart)) : t;
+                    board.Car(i).Show(Vector3.Lerp(from.Position, to.Position, travel), Mathf.LerpAngle(from.Yaw, to.Yaw, t),
+                        t >= 1 ? to.Color : from.Color, t >= 1 ? to.Mud : from.Mud, t >= 1 ? to.Alive : from.Alive, Mathf.Lerp(from.Scale, to.Scale, shrink));
+                    board.Car(i).Roll(clip.RollDistance * (travel - clip.RollProgress));
+                    clip.RollProgress = travel;
                     lane.Clips[lane.Head] = clip;
                     if (t < 1) break;
                     if (clip.ConsumedMud >= 0) board.ConsumeMud(clip.ConsumedMud);
@@ -247,7 +272,7 @@ namespace SqueakyLane.Presentation
         }
         private sealed class Lane { public readonly List<Clip> Clips = new List<Clip>(64); public int Head; public float End; }
         private struct Pose { public Vector3 Position; public float Yaw, Scale; public TileColor Color; public int Mud; public bool Alive; }
-        private struct Clip { public int Car, ConsumedMud, StartSign; public float Start, Duration, RollDistance, RollProgress; public float End => Start + Duration; public Pose From, To; public Rect Swept; public bool Started, HasEvent, StartsMove; public MoveEventKind EventKind; public StopReason? Reason; public MoveEvent EventData; }
+        private struct Clip { public int Car, ConsumedMud, StartSign, Slide; public bool Accelerate; public float ShrinkStart; public float Start, Duration, RollDistance, RollProgress; public float End => Start + Duration; public Pose From, To; public Rect Swept; public bool Started, HasEvent, StartsMove; public MoveEventKind EventKind; public StopReason? Reason; public MoveEvent EventData; }
         private struct PylonClip { public int Index; public float Start, End, From, To; public bool Started; }
     }
 }

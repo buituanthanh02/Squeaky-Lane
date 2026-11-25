@@ -19,7 +19,8 @@ namespace SqueakyLane.Presentation
             for (int i = 0; i < voices.Length; i++)
             { var go = new GameObject("SFX voice " + i); go.transform.SetParent(transform, false); var voice = go.AddComponent<AudioSource>(); voice.playOnAwake = false; voice.spatialBlend = 0; voices[i] = voice; }
         }
-        public void Play(SoundCue cue)
+        // pitchScale > 1 nâng cao độ (chuỗi ra cổng liên tiếp); nhân với khoảng ngẫu nhiên của catalog.
+        public void Play(SoundCue cue, float pitchScale = 1f)
         {
             if (voices == null || catalog == null || !progress.SoundEnabled || feel.SfxVolume <= 0) return;
             var entry = catalog.Find(cue); int index = (int)cue;
@@ -29,16 +30,16 @@ namespace SqueakyLane.Presentation
             int slot = -1; for (int i = 0; i < voices.Length; i++) if (!voices[i].isPlaying) { slot = i; break; }
             if (slot < 0) { slot = oldest; oldest = (oldest + 1) % voices.Length; }
             var voice = voices[slot]; voice.Stop(); voice.clip = clip; voice.volume = entry.volume * feel.SfxVolume;
-            voice.pitch = Random.Range(entry.pitchMin, entry.pitchMax); voice.Play();
+            voice.pitch = Mathf.Clamp(Random.Range(entry.pitchMin, entry.pitchMax) * pitchScale, .5f, 3f); voice.Play();
         }
         public void StopAll() { if (voices != null) for (int i = 0; i < voices.Length; i++) voices[i].Stop(); }
-        public void PlayEvent(MoveEventKind kind, StopReason? reason)
+        public void PlayEvent(MoveEventKind kind, StopReason? reason, float pitchScale = 1f)
         {
             switch (kind)
             {
                 case MoveEventKind.Step: Play(SoundCue.Step); break;
                 case MoveEventKind.Stop: Play(reason == StopReason.Car ? SoundCue.StopCar : SoundCue.StopWall); break;
-                case MoveEventKind.Exit: Play(SoundCue.Exit); break; case MoveEventKind.Water: Play(SoundCue.Water); break;
+                case MoveEventKind.Exit: Play(SoundCue.Exit, pitchScale); break; case MoveEventKind.Water: Play(SoundCue.Water); break;
                 case MoveEventKind.Mud: Play(SoundCue.Mud); break; case MoveEventKind.Spray: Play(SoundCue.Spray); break;
                 case MoveEventKind.Paint: Play(SoundCue.Paint); break; case MoveEventKind.Splash: Play(SoundCue.Splash); break;
                 case MoveEventKind.Push: Play(SoundCue.Push); break; case MoveEventKind.Tele: Play(SoundCue.Tele); break;

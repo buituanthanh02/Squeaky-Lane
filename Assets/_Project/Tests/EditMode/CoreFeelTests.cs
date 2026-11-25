@@ -222,7 +222,8 @@ namespace SqueakyLane.Tests.EditMode
             animator.Advance(10);
             effects.Advance(feel.ShakeSeconds * .1f);
             Assert.That(Vector3.Distance(camera.transform.position, rest), Is.GreaterThan(.001f));
-            Assert.That(Vector3.Distance(camera.transform.position, rest), Is.LessThanOrEqualTo(feel.ShakeDistance + .0001f));
+            // Xe trượt 3 ô nên va ở mức khuếch đại; biên độ vẫn bị chặn bởi ShakeDistance × ImpactMaxScale.
+            Assert.That(Vector3.Distance(camera.transform.position, rest), Is.LessThanOrEqualTo(feel.ShakeDistance * feel.ImpactMaxScale + .0001f));
             animator.CancelAndSnap(session.State);
             Assert.That(Vector3.Distance(camera.transform.position, rest), Is.LessThan(.0001f));
         }
@@ -287,6 +288,137 @@ namespace SqueakyLane.Tests.EditMode
             Assert.That(car.transform.localScale, Is.EqualTo(Vector3.one));
             body.ResetPose();
             Assert.That(model.localScale, Is.EqualTo(rest));
+        }
+
+        [Test]
+        public void ImpactScaleGrowsWithSlideAndStaysFinite()
+        {
+            Assert.That(feel.ImpactScale(0), Is.EqualTo(1).Within(.0001f), "Bị chặn ngay là mức nhẹ nhất.");
+            Assert.That(feel.ImpactScale(1), Is.EqualTo(1).Within(.0001f));
+            Assert.That(feel.ImpactScale(feel.ImpactFullCells), Is.EqualTo(feel.ImpactMaxScale).Within(.0001f));
+            Assert.That(feel.ImpactScale(100), Is.EqualTo(feel.ImpactMaxScale).Within(.0001f));
+            float previous = 0;
+            for (int cells = -2; cells <= 12; cells++)
+            {
+                float value = feel.ImpactScale(cells);
+                Assert.That(float.IsNaN(value) || float.IsInfinity(value), Is.False);
+                Assert.That(value, Is.GreaterThanOrEqualTo(previous - .0001f));
+                previous = value;
+            }
+        }
+
+        [Test]
+        public void ComboPitchStepsUpByComboSemitonesAndStopsAtMax()
+        {
+            Assert.That(feel.ComboPitch(0), Is.EqualTo(1).Within(.0001f));
+            Assert.That(feel.ComboPitch(1), Is.EqualTo(1).Within(.0001f));
+            Assert.That(feel.ComboPitch(2), Is.EqualTo(Mathf.Pow(2, 2f / 12)).Within(.0001f));
+            Assert.That(feel.ComboPitch(3), Is.GreaterThan(feel.ComboPitch(2)));
+            Assert.That(feel.ComboPitch(1000), Is.EqualTo(feel.ComboPitch(8)).Within(.0001f));
+            Assert.That(feel.ComboPitch(1000), Is.LessThanOrEqualTo(2));
+        }
+
+        [Test]
+        public void StopEventReportsHowManyCellsTheCarSlid()
+        {
+            var session = Bind();
+            int slide = -1;
+            animator.CarEventStarted += (car, ev) =>
+            {
+                if (ev.Kind == MoveEventKind.Stop) { slide = animator.LastSlideCells; }
+            };
+            Move(session);
+            animator.Advance(10);
+            Assert.That(slide, Is.EqualTo(3), "Xe dài 2 ở cột 0 trên bãi 5 cột trượt 3 ô tới mép.");
+        }
+
+        [Test]
+        public void StrongerImpactSquashesTheVisualDeeperThanAnImmediateBlock()
+        {
+            Bind();
+            var car = board.Car(0);
+            var model = Model(car);
+            var rest = model.localScale;
+            var body = car.GetComponent<CarBody>();
+            body.Play(new MoveEvent(MoveEventKind.Stop, sign: 1, reason: StopReason.Wall), 0);
+            body.Advance(0);
+            float blocked = model.localScale.x;
+            body.ResetPose();
+            body.Play(new MoveEvent(MoveEventKind.Stop, sign: 1, reason: StopReason.Wall), feel.ImpactFullCells);
+            body.Advance(0);
+            Assert.That(model.localScale.x, Is.LessThan(blocked));
+            Assert.That(model.localScale.x, Is.EqualTo(rest.x * (1 + (feel.BrakeLength - 1) * feel.ImpactMaxScale)).Within(.0001f));
+            Assert.That(car.transform.localScale, Is.EqualTo(Vector3.one));
+        }
+
+        [Test]
+        public void ExitGlidesThroughGateKeepingSizeUntilTheTail()
+        {
+            var session = BindWithGates(1);
+            Move(session);
+            RunUntil(() => animator.ExitCombo > 0);
+            var car = board.Car(0);
+            float start = car.transform.localPosition.x;
+            animator.Advance(feel.GatePassSeconds * .5f);
+            Assert.That(car.transform.localScale.x, Is.EqualTo(1).Within(.0001f), "Chưa tới phần đuôi thì chưa thu nhỏ.");
+            float travelled = car.transform.localPosition.x - start;
+            Assert.That(travelled, Is.InRange(.1f * 3, .45f * 3), "Nhanh dần: nửa thời gian mới đi chưa tới nửa quãng.");
+            animator.Advance(feel.GatePassSeconds);
+            Assert.That(car.gameObject.activeSelf, Is.False);
+        }
+
+        [Test]
+        public void ExitsInQuickSuccessionCountAsACombo()
+        {
+            var session = BindWithGates(2);
+            for (int i = 0; i < 2; i++)
+            {
+                var before = session.State;
+                var command = new SolverMove(SolverMoveKind.MoveCar, i, 1);
+                animator.Enqueue(command, before, session.Apply(command));
+            }
+            RunUntil(() => !animator.IsBusy);
+            Assert.That(animator.ExitCombo, Is.EqualTo(2));
+            animator.CancelAndSnap(new GameSession(board.Level).State);
+            Assert.That(animator.ExitCombo, Is.Zero);
+        }
+
+        [Test]
+        public void GateAndImpactValidationClampsUnsafeValues()
+        {
+            Set(feel, "gatePassSeconds", float.NaN);
+            Set(feel, "gateTailRatio", 5f);
+            Set(feel, "comboMaxSteps", 100);
+            Set(feel, "impactFullCells", 0);
+            Set(feel, "impactMaxScale", float.PositiveInfinity);
+            Set(feel, "impactSparksMin", 9);
+            Set(feel, "impactSparksMax", 3);
+            typeof(FeelConfig).GetMethod("OnValidate", BindingFlags.NonPublic | BindingFlags.Instance).Invoke(feel, null);
+            Assert.That(feel.GatePassSeconds, Is.EqualTo(.5f).Within(.0001f));
+            Assert.That(feel.GateTailRatio, Is.EqualTo(.6f).Within(.0001f));
+            Assert.That(feel.ImpactFullCells, Is.EqualTo(2));
+            Assert.That(feel.ImpactMaxScale, Is.EqualTo(1.8f).Within(.0001f));
+            Assert.That(feel.ImpactSparksMax, Is.GreaterThanOrEqualTo(feel.ImpactSparksMin));
+            Assert.That(feel.ComboPitch(100), Is.LessThanOrEqualTo(Mathf.Pow(2, 8 * 4 / 12f)));
+        }
+
+        private GameSession BindWithGates(int cars)
+        {
+            var builder = new LevelDefBuilder(5, 2);
+            for (int i = 0; i < cars; i++)
+            {
+                builder.Gates.Add(new GateDef(GateEdge.Right, i, TileColor.Pink));
+                builder.Cars.Add(new CarDef(Axis.Horizontal, i, 0, TileColor.Pink));
+            }
+            var session = new GameSession(builder.Build());
+            board.Build(session.Level, session.State, palette);
+            animator.Initialize(board, feel, session.State);
+            return session;
+        }
+        private void RunUntil(System.Func<bool> done)
+        {
+            for (int i = 0; i < 1000 && !done(); i++) { animator.Advance(.01f); }
+            Assert.That(done(), Is.True, "Hoạt hình không tới được trạng thái mong đợi trong 10 giây giả lập.");
         }
 
         private GameSession Bind(int mud = 0)

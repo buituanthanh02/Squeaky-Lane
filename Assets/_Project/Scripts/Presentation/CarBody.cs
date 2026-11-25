@@ -15,6 +15,7 @@ namespace SqueakyLane.Presentation
         private Wheel[] wheels = System.Array.Empty<Wheel>();
         private float pitchTime, pitchDuration, pitchAmount, squashTime, mudTime, washTime, hitTime;
         private float exitSign, rollAngle;
+        private float impactScale = 1;
         private Vector3 hitDirection;
         private bool braking, exiting;
 
@@ -68,7 +69,8 @@ namespace SqueakyLane.Presentation
             pitchDuration = feel.LaunchSeconds;
         }
 
-        public void Play(MoveEvent ev)
+        // slideCells: số ô xe vừa trượt trước khi dừng; va mạnh hơn khi trượt dài (FeelConfig.ImpactScale).
+        public void Play(MoveEvent ev, int slideCells = 0)
         {
             if (feel == null) { return; }
             switch (ev.Kind)
@@ -76,7 +78,8 @@ namespace SqueakyLane.Presentation
                 case MoveEventKind.Stop:
                     exiting = false;
                     braking = true;
-                    pitchAmount = feel.BrakePitch * ev.Sign;
+                    impactScale = feel.ImpactScale(slideCells);
+                    pitchAmount = feel.BrakePitch * ev.Sign * impactScale;
                     pitchTime = 0;
                     pitchDuration = feel.BrakeSeconds;
                     squashTime = 0;
@@ -125,9 +128,11 @@ namespace SqueakyLane.Presentation
                     feel.BrakePitch > 0 ? feel.BrakeRebound / feel.BrakePitch : 0) : EaseReturn(pitchTime, pitchDuration);
                 pitch = exiting ? feel.ExitPitch * exitSign : pitchAmount * pulse;
                 float squash = EaseReturn(squashTime, feel.SquashSeconds);
-                scale.x = exiting ? feel.ExitStretch : Mathf.Lerp(1, feel.BrakeLength, squash);
-                scale.y = Mathf.Lerp(1, feel.BrakeHeight, squash);
-                scale.z = Mathf.Lerp(1, feel.BrakeWidth, squash);
+                // Độ ép nhân với hệ số va: xe trượt dài rồi dừng ép sâu hơn. Hệ số 1 cho kết quả như Lerp cũ.
+                float depth = squash * impactScale;
+                scale.x = exiting ? feel.ExitStretch : 1 + (feel.BrakeLength - 1) * depth;
+                scale.y = 1 + (feel.BrakeHeight - 1) * depth;
+                scale.z = 1 + (feel.BrakeWidth - 1) * depth;
                 offset += hitDirection * (feel.HitDistance * Mathf.Sin(Mathf.Clamp01(hitTime / feel.HitSeconds) * Mathf.PI));
                 if (feel.MudBodyEnabled)
                 {
@@ -170,6 +175,7 @@ namespace SqueakyLane.Presentation
             pitchTime = squashTime = mudTime = washTime = hitTime = float.MaxValue;
             pitchDuration = 1;
             pitchAmount = rollAngle = 0;
+            impactScale = 1;
             exiting = braking = false;
             if (visual != null)
             {

@@ -18,6 +18,8 @@ namespace SqueakyLane.Presentation
         private GameObject[] muds;
         private Transform[] pylons;
         private Font labelFont;
+        // Font động dùng chung cho chữ trên bãi; null cho tới lần Build đầu. FeelEffects dùng lại để khỏi tạo thêm một font/atlas.
+        public Font LabelFont => labelFont;
         private CarCatalog carCatalog;
         private bool carWarningShown;
         private MechanicCatalog mechanicCatalog;

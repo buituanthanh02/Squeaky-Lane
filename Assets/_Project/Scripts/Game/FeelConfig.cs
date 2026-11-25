@@ -5,7 +5,7 @@ namespace SqueakyLane.Game
     public sealed class FeelConfig : ScriptableObject
     {
         [SerializeField, Min(.01f), Tooltip("Thời gian trượt một ô; số tạm để chơi khối.")] private float stepSeconds = .1f;
-        [SerializeField, Min(.01f), Tooltip("Thời gian xe ra cổng.")] private float exitSeconds = .25f;
+        [SerializeField, Min(.01f), Tooltip("Thời gian xe chui vào/ra cổng nước. Lượt ra cổng màu dùng Gate Pass Seconds.")] private float exitSeconds = .25f;
         [SerializeField, Min(.01f), Tooltip("Thời gian xoay bàn hoặc trụ.")] private float rotateSeconds = .25f;
         [SerializeField, Min(.01f), Tooltip("Thời gian biến mất/hiện qua portal.")] private float teleSeconds = .2f;
         [SerializeField, Min(.01f), Tooltip("Thời gian nảy nhẹ lúc dừng.")] private float bumpSeconds = .08f;
@@ -68,6 +68,22 @@ namespace SqueakyLane.Game
         [SerializeField, Tooltip("6 sao/0.5s.")] private ParticleFeel sparkles = new ParticleFeel(6, .5f, .4f, 1.4f, .1f);
         [SerializeField, Tooltip("6 bụi/0.25s.")] private ParticleFeel impact = new ParticleFeel(6, .25f, .30f, .7f, .2f);
         [SerializeField, Tooltip("30 pháo giấy/1s, 6 màu xe.")] private ParticleFeel confetti = new ParticleFeel(30, 1, .25f, 1.5f, 1);
+        [Header("012 gói B — Ra cổng được rửa")]
+        [SerializeField, Range(.1f, 1.5f), Tooltip("Thời gian xe lướt xuyên cổng, nhanh dần. Chỉ dùng cho sự kiện Exit; nhịp chui cổng nước vẫn theo Exit Seconds.")] private float gatePassSeconds = .5f;
+        [SerializeField, Range(.05f, .6f), Tooltip("Phần cuối của lượt ra cổng dùng để thu nhỏ xe; trước đó xe giữ nguyên cỡ.")] private float gateTailRatio = .25f;
+        [SerializeField, Tooltip("Bật chữ nổi 'Sạch bóng!' khi xe ra cổng.")] private bool popupTextEnabled = true;
+        [SerializeField, Range(.02f, .2f), Tooltip("characterSize của chữ nổi; chữ phẳng trên mặt bãi như nhãn 1A/2B.")] private float popupTextSize = .06f;
+        [SerializeField, Range(.3f, 3), Tooltip("Thời gian chữ nổi tồn tại, giây.")] private float popupSeconds = 1.1f;
+        [SerializeField, Range(0, 2), Tooltip("Chữ nổi trôi lên (ngược hướng nhìn) bao nhiêu ô trong thời gian tồn tại.")] private float popupRise = .6f;
+        [SerializeField, Range(.3f, 5), Tooltip("Hai xe ra cổng cách nhau không quá số giây này thì tính là chuỗi liên tiếp.")] private float comboWindowSeconds = 1.6f;
+        [SerializeField, Range(0, 4), Tooltip("Mỗi xe liên tiếp tiếng ra cổng cao thêm bấy nhiêu bán cung.")] private float comboSemitones = 2;
+        [SerializeField, Range(1, 8), Tooltip("Chuỗi tối đa tính tới xe thứ mấy; từ đó tiếng không cao thêm.")] private int comboMaxSteps = 5;
+        [Header("012 gói C — Va có lực")]
+        [SerializeField, Range(2, 8), Tooltip("Xe trượt từ ngần này ô trở lên thì va mạnh nhất.")] private int impactFullCells = 5;
+        [SerializeField, Range(1, 3), Tooltip("Hệ số khuếch đại va ở mức mạnh nhất; xe bị chặn ngay hoặc trượt ít có hệ số 1.")] private float impactMaxScale = 1.8f;
+        [SerializeField, Range(1, 8), Tooltip("Chỉ rung camera khi xe trượt ít nhất ngần này ô trước khi va.")] private int shakeMinCells = 2;
+        [SerializeField, Range(0, 12), Tooltip("Số tia sao ở đầu xe khi va nhẹ nhất.")] private int impactSparksMin = 2;
+        [SerializeField, Range(0, 12), Tooltip("Số tia sao ở đầu xe khi va mạnh nhất.")] private int impactSparksMax = 7;
 
         public bool BodyEnabled => bodyEnabled;
         public bool WheelsEnabled => wheelsEnabled;
@@ -115,6 +131,33 @@ namespace SqueakyLane.Game
         public ParticleFeel Sparkles => sparkles;
         public ParticleFeel Impact => impact;
         public ParticleFeel Confetti => confetti;
+        public float GatePassSeconds => gatePassSeconds;
+        public float GateTailRatio => gateTailRatio;
+        public bool PopupTextEnabled => popupTextEnabled;
+        public float PopupTextSize => popupTextSize;
+        public float PopupSeconds => popupSeconds;
+        public float PopupRise => popupRise;
+        public float ComboWindowSeconds => comboWindowSeconds;
+        public int ImpactFullCells => impactFullCells;
+        public float ImpactMaxScale => impactMaxScale;
+        public int ShakeMinCells => shakeMinCells;
+        public int ImpactSparksMin => impactSparksMin;
+        public int ImpactSparksMax => impactSparksMax;
+
+        // Hệ số va theo số ô xe trượt trước khi dừng: 0 ô (bị chặn ngay) và 1 ô = 1, đủ ImpactFullCells ô = ImpactMaxScale.
+        public float ImpactPower(int slideCells)
+        {
+            return Mathf.Clamp01((slideCells - 1) / Mathf.Max(1f, impactFullCells - 1f));
+        }
+        public float ImpactScale(int slideCells) { return Mathf.Lerp(1, impactMaxScale, ImpactPower(slideCells)); }
+
+        // Cao độ tiếng ra cổng theo xe thứ combo trong chuỗi (1 = bình thường). Mỗi xe thêm comboSemitones bán cung, có trần.
+        public float ComboPitch(int combo)
+        {
+            int steps = Mathf.Clamp(combo, 1, comboMaxSteps) - 1;
+            return Mathf.Pow(2, steps * comboSemitones / 12f);
+        }
+
         public float StepSeconds => stepSeconds; public float ExitSeconds => exitSeconds;
         public float RotateSeconds => rotateSeconds; public float TeleSeconds => teleSeconds;
         public float BumpSeconds => bumpSeconds; public float BumpDistance => bumpDistance;
@@ -162,6 +205,19 @@ namespace SqueakyLane.Game
             confettiSpread = Limit(confettiSpread, 0, 2, .4f);
             waterTintRatio = Limit(waterTintRatio, 0, 1, .65f);
             waterJetRatio = Limit(waterJetRatio, 0, 1, .7f);
+            gatePassSeconds = Limit(gatePassSeconds, .1f, 1.5f, .5f);
+            gateTailRatio = Limit(gateTailRatio, .05f, .6f, .25f);
+            popupTextSize = Limit(popupTextSize, .02f, .2f, .06f);
+            popupSeconds = Limit(popupSeconds, .3f, 3, 1.1f);
+            popupRise = Limit(popupRise, 0, 2, .6f);
+            comboWindowSeconds = Limit(comboWindowSeconds, .3f, 5, 1.6f);
+            comboSemitones = Limit(comboSemitones, 0, 4, 2);
+            comboMaxSteps = Mathf.Clamp(comboMaxSteps, 1, 8);
+            impactFullCells = Mathf.Clamp(impactFullCells, 2, 8);
+            impactMaxScale = Limit(impactMaxScale, 1, 3, 1.8f);
+            shakeMinCells = Mathf.Clamp(shakeMinCells, 1, 8);
+            impactSparksMin = Mathf.Clamp(impactSparksMin, 0, 12);
+            impactSparksMax = Mathf.Clamp(impactSparksMax, impactSparksMin, 12);
             water.Validate();
             bubbles.Validate();
             sparkles.Validate();

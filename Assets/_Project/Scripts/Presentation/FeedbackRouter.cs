@@ -9,6 +9,7 @@ namespace SqueakyLane.Presentation
         private readonly SfxPlayer sfx;
         private readonly Haptics haptics;
         private readonly ProgressStore progress;
+        private readonly FeelConfig feel;
         private InputController input;
         private ActionAnimator animator;
         private NavigationView navigation;
@@ -17,6 +18,7 @@ namespace SqueakyLane.Presentation
             sfx = player;
             haptics = vibration;
             progress = store;
+            this.feel = feel;
             if (sfx != null)
             {
                 sfx.Configure(feel, progress);
@@ -104,7 +106,9 @@ namespace SqueakyLane.Presentation
         {
             if (sfx != null)
             {
-                sfx.PlayEvent(kind, reason);
+                // Xe ra cổng liên tiếp: mỗi xe tiếng cao hơn một chút (bậc thang như bản HTML). Combo do animator đếm.
+                float pitch = kind == MoveEventKind.Exit && animator != null && feel != null ? feel.ComboPitch(animator.ExitCombo) : 1f;
+                sfx.PlayEvent(kind, reason, pitch);
             }
 
             if (kind == MoveEventKind.Stop || kind == MoveEventKind.Exit)
