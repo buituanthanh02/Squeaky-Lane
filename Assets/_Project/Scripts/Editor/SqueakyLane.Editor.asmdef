@@ -4,7 +4,8 @@
         "SqueakyLane.Core",
         "SqueakyLane.Game",
         "SqueakyLane.Presentation",
-        "UnityEngine.UI"
+        "UnityEngine.UI",
+        "Unity.TextMeshPro"
     ],
     "includePlatforms": ["Editor"],
     "autoReferenced": true

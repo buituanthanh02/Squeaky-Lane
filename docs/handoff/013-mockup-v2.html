@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Squeaky Lane 013 — mockup UI v2 (tham chiếu bố cục, không phải sprite cuối)</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.3.0/dist/tabler-icons.min.css">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;800&display=swap');
+:root{--bg-neutral:#eef1f5;--text-secondary:#5a6472;--font-sans:system-ui,sans-serif}
+body{margin:0;padding:16px;background:#fff;font-family:var(--font-sans)}
+.wrap{max-width:680px;margin:0 auto}
+.ph{position:relative;aspect-ratio:1/2;border-radius:26px;border:6px solid #1b1f2a;overflow:hidden;font-family:'Baloo 2',var(--font-sans);color:#fff}
+.sc{position:absolute;inset:0;width:100%;height:100%}
+.ol{color:#fff;font-weight:800;-webkit-text-stroke:3px #0A1E44;paint-order:stroke fill;line-height:1}
+.pill{background:#14336A;border:3px solid #0A1E44;border-radius:18px;box-shadow:inset 0 0 0 2px #4F8FE0,0 3px 0 #0A1E44,0 7px 8px rgba(0,0,0,.28);display:flex;align-items:center;justify-content:center}
+.bn{position:relative;border:3px solid #0E2A55;border-radius:16px;background:linear-gradient(#7BCBFF,#3FA9F5 55%,#2B8BDA);box-shadow:inset 0 3px 0 rgba(255,255,255,.55),inset 0 -6px 0 #1F78C1,0 4px 0 #0E2A55,0 9px 10px rgba(0,0,0,.28);display:flex;align-items:center;justify-content:center;color:#fff}
+.bn.y{background:linear-gradient(#FFE27A,#FFC93C 55%,#F2AE12);box-shadow:inset 0 3px 0 rgba(255,255,255,.6),inset 0 -6px 0 #D9A21B,0 4px 0 #0E2A55,0 9px 10px rgba(0,0,0,.28);color:#5A3B00}
+.bn::after{content:"";position:absolute;left:8px;top:6px;width:14px;height:6px;border-radius:4px;background:rgba(255,255,255,.7);transform:rotate(-20deg)}
+.bn i{filter:drop-shadow(0 2px 0 rgba(10,30,68,.55))}
+.bd{position:absolute;top:-9px;right:-9px;min-width:24px;height:24px;border-radius:12px;background:#E24B4A;border:2px solid #0A1E44;box-shadow:inset 0 -3px 0 #A32D2D;color:#fff;font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center;padding:0 4px;z-index:2}
+.tag{margin-top:9px;padding:2px 10px;border-radius:10px;background:#14336A;border:2px solid #0A1E44;box-shadow:inset 0 0 0 1px #4F8FE0;font-size:11px;font-weight:800;white-space:nowrap;text-align:center}
+.mk{position:absolute;width:22px;height:22px;border-radius:50%;background:#fff;border:2px solid #E24B4A;color:#A32D2D;font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center;z-index:5;font-family:var(--font-sans)}
+.ov{position:absolute;inset:0;background:rgba(10,30,68,.5)}
+.cd{position:absolute;left:10%;right:10%;background:#fff;border:3px solid #0A1E44;border-radius:22px;box-shadow:inset 0 -8px 0 #DCE6F2,0 5px 0 #0A1E44,0 12px 14px rgba(0,0,0,.3);padding:30px 12px 14px;display:flex;flex-direction:column;align-items:center;gap:8px;color:#10315A}
+.rb{position:absolute;top:-18px;left:50%;transform:translateX(-50%);padding:6px 22px;border-radius:14px;white-space:nowrap;font-size:20px}
+.cap{text-align:center;font-size:13px;color:var(--text-secondary);margin-top:8px}
+</style>
+</head>
+<body>
+<div class="wrap">
+<p style="font-size:14px;color:#5a6472;margin:0 0 12px">Mockup tham chiếu cho phiếu 013 (Claude, 25/11). Chỉ là bố cục, màu và cách xếp lớp nút; sprite thật lấy từ Kenney UI Pack và Game Icons. 1–5: xem mục "Quyết định visual v2" trong 013-theme-ui.md.</p>
+<svg width="0" height="0" style="position:absolute"><defs>
+<linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5DB9F0"/><stop offset="1" stop-color="#D6F1FF"/></linearGradient>
+<linearGradient id="grs" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#86C876"/><stop offset="1" stop-color="#5C9C56"/></linearGradient>
+<radialGradient id="vig" cx=".5" cy=".5" r=".75"><stop offset=".6" stop-color="#0A1E44" stop-opacity="0"/><stop offset="1" stop-color="#0A1E44" stop-opacity=".38"/></radialGradient>
+<symbol id="scene" viewBox="0 0 200 400"><rect width="200" height="400" fill="url(#sky)"/>
+<ellipse cx="38" cy="42" rx="24" ry="8" fill="#fff" opacity=".85"/><ellipse cx="52" cy="38" rx="14" ry="7" fill="#fff" opacity=".85"/><ellipse cx="168" cy="26" rx="20" ry="6" fill="#fff" opacity=".8"/>
+<rect y="104" width="200" height="226" fill="url(#grs)"/>
+<g fill="#fff" opacity=".07"><rect y="124" width="200" height="22"/><rect y="168" width="200" height="22"/><rect y="212" width="200" height="22"/><rect y="256" width="200" height="22"/></g>
+<g fill="#3E8B4A" stroke="#0E2A55" stroke-width="1.2"><circle cx="8" cy="104" r="10"/><circle cx="30" cy="106" r="9"/><circle cx="56" cy="105" r="10"/><circle cx="82" cy="106" r="9"/><circle cx="192" cy="105" r="10"/></g>
+<rect x="116" y="56" width="76" height="48" fill="#F3F6FA" stroke="#0E2A55" stroke-width="1.5"/>
+<path d="M112 58h84l-6-12h-72z" fill="#fff" stroke="#0E2A55" stroke-width="1.5"/><path d="M118 46h10l-2 12h-10zM138 46h10l-2 12h-10zM158 46h10l-2 12h-10zM178 46h10l-2 12h-10z" fill="#3FA9F5"/>
+<rect x="132" y="70" width="44" height="34" rx="4" fill="#244A7E" stroke="#0E2A55" stroke-width="1.5"/><circle cx="144" cy="88" r="7" fill="#7BCBFF"/><circle cx="164" cy="88" r="7" fill="#FF6FA8"/>
+<rect x="12" y="68" width="48" height="36" fill="#FFE9B8" stroke="#0E2A55" stroke-width="1.5"/><path d="M8 70h56l-8-12H16z" fill="#E24B4A" stroke="#0E2A55" stroke-width="1.5"/><rect x="18" y="78" width="12" height="10" fill="#BFE6FB" stroke="#0E2A55"/><rect x="40" y="78" width="14" height="26" fill="#7A5230" stroke="#0E2A55"/>
+<path d="M98 104V74M98 74h8" stroke="#0E2A55" stroke-width="2.5" fill="none"/><circle cx="108" cy="75" r="4" fill="#FFE27A" stroke="#0E2A55"/>
+<ellipse cx="100" cy="308" rx="90" ry="9" fill="#0A1E44" opacity=".28"/>
+<rect x="14" y="134" width="172" height="170" rx="12" fill="#7E8B9A" stroke="#0E2A55" stroke-width="2"/><rect x="14" y="126" width="172" height="170" rx="12" fill="#C3CCD8" stroke="#0E2A55" stroke-width="2"/><rect x="18" y="129" width="164" height="6" rx="3" fill="#fff" opacity=".6"/>
+<rect x="25" y="137" width="150" height="150" rx="4" fill="#3C4150" stroke="#222733" stroke-width="1.5"/><rect x="25" y="137" width="150" height="7" fill="#000" opacity=".25"/>
+<path d="M55 137V287M85 137V287M115 137V287M145 137V287M25 167H175M25 197H175M25 227H175M25 257H175" stroke="#5A6072" stroke-width=".8"/>
+<rect x="85" y="131" width="30" height="9" rx="3" fill="#FF6FA8" stroke="#0E2A55" stroke-width="1.3"/><rect x="170" y="197" width="9" height="30" rx="3" fill="#3FA9F5" stroke="#0E2A55" stroke-width="1.3"/><rect x="55" y="283" width="30" height="9" rx="3" fill="#FFC93C" stroke="#0E2A55" stroke-width="1.3"/>
+<g stroke="#0E2A55" stroke-width="1.3"><rect x="28" y="141" width="56" height="23" rx="8" fill="#FF6FA8"/><rect x="89" y="171" width="23" height="56" rx="8" fill="#3FA9F5"/><rect x="118" y="201" width="56" height="23" rx="8" fill="#FFC93C"/><rect x="28" y="201" width="23" height="56" rx="8" fill="#4CD07D"/><rect x="58" y="261" width="56" height="23" rx="8" fill="#FF8A3D"/></g>
+<g fill="#fff" opacity=".8"><rect x="58" y="145" width="15" height="15" rx="4"/><rect x="93" y="190" width="15" height="15" rx="4"/><rect x="146" y="205" width="15" height="15" rx="4"/><rect x="32" y="220" width="15" height="15" rx="4"/><rect x="88" y="265" width="15" height="15" rx="4"/></g>
+<rect y="322" width="200" height="6" fill="#C9D2DC" stroke="#0E2A55" stroke-width="1.2"/><rect y="328" width="200" height="72" fill="#4A5060"/><g fill="#fff"><rect x="10" y="352" width="26" height="3"/><rect x="60" y="352" width="26" height="3"/><rect x="110" y="352" width="26" height="3"/><rect x="160" y="352" width="26" height="3"/></g>
+<rect x="132" y="333" width="42" height="18" rx="7" fill="#9FB4CC" stroke="#0E2A55" stroke-width="1.2"/><path d="M20 346l6-14 6 14z" fill="#FF8A3D" stroke="#0E2A55" stroke-width="1.2"/><path d="M40 346l6-14 6 14z" fill="#FF8A3D" stroke="#0E2A55" stroke-width="1.2"/>
+<g fill="#fff" fill-opacity=".25" stroke="#fff" stroke-width="1"><circle cx="30" cy="118" r="4"/><circle cx="168" cy="122" r="3"/><circle cx="176" cy="312" r="5"/><circle cx="22" cy="300" r="3"/><circle cx="96" cy="120" r="2.5"/><circle cx="104" cy="124" r="3.5"/></g>
+<rect width="200" height="400" fill="url(#vig)"/></symbol></defs></svg>
+<div style="background:var(--bg-neutral);border-radius:12px;padding:16px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px">
+<div><div class="ph"><svg class="sc"><use href="#scene"/></svg><div class="hud"></div>
+<span class="mk" style="left:50%;top:60px;margin-left:34px">1</span><span class="mk" style="left:34%;bottom:106px">2</span><span class="mk" style="left:3%;top:50%">3</span><span class="mk" style="right:8%;top:19%">4</span><span class="mk" style="right:4%;bottom:112px">5</span></div><p class="cap">Màn chơi v2</p></div>
+<div><div class="ph"><svg class="sc"><use href="#scene"/></svg><div class="hud"></div><div class="ov"></div>
+<div style="position:absolute;left:16%;top:15%;width:8px;height:14px;background:#FF6FA8;transform:rotate(25deg);border:1.5px solid #0A1E44"></div><div style="position:absolute;left:80%;top:17%;width:8px;height:14px;background:#3FA9F5;transform:rotate(-30deg);border:1.5px solid #0A1E44"></div><div style="position:absolute;left:26%;top:50%;width:8px;height:14px;background:#FFC93C;transform:rotate(60deg);border:1.5px solid #0A1E44"></div><div style="position:absolute;left:86%;top:44%;width:8px;height:14px;background:#4CD07D;transform:rotate(10deg);border:1.5px solid #0A1E44"></div>
+<div class="cd" style="top:21%"><div class="rb bn y ol" style="-webkit-text-stroke:3px #5A3B00;border-radius:14px">Thắng!</div>
+<div style="display:flex;align-items:flex-end;gap:2px;margin-top:8px">
+<svg width="40" height="40" viewBox="0 0 24 24"><polygon points="12,2 15,9 22,9.3 16.5,14 18.5,21 12,17 5.5,21 7.5,14 2,9.3 9,9" fill="#FFC93C" stroke="#0A1E44" stroke-width="2" stroke-linejoin="round"/></svg>
+<svg width="56" height="56" viewBox="0 0 24 24" style="margin-bottom:10px"><polygon points="12,2 15,9 22,9.3 16.5,14 18.5,21 12,17 5.5,21 7.5,14 2,9.3 9,9" fill="#FFC93C" stroke="#0A1E44" stroke-width="2" stroke-linejoin="round"/></svg>
+<svg width="40" height="40" viewBox="0 0 24 24"><polygon points="12,2 15,9 22,9.3 16.5,14 18.5,21 12,17 5.5,21 7.5,14 2,9.3 9,9" fill="#FFC93C" stroke="#0A1E44" stroke-width="2" stroke-linejoin="round"/></svg></div>
+<div style="font-size:14px;font-weight:800">Màn 23 · còn 36 s</div>
+<div style="display:flex;gap:10px;width:100%;margin-top:6px"><div class="bn" style="width:50px;height:50px;border-radius:50%;flex:none"><i class="ti ti-refresh" style="font-size:24px"></i></div><div class="bn y" style="flex:1;height:50px;gap:6px;font-size:17px;font-weight:800"><i class="ti ti-player-play" style="font-size:22px"></i>Màn kế</div></div></div></div><p class="cap">Thắng v2</p></div>
+</div>
+</div>
+<script>
+var h='<div style="position:absolute;top:10px;left:10px;right:10px;display:flex;align-items:flex-start;justify-content:space-between"><div class="bn" style="width:42px;height:42px;border-radius:50%;flex:none"><i class="ti ti-player-pause" style="font-size:22px"></i></div><div style="display:flex;flex-direction:column;align-items:center;gap:4px;margin-top:2px"><div class="pill" style="min-width:104px;height:44px;padding:0 14px"><span class="ol" style="font-size:25px">63 s</span></div><div class="pill" style="height:22px;padding:0 10px;border-radius:12px;border-width:2px;font-size:11px;font-weight:800">0 nước</div></div><div class="pill" style="height:34px;padding:0 12px;margin-top:6px;font-size:14px;font-weight:800">Màn 23</div></div><div style="position:absolute;left:0;right:0;bottom:12px;display:flex;justify-content:center;gap:34px"><div style="display:flex;flex-direction:column;align-items:center"><div class="bn" style="width:66px;height:66px"><span class="bd">-3s</span><i class="ti ti-arrow-back-up" style="font-size:34px"></i></div><div class="tag">Hoàn tác</div></div><div style="display:flex;flex-direction:column;align-items:center"><div class="bn y" style="width:66px;height:66px"><span class="bd">3</span><i class="ti ti-bulb" style="font-size:34px"></i></div><div class="tag">Gợi ý</div></div></div>';
+document.querySelectorAll('.hud').forEach(function(e){e.innerHTML=h;});
+</script>
+</body>
+</html>

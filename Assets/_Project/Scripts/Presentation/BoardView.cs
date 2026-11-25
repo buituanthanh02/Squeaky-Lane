@@ -8,10 +8,12 @@ namespace SqueakyLane.Presentation
 {
     public sealed class BoardView : MonoBehaviour
     {
+        [SerializeField, Tooltip("Theme013: chỉ cảnh ngoài bãi/nhãn xe; thiếu giữ hình cũ.")] private UiTheme sceneTheme = null;
         private LevelDef level;
         private VisualPalette palette;
         private MaterialPropertyBlock block;
         private GameObject content;
+        private SceneThemeView environmentView;
         private CarView[] cars;
         private Renderer[] lights, barriers;
         private MechanicView[] lightViews;
@@ -38,6 +40,7 @@ namespace SqueakyLane.Presentation
         public void Build(LevelDef definition, GameState state, VisualPalette colors, CarCatalog vehicles = null, MechanicCatalog mechanics = null)
         {
             if (content != null) { content.SetActive(false); Release(content); }
+            environmentView = null;
             level = definition; palette = colors; block = new MaterialPropertyBlock();
             carCatalog = vehicles;
             mechanicCatalog = mechanics;
@@ -135,9 +138,18 @@ namespace SqueakyLane.Presentation
                 if (view == null) view = root.AddComponent<CarView>();
                 view.Initialize(i, definitionCar.Len, colors, carCatalog, definitionCar.Truck, color, WarnMissingCar);
                 cars[i] = view;
-                view.SetLabel(Label((i + 1).ToString(), new Vector3(0, .47f, 0), root.transform));
+                if (sceneTheme == null || !sceneTheme.HideCarNumbers)
+                {
+                    view.SetLabel(Label((i + 1).ToString(), new Vector3(0, .47f, 0), root.transform));
+                }
             }
             Snap(state);
+            if (sceneTheme != null && sceneTheme.EnvironmentPrefab != null && sceneTheme.GroundMaterial != null)
+            {
+                var environment = Instantiate(sceneTheme.EnvironmentPrefab, content.transform, false);
+                environmentView = environment.GetComponent<SceneThemeView>();
+                environmentView.Configure(level, sceneTheme);
+            }
         }
         private void Edge(GateEdge edge, int index)
         {
@@ -269,7 +281,8 @@ namespace SqueakyLane.Presentation
             // Camera phải xóa nền cả màn: nếu chỉ vẽ vùng bãi, chữ HUD ngoài vùng đó có thể lưu vệt của frame cũ.
             // viewport chỉ dùng để chừa chỗ cho HUD, không giới hạn vùng camera vẽ.
             camera.orthographic = true; camera.rect = new Rect(0, 0, 1, 1);
-            camera.backgroundColor = palette.Background; camera.clearFlags = CameraClearFlags.SolidColor;
+            camera.backgroundColor = sceneTheme != null ? sceneTheme.CameraBackground : palette.Background;
+            camera.clearFlags = CameraClearFlags.SolidColor;
             camera.transform.rotation = Quaternion.Euler(config.TiltDegrees, 0, 0);
             float aspect = camera.pixelRect.width / Mathf.Max(1, camera.pixelRect.height);
             float halfWidth = level.Cols * .5f + .9f + config.Padding;
@@ -282,6 +295,7 @@ namespace SqueakyLane.Presentation
             float offsetY = (center.y * 2 - 1) * camera.orthographicSize;
             camera.transform.position = transform.position - camera.transform.forward * 25
                 - camera.transform.right * offsetX - camera.transform.up * offsetY;
+            if (environmentView != null) { environmentView.EnsureGroundCoverage(camera); }
             RefreshOcclusion();
         }
         private void LateUpdate() { RefreshOcclusion(); }

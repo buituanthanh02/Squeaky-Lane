@@ -19,6 +19,7 @@ namespace SqueakyLane.Presentation
         [SerializeField] private TMP_Text levelTitle, clockText, movesText, messageText, wonText, lostText;
         [SerializeField] private Image clockFill;
         [SerializeField] private Color normalClock = new Color(.3f, .8f, 1), lowClock = new Color(1, .3f, .35f);
+        [SerializeField, Tooltip("Skin013; thiếu giữ hiển thị cũ. Không sở hữu điều hướng.")] private UiTheme theme = null;
         [Header("Nút — không cần gán On Click thủ công")]
         [SerializeField] private Button pauseButton, resumeButton, nextButton, undoButton, hintButton;
         [SerializeField] private Button[] restartButtons = Array.Empty<Button>();
@@ -72,7 +73,10 @@ namespace SqueakyLane.Presentation
         public void RefreshLevels(ProgressStore progress, bool unlockAll)
         {
             for (int i = 0; i < ids.Length; i++)
-            { levelButtons[i].interactable = progress.IsUnlocked(ids, i, unlockAll); levelLabels[i].text = "Màn " + ids[i] + "\n" + progress.Stars(ids[i]) + "/3 sao"; }
+            {
+                levelButtons[i].interactable = progress.IsUnlocked(ids, i, unlockAll);
+                levelLabels[i].text = "Màn " + ids[i] + "\n" + (theme != null ? theme.Stars(progress.Stars(ids[i])) : progress.Stars(ids[i]) + "/3 sao");
+            }
         }
         public void RefreshSettings(ProgressStore progress)
         {
@@ -102,8 +106,9 @@ namespace SqueakyLane.Presentation
             undoButton.interactable = canUndo; hintButton.interactable = canPlay && hintCount != 0;
             // Giữ HUD hiện nhưng khóa các nút khi chờ hoạt hình/chúc mừng kết thúc màn.
             playing.interactable = canPlay;
-            undoLabel.text = "Hoàn tác (-" + config.UndoPenalty + "s)"; hintLabel.text = "Gợi ý (-" + config.HintPenalty + "s)";
-            wonText.text = "Thắng!\n" + timer.StarsOnWin() + "/3 sao · còn " + Mathf.CeilToInt(timer.Remaining) + " s";
+            undoLabel.text = (theme != null ? "<sprite name=undo> " : "") + "Hoàn tác (-" + config.UndoPenalty + "s)";
+            hintLabel.text = (theme != null ? "<sprite name=hint> " : "") + "Gợi ý (-" + config.HintPenalty + "s)";
+            wonText.text = "Thắng!\n" + (theme != null ? theme.Stars(timer.StarsOnWin()) : timer.StarsOnWin() + "/3 sao") + " · còn " + Mathf.CeilToInt(timer.Remaining) + " s";
             lostText.text = "Hết giờ";
             nextLabel.text = index + 1 < totalLevels ? "Màn kế" : "Chọn màn";
         }

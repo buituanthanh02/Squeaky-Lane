@@ -13,4 +13,4 @@ MonoBehaviour:
   m_Name: CameraConfig
   m_EditorClassIdentifier: 
   tiltDegrees: 70
-  padding: 0.5
+  padding: 0.1
