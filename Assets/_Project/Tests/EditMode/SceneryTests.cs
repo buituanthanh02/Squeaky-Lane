@@ -127,7 +127,9 @@ namespace SqueakyLane.Tests.EditMode
         public void AssetLabSwitchesSampleWithoutLeakingPreviewOrMutatingSourceMaterial()
         {
             var previous = SceneManager.GetActiveScene();
-            var scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Additive);
+            // Scene phụ cho gọn. Scene đang mở là "Untitled" chưa lưu (Unity CLI/batch) thì Unity không cho tạo thêm: dùng luôn scene đó, đồ thử do Own() dọn.
+            bool extraScene = !string.IsNullOrEmpty(previous.path);
+            var scene = extraScene ? EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Additive) : previous;
             SceneManager.SetActiveScene(scene);
             try
             {
@@ -167,8 +169,11 @@ namespace SqueakyLane.Tests.EditMode
             }
             finally
             {
-                EditorSceneManager.CloseScene(scene, true);
-                if (previous.IsValid()) { SceneManager.SetActiveScene(previous); }
+                if (extraScene)
+                {
+                    EditorSceneManager.CloseScene(scene, true);
+                    if (previous.IsValid()) { SceneManager.SetActiveScene(previous); }
+                }
             }
         }
 
