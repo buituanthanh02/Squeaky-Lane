@@ -89,11 +89,11 @@ namespace SqueakyLane.EditorTools
             finally { EditorUtility.ClearProgressBar(); }
         }
 
-        private static TMP_FontAsset BakeFont(string name)
+        internal static TMP_FontAsset BakeFont(string name, bool rebuildForS2 = false)
         {
             string path = Art + "/Fonts/" + name + " SDF.asset";
             var saved = AssetDatabase.LoadAssetAtPath<TMP_FontAsset>(path);
-            if (saved != null)
+            if (saved != null && (!rebuildForS2 || saved.atlasPadding >= 10))
             {
                 if (saved.atlasPopulationMode != AtlasPopulationMode.Static || !saved.HasCharacters("ĐđẮằẾệỢự Thắng! ←↑→↓…"))
                 {
@@ -103,7 +103,7 @@ namespace SqueakyLane.EditorTools
             }
             var font = AssetDatabase.LoadAssetAtPath<Font>(Art + "/Fonts/" + name + ".ttf");
             // Dynamic chỉ là trạng thái bake ngoài Editor; khóa Static trước khi lưu asset vào repo.
-            var asset = TMP_FontAsset.CreateFontAsset(font, 64, 8, GlyphRenderMode.SDFAA, 2048, 2048, AtlasPopulationMode.Dynamic, false);
+            var asset = TMP_FontAsset.CreateFontAsset(font, 64, rebuildForS2 ? 10 : 8, GlyphRenderMode.SDFAA, 2048, 2048, AtlasPopulationMode.Dynamic, false);
             if (asset == null) { throw new InvalidOperationException("Không nạp được font " + name); }
             asset.name = name + " SDF";
             var codepoints = new List<uint>();
@@ -112,7 +112,7 @@ namespace SqueakyLane.EditorTools
                 if (FontEngine.TryGetGlyphIndex(code, out uint index) && index != 0) { codepoints.Add(code); }
             }
             for (uint code = 0x1ea0; code <= 0x1ef9; code++) { codepoints.Add(code); }
-            foreach (char code in "←↑→↓…–—·") { codepoints.Add(code); }
+            foreach (char code in "←↑→↓…–—·∞") { codepoints.Add(code); }
             if (!asset.TryAddCharacters(codepoints.ToArray(), out uint[] missing))
             {
                 UnityEngine.Object.DestroyImmediate(asset.material);
@@ -122,6 +122,30 @@ namespace SqueakyLane.EditorTools
             }
             asset.atlasPopulationMode = AtlasPopulationMode.Static;
             asset.fallbackFontAssetTable = new List<TMP_FontAsset>();
+            if (saved != null)
+            {
+                // Bake thành công ở bộ nhớ trước. Giữ nguyên GUID, material và texture subasset cũ.
+                Backup(path);
+                var oldMaterial = saved.material;
+                var oldTexture = saved.atlasTextures[0];
+                var bakedMaterial = asset.material;
+                var bakedTexture = asset.atlasTextures[0];
+                EditorUtility.CopySerialized(bakedTexture, oldTexture);
+                EditorUtility.CopySerialized(bakedMaterial, oldMaterial);
+                oldMaterial.mainTexture = oldTexture;
+                asset.material = oldMaterial;
+                asset.atlasTextures = new[] { oldTexture };
+                EditorUtility.CopySerialized(asset, saved);
+                saved.ReadFontAssetDefinition();
+                EditorUtility.SetDirty(saved);
+                EditorUtility.SetDirty(oldMaterial);
+                EditorUtility.SetDirty(oldTexture);
+                UnityEngine.Object.DestroyImmediate(bakedMaterial);
+                UnityEngine.Object.DestroyImmediate(bakedTexture);
+                UnityEngine.Object.DestroyImmediate(asset);
+                AssetDatabase.SaveAssetIfDirty(saved);
+                return saved;
+            }
             AssetDatabase.CreateAsset(asset, path);
             asset.material.name = name + " Material";
             AssetDatabase.AddObjectToAsset(asset.material, asset);
@@ -184,7 +208,7 @@ namespace SqueakyLane.EditorTools
             return asset;
         }
 
-        private static Sprite ImportSprite(string source, string target, Vector4 border, bool readable = false)
+        internal static Sprite ImportSprite(string source, string target, Vector4 border, bool readable = false)
         {
             CopySource(source, target);
             var importer = (TextureImporter)AssetImporter.GetAtPath(target);

@@ -25,6 +25,11 @@ namespace SqueakyLane.Presentation
         [SerializeField] private Button[] restartButtons = Array.Empty<Button>();
         [SerializeField] private Button[] levelSelectButtons = Array.Empty<Button>();
         [SerializeField] private Toggle[] soundToggles = Array.Empty<Toggle>(), hapticsToggles = Array.Empty<Toggle>();
+        [Header("013 S2 · trang trí HUD; không phải control điều hướng")]
+        [SerializeField] private TMP_Text undoBadge = null, hintBadge = null;
+        [SerializeField] private Image hintBadgePlate = null;
+        [SerializeField] private CanvasGroup messageBubble = null;
+        private float messageAge;
         private Button[] levelButtons;
         private TMP_Text[] levelLabels;
         private int[] ids;
@@ -98,19 +103,66 @@ namespace SqueakyLane.Presentation
         { if (fadeOverlay == null) return; var color = fadeOverlay.color; color.a = alpha; fadeOverlay.color = color; fadeOverlay.raycastTarget = alpha > 0; }
         public void RefreshHud(string title, LevelTimer timer, int moves, int hintCount, string message, bool canUndo, bool canPlay, int totalLevels, int index, GameConfig config)
         {
-            levelTitle.text = title; movesText.text = moves + " nước";
-            clockText.text = timer.IsTimed ? Mathf.CeilToInt(timer.Remaining) + " s" : "Không tính giờ";
+            bool skinned = theme != null && theme.HasHudSkin;
+            levelTitle.text = skinned && ids != null ? "Màn " + ids[index] : title;
+            movesText.text = moves + " nước";
+            clockText.text = timer.IsTimed ? Mathf.CeilToInt(timer.Remaining) + " s" : skinned ? "∞" : "Không tính giờ";
             float ratio = timer.IsTimed ? timer.Remaining / timer.TimeLimit : 1;
-            clockFill.fillAmount = ratio; clockFill.color = ratio < config.LowTimeRatio ? lowClock : normalClock;
-            messageText.text = message + "\nGợi ý: " + (hintCount < 0 ? "không giới hạn" : hintCount.ToString()) + " · phạt " + config.HintPenalty + " s";
+            clockFill.fillAmount = ratio;
+            clockFill.color = ratio < config.LowTimeRatio ? lowClock : normalClock;
+            if (skinned && clockFill.type == Image.Type.Sliced)
+            {
+                // Filled bỏ qua Border. Sliced thu rect trong track, giữ hai đầu bo ở mọi chiều rộng.
+                var rect = clockFill.rectTransform;
+                rect.anchorMax = new Vector2(Mathf.Clamp01(ratio), 1);
+                clockFill.enabled = ratio > 0;
+            }
+            if (!skinned)
+            {
+                messageText.text = message + "\nGợi ý: " + (hintCount < 0 ? "không giới hạn" : hintCount.ToString()) + " · phạt " + config.HintPenalty + " s";
+            }
+            else
+            {
+                if (undoBadge != null) { undoBadge.text = "-" + config.UndoPenalty + "s"; }
+                if (hintBadge != null) { hintBadge.text = hintCount < 0 ? "∞" : hintCount.ToString(); }
+                if (hintBadgePlate != null) { hintBadgePlate.color = hintCount == 0 ? theme.ExhaustedColor : theme.BadgeColor; }
+                if (hintButton.targetGraphic is Image hintImage)
+                {
+                    hintImage.sprite = hintCount == 0 ? theme.RegularButton : theme.YellowSquare;
+                    hintImage.color = hintCount == 0 ? Color.white : theme.ButtonYellow;
+                }
+            }
             undoButton.interactable = canUndo; hintButton.interactable = canPlay && hintCount != 0;
             // Giữ HUD hiện nhưng khóa các nút khi chờ hoạt hình/chúc mừng kết thúc màn.
             playing.interactable = canPlay;
-            undoLabel.text = (theme != null ? "<sprite name=undo> " : "") + "Hoàn tác (-" + config.UndoPenalty + "s)";
-            hintLabel.text = (theme != null ? "<sprite name=hint> " : "") + "Gợi ý (-" + config.HintPenalty + "s)";
+            undoLabel.text = skinned ? "Hoàn tác" : (theme != null ? "<sprite name=undo> " : "") + "Hoàn tác (-" + config.UndoPenalty + "s)";
+            hintLabel.text = skinned ? "Gợi ý" : (theme != null ? "<sprite name=hint> " : "") + "Gợi ý (-" + config.HintPenalty + "s)";
             wonText.text = "Thắng!\n" + (theme != null ? theme.Stars(timer.StarsOnWin()) : timer.StarsOnWin() + "/3 sao") + " · còn " + Mathf.CeilToInt(timer.Remaining) + " s";
             lostText.text = "Hết giờ";
             nextLabel.text = index + 1 < totalLevels ? "Màn kế" : "Chọn màn";
+        }
+        public void ShowMessage(string message)
+        {
+            if (theme == null || !theme.HasHudSkin || messageBubble == null) { return; }
+            messageText.text = message;
+            messageAge = 0;
+            messageBubble.alpha = string.IsNullOrEmpty(message) ? 0 : 1;
+            messageBubble.interactable = false;
+            messageBubble.blocksRaycasts = false;
+        }
+        private void Update()
+        {
+            TickMessage(Time.unscaledDeltaTime);
+        }
+        private void TickMessage(float deltaTime)
+        {
+            if (theme == null || messageBubble == null || messageBubble.alpha <= 0) { return; }
+            messageAge += deltaTime;
+            messageBubble.alpha = 1 - Mathf.Clamp01((messageAge - theme.MessageHoldSeconds) / theme.MessageFadeSeconds);
+        }
+        private void OnDisable()
+        {
+            if (messageBubble != null) { messageBubble.alpha = 0; }
         }
         public bool RefreshSafeArea()
         {

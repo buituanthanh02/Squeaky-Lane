@@ -17,12 +17,48 @@ MonoBehaviour:
   dangerButton: {fileID: 21300000, guid: 5d8086a6be43b0340abf437fc83ce7d8, type: 3}
   panel: {fileID: 21300000, guid: b055e617c7f8ed049ae31ec44be3f37d, type: 3}
   clockTrack: {fileID: 21300000, guid: 7e7433125b92d634b9393e1118901bf3, type: 3}
-  clockFill: {fileID: 21300000, guid: bc13007b47e1d8545bc6236fa9a8e80b, type: 3}
+  clockFill: {fileID: 21300000, guid: 7e7433125b92d634b9393e1118901bf3, type: 3}
   toggleBox: {fileID: 21300000, guid: ea7e4a23e9d18fc428d05d9bc9559789, type: 3}
   toggleCheck: {fileID: 21300000, guid: 1d41933de8c9d444588806924be69188, type: 3}
   titleFont: {fileID: 11400000, guid: dd86be55f6076414098d1a911be49889, type: 2}
   bodyFont: {fileID: 11400000, guid: 14efad82681444a4e826aaa955814fbb, type: 2}
   icons: {fileID: 11400000, guid: fd804c91f3b393f4699ec252e32e96f3, type: 2}
+  blueButton: {fileID: 21300000, guid: 9b72530f86bc7fa409ed9869d69c6912, type: 3}
+  blueSquare: {fileID: 21300000, guid: 88219a8935c55cc47ba7c693dfff7c26, type: 3}
+  yellowSquare: {fileID: 21300000, guid: fa246706d845863499a026437371c9e4, type: 3}
+  blueRound: {fileID: 21300000, guid: 38b53be2e3fa2ca4ba1b9f9a68d27e4f, type: 3}
+  softShadow: {fileID: 21300000, guid: 2ad31c08ae465854bbf79f7fb3f5560a, type: 3}
+  pillSprite: {fileID: 21300000, guid: 7e7433125b92d634b9393e1118901bf3, type: 3}
+  glintSprite: {fileID: 21300000, guid: 7e7433125b92d634b9393e1118901bf3, type: 3}
+  hudOutline: {fileID: 2100000, guid: a9e57e5d0bb78184199919d011fdd1d4, type: 2}
+  hudSmall: {fileID: 2100000, guid: 2f39ec56e499fb24993959d658fe43d0, type: 2}
+  cardText: {fileID: 2100000, guid: 58221865d0e1b0f45a05c16887743c27, type: 2}
+  buttonBlue: {r: 0.24705882, g: 0.6627451, b: 0.9607843, a: 1}
+  buttonYellow: {r: 1, g: 0.7882353, b: 0.23529412, a: 1}
+  buttonOutline: {r: 0.05490196, g: 0.16470589, b: 0.33333334, a: 1}
+  pillColor: {r: 0.078431375, g: 0.2, b: 0.41568628, a: 1}
+  pillOutline: {r: 0.039215688, g: 0.11764706, b: 0.26666668, a: 1}
+  pillHighlight: {r: 0.30980393, g: 0.56078434, b: 0.8784314, a: 1}
+  badgeColor: {r: 0.8862745, g: 0.29411766, b: 0.2901961, a: 1}
+  exhaustedColor: {r: 0.5294118, g: 0.58431375, b: 0.65882355, a: 1}
+  outlinePixels: 3
+  innerOutlinePixels: 2
+  shadowOffset: 9
+  shadowAlpha: 0.28
+  pressScale: 0.94
+  hudUnit: 3.6
+  boosterSize: 66
+  messageHoldSeconds: 2
+  messageFadeSeconds: 0.4
+  showGlint: 1
+  glintSize: {x: 14, y: 6}
+  glintOffset: {x: 8, y: -6}
+  glintAlpha: 0.7
+  glintAngle: -20
+  iconShadowOffset: {x: 0, y: -2}
+  iconShadowAlpha: 0.55
+  hudOutlineWidth: 0.3
+  hudSmallOutlineWidth: 0.12
   text: {r: 0.0627451, g: 0.19215687, b: 0.3529412, a: 1}
   secondaryText: {r: 0.17254902, g: 0.3647059, b: 0.5411765, a: 1}
   primaryText: {r: 0.3529412, g: 0.23137255, b: 0, a: 1}

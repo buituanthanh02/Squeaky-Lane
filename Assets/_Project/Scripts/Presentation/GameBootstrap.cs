@@ -200,7 +200,7 @@ namespace SqueakyLane.Presentation
             input.Initialize(boardCamera, board, gameConfig);
             tableButtons.Bind(session, board, boardCamera, gameConfig);
             board.FitCamera(boardCamera, cameraConfig, hud.BoardViewport());
-            message = "Chạm nửa xe để chạy";
+            SetMessage("Chạm nửa xe để chạy");
             mechanicsDirty = false;
             PeakSearchMilliseconds = 0;
             lastCountdownSecond = -1;
@@ -238,7 +238,7 @@ namespace SqueakyLane.Presentation
             var result = session.Apply(command);
             if (!result.Moved)
             {
-                message = "Hướng này đang bị chặn";
+                SetMessage("Hướng này đang bị chặn");
                 if (command.Kind == SolverMoveKind.MoveCar && result.Events.Count > 0)
                 {
                     // Không thêm lượt/đổi Core, chỉ diễn Stop đã có cả khi xe bị chặn ngay ô đầu.
@@ -254,7 +254,7 @@ namespace SqueakyLane.Presentation
 
             animator.Enqueue(command, before, result);
             mechanicsDirty = true;
-            message = "";
+            SetMessage("");
             tableButtons.Refresh();
             ApplyPlayGate();
             RefreshHud();
@@ -270,7 +270,7 @@ namespace SqueakyLane.Presentation
             timer.ChargeUndo();
             animator.CancelAndSnap(session.State);
             mechanicsDirty = false;
-            message = "Đã hoàn tác";
+            SetMessage("Đã hoàn tác");
             tableButtons.Refresh();
             ApplyPlayGate();
             RefreshHud();
@@ -308,7 +308,7 @@ namespace SqueakyLane.Presentation
                 return;
             }
 
-            message = hints.Request() ? "Đang tìm gợi ý…" : "Đã hết gợi ý";
+            SetMessage(hints.Request() ? "Đang tìm gợi ý…" : "Đã hết gợi ý");
             RefreshHud();
             feedback.Play(SoundCue.Hint);
         }
@@ -382,12 +382,12 @@ namespace SqueakyLane.Presentation
                 PeakSearchMilliseconds = Math.Max(PeakSearchMilliseconds, LastSearchMilliseconds);
                 if (hints.TryTake(out var move))
                 {
-                    message = move.Kind == SolverMoveKind.MoveCar ? "Gợi ý: xe " + (move.Index + 1) + (move.Sign > 0 ? " → / ↓" : " ← / ↑") : move.Kind == SolverMoveKind.RotateTable ? "Gợi ý: xoay xe " + (move.Index + 1) : "Gợi ý: xoay trụ " + (move.Index + 1);
+                    SetMessage(move.Kind == SolverMoveKind.MoveCar ? "Gợi ý: xe " + (move.Index + 1) + (move.Sign > 0 ? " → / ↓" : " ← / ↑") : move.Kind == SolverMoveKind.RotateTable ? "Gợi ý: xoay xe " + (move.Index + 1) : "Gợi ý: xoay trụ " + (move.Index + 1));
                     RefreshHud();
                 }
                 else if (hints.HasFinished && !hints.HasHint)
                 {
-                    message = "Chưa tìm được gợi ý trong ngân sách";
+                    SetMessage("Chưa tìm được gợi ý trong ngân sách");
                     hints.Cancel();
                     RefreshHud();
                 }
@@ -428,6 +428,16 @@ namespace SqueakyLane.Presentation
                 hudIn = .1f;
                 RefreshHud();
             } // Chữ đồng hồ chỉ cập nhật 10 Hz, không tạo chuỗi mỗi frame.
+        }
+
+        private void SetMessage(string value)
+        {
+            message = value;
+            // Gửi theo sự kiện để thông báo trùng nội dung vẫn hiện lại; tick HUD 10 Hz không kéo dài tuổi bong bóng.
+            if (navigationView != null)
+            {
+                navigationView.ShowMessage(value);
+            }
         }
 
         private void RefreshHud()

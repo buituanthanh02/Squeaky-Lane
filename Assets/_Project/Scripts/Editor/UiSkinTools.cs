@@ -267,9 +267,19 @@ namespace SqueakyLane.EditorTools
                 }
                 else { snapshot.Append(field).Append(property.objectReferenceInstanceIDValue); }
             }
-            foreach (var button in nav.GetComponentsInChildren<Button>(true)) { CaptureEvent(snapshot, button.onClick); }
+            foreach (var button in nav.GetComponentsInChildren<Button>(true)) { snapshot.Append(CaptureButtonEvent(button)); }
             foreach (var toggle in nav.GetComponentsInChildren<Toggle>(true)) { CaptureEvent(snapshot, toggle.onValueChanged); }
             return snapshot.ToString();
+        }
+        internal static string CaptureButtonEvent(Button button)
+        {
+            // Gồm cả mode/arguments của persistent listener, không chỉ tên method.
+            return button.GetInstanceID() + JsonUtility.ToJson(new ButtonEventSnapshot { callback = button.onClick });
+        }
+        [Serializable]
+        private sealed class ButtonEventSnapshot
+        {
+            public Button.ButtonClickedEvent callback;
         }
         private static void CaptureEvent(StringBuilder snapshot, UnityEventBase callback)
         {
