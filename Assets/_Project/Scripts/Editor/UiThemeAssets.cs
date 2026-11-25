@@ -15,7 +15,7 @@ namespace SqueakyLane.EditorTools
     {
         internal const string Art = "Assets/_Project/Art/UI";
         internal const string ThemePath = "Assets/_Project/Config/UiTheme.asset";
-        private static string Downloads => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Downloads");
+        internal static string Downloads =>Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Downloads");
         private static readonly string[] IconNames = { "pause", "home", "undo", "hint", "restart", "sound_on", "sound_off", "phone", "next", "star_full", "star_empty" };
         private static readonly string[] IconSources =
         {
@@ -93,7 +93,8 @@ namespace SqueakyLane.EditorTools
         {
             string path = Art + "/Fonts/" + name + " SDF.asset";
             var saved = AssetDatabase.LoadAssetAtPath<TMP_FontAsset>(path);
-            if (saved != null && (!rebuildForS2 || saved.atlasPadding >= 10))
+            // Padding ≥ 9 là đủ chỗ cho viền chữ (HudOutline); font đã đạt thì không bake lại để khỏi đổi 8 MB YAML.
+            if (saved != null && (!rebuildForS2 || saved.atlasPadding >= 9))
             {
                 if (saved.atlasPopulationMode != AtlasPopulationMode.Static || !saved.HasCharacters("ĐđẮằẾệỢự Thắng! ←↑→↓…"))
                 {
@@ -106,13 +107,17 @@ namespace SqueakyLane.EditorTools
             var asset = TMP_FontAsset.CreateFontAsset(font, 64, rebuildForS2 ? 10 : 8, GlyphRenderMode.SDFAA, 2048, 2048, AtlasPopulationMode.Dynamic, false);
             if (asset == null) { throw new InvalidOperationException("Không nạp được font " + name); }
             asset.name = name + " SDF";
-            var codepoints = new List<uint>();
-            for (uint code = 0x20; code <= 0x24f; code++)
+            // Chỉ Latin + tiếng Việt (không nhập cả Latin Extended-A/B) để atlas gọn: Basic Latin, Latin-1, 12 chữ Việt nằm ngoài Latin-1, dải 1EA0–1EF9, vài ký hiệu HUD.
+            var wanted = new HashSet<uint>();
+            for (uint code = 0x20; code <= 0xff; code++)
             {
-                if (FontEngine.TryGetGlyphIndex(code, out uint index) && index != 0) { codepoints.Add(code); }
+                if (code >= 0x7f && code < 0xa0) { continue; }
+                if (FontEngine.TryGetGlyphIndex(code, out uint index) && index != 0) { wanted.Add(code); }
             }
-            for (uint code = 0x1ea0; code <= 0x1ef9; code++) { codepoints.Add(code); }
-            foreach (char code in "←↑→↓…–—·∞") { codepoints.Add(code); }
+            foreach (uint code in new uint[] { 0x102, 0x103, 0x110, 0x111, 0x128, 0x129, 0x168, 0x169, 0x1a0, 0x1a1, 0x1af, 0x1b0 }) { wanted.Add(code); }
+            for (uint code = 0x1ea0; code <= 0x1ef9; code++) { wanted.Add(code); }
+            foreach (char code in "←↑→↓…–—·∞×") { wanted.Add(code); }
+            var codepoints = new List<uint>(wanted);
             if (!asset.TryAddCharacters(codepoints.ToArray(), out uint[] missing))
             {
                 UnityEngine.Object.DestroyImmediate(asset.material);

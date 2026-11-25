@@ -267,7 +267,15 @@ namespace SqueakyLane.EditorTools
                 }
                 else { snapshot.Append(field).Append(property.objectReferenceInstanceIDValue); }
             }
-            foreach (var button in nav.GetComponentsInChildren<Button>(true)) { snapshot.Append(CaptureButtonEvent(button)); }
+            // Nút do menu 013 tự thêm (vd dấu X "013 Close") không phải nút gốc nên không đưa vào so sánh trước/sau.
+            // Sắp xếp để việc dời nút sang khung mới (đổi thứ tự trong hierarchy) không bị tính là đổi binding.
+            var events = new System.Collections.Generic.List<string>();
+            foreach (var button in nav.GetComponentsInChildren<Button>(true))
+            {
+                if (!button.name.StartsWith("013 ", StringComparison.Ordinal)) { events.Add(CaptureButtonEvent(button)); }
+            }
+            events.Sort(StringComparer.Ordinal);
+            foreach (string item in events) { snapshot.Append(item); }
             foreach (var toggle in nav.GetComponentsInChildren<Toggle>(true)) { CaptureEvent(snapshot, toggle.onValueChanged); }
             return snapshot.ToString();
         }

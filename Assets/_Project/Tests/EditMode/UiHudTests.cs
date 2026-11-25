@@ -81,30 +81,96 @@ namespace SqueakyLane.Tests.EditMode
         }
 
         [Test]
-        public void ClockAndBadgesResetBetweenTimedUntimedAndExhaustedLevels()
+        public void ClockShowsMinutesAndSwapsPillSpriteWhenLowOrUntimed()
         {
-            var nav = MakeHud();
-            var fill = (Image)Field(nav, "clockFill").GetValue(nav);
-            var hint = (Button)Field(nav, "hintButton").GetValue(nav);
-            var timer = new LevelTimer(10, 3, 5, .5f, .2f, 10);
-            timer.Tick(9);
-            Refresh(nav, timer, 0);
-            Assert.That(fill.rectTransform.anchorMax.x, Is.EqualTo(.1f).Within(.001f));
-            Assert.That(fill.color, Is.EqualTo(theme.LowClock));
-            Assert.That(hint.interactable, Is.False);
-            Assert.That(GetText(nav, "hintBadge"), Is.EqualTo("0"));
-            Assert.That(GetText(nav, "levelTitle"), Is.EqualTo("Màn 30"), "ID màn không phải index+1, không hiện tên dài.");
-            Assert.That(GetText(nav, "undoBadge"), Is.EqualTo("-" + config.UndoPenalty + "s"));
-            timer.Tick(1);
-            Refresh(nav, timer, 0);
-            Assert.That(fill.enabled, Is.False);
-            Refresh(nav, new LevelTimer(0, 3, 5, .5f, .2f), -1);
-            Assert.That(fill.enabled, Is.True);
-            Assert.That(fill.rectTransform.anchorMax.x, Is.EqualTo(1));
-            Assert.That(fill.color, Is.EqualTo(theme.ClockColor));
-            Assert.That(hint.interactable, Is.True);
-            Assert.That(GetText(nav, "hintBadge"), Is.EqualTo("∞"));
-            Assert.That(GetText(nav, "clockText"), Is.EqualTo("∞"));
+            var textures = new System.Collections.Generic.List<Object>();
+            Sprite MakeSprite()
+            {
+                var texture = new Texture2D(4, 4);
+                var sprite = Sprite.Create(texture, new Rect(0, 0, 4, 4), new Vector2(.5f, .5f));
+                textures.Add(texture);
+                textures.Add(sprite);
+                return sprite;
+            }
+            try
+            {
+                var normal = MakeSprite();
+                var low = MakeSprite();
+                Set(theme, "clockNormal", normal);
+                Set(theme, "clockLow", low);
+                var nav = MakeHud();
+                var fill = (Image)Field(nav, "clockFill").GetValue(nav);
+                var hint = (Button)Field(nav, "hintButton").GetValue(nav);
+                var timer = new LevelTimer(10, 3, 5, .5f, .2f, 10);
+                timer.Tick(9);
+                Refresh(nav, timer, 0);
+                Assert.That(GetText(nav, "clockText"), Is.EqualTo("00:01"), "Giờ hiển thị mm:ss, không còn thanh chạy.");
+                Assert.That(fill.sprite, Is.SameAs(low), "Sắp hết giờ đổi sang pill đỏ.");
+                Assert.That(fill.color, Is.EqualTo(Color.white), "Đổi sprite chứ không tint, tint sẽ nhuộm cả viền.");
+                Assert.That(hint.interactable, Is.False);
+                Assert.That(GetText(nav, "hintBadge"), Is.EqualTo("0"));
+                Assert.That(GetText(nav, "levelTitle"), Is.EqualTo("Màn 30"), "ID màn không phải index+1, không hiện tên dài.");
+                Assert.That(GetText(nav, "undoBadge"), Is.EqualTo("-" + config.UndoPenalty + "s"));
+                timer.Tick(1);
+                Refresh(nav, timer, 0);
+                Assert.That(GetText(nav, "clockText"), Is.EqualTo("00:00"));
+                Assert.That(fill.sprite, Is.SameAs(low));
+                Refresh(nav, new LevelTimer(125, 3, 5, .5f, .2f), 1);
+                Assert.That(GetText(nav, "clockText"), Is.EqualTo("02:05"));
+                Assert.That(fill.sprite, Is.SameAs(normal), "Đủ giờ thì về pill thường.");
+                Refresh(nav, new LevelTimer(0, 3, 5, .5f, .2f), -1);
+                Assert.That(fill.sprite, Is.SameAs(normal), "Màn không tính giờ về pill thường.");
+                Assert.That(hint.interactable, Is.True);
+                Assert.That(GetText(nav, "hintBadge"), Is.EqualTo("∞"));
+                Assert.That(GetText(nav, "clockText"), Is.EqualTo("∞"));
+            }
+            finally
+            {
+                foreach (var item in textures) { Object.DestroyImmediate(item); }
+            }
+        }
+
+        [Test]
+        public void HintSpriteAndBadgeSwapWhenExhaustedAndWonTextKeepsTitleOutOfBody()
+        {
+            var made = new System.Collections.Generic.List<Object>();
+            Sprite MakeSprite()
+            {
+                var texture = new Texture2D(4, 4);
+                var sprite = Sprite.Create(texture, new Rect(0, 0, 4, 4), new Vector2(.5f, .5f));
+                made.Add(texture);
+                made.Add(sprite);
+                return sprite;
+            }
+            try
+            {
+                var on = MakeSprite();
+                var off = MakeSprite();
+                var badgeOn = MakeSprite();
+                var badgeOff = MakeSprite();
+                Set(theme, "hintOn", on);
+                Set(theme, "hintOff", off);
+                Set(theme, "badgeOn", badgeOn);
+                Set(theme, "badgeOff", badgeOff);
+                var nav = MakeHud();
+                var hint = (Button)Field(nav, "hintButton").GetValue(nav);
+                var image = hint.gameObject.AddComponent<Image>();
+                hint.targetGraphic = image;
+                var plate = (Image)Field(nav, "hintBadgePlate").GetValue(nav);
+                var timer = new LevelTimer(60, 3, 5, .5f, .2f);
+                Refresh(nav, timer, 0);
+                Assert.That(image.sprite, Is.SameAs(off));
+                Assert.That(plate.sprite, Is.SameAs(badgeOff));
+                Refresh(nav, timer, 2);
+                Assert.That(image.sprite, Is.SameAs(on));
+                Assert.That(plate.sprite, Is.SameAs(badgeOn));
+                Assert.That(GetText(nav, "wonText"), Does.StartWith("<sprite"), "Tiêu đề Thắng! nằm ở ribbon, thân chỉ có sao và giờ còn.");
+                Assert.That(GetText(nav, "wonText"), Does.Contain("Màn 30"));
+            }
+            finally
+            {
+                foreach (var item in made) { Object.DestroyImmediate(item); }
+            }
         }
 
         private NavigationView MakeHud()

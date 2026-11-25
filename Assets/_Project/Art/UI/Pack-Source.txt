@@ -1,0 +1,16 @@
+Bộ sprite UI trong Sprites/Pack và Library
+==========================================
+
+Nguồn: dự án Unity cá nhân của người làm "Sand Puzzle Clone" (file C:\Unity Project\Sand Puzzle Clone\Assets\_Project.rar, thư mục Art\Texture2D).
+Ngày nhập: 2026-11-25. Người làm quyết định dùng (bài thực tập nội bộ, không phát hành, không thương mại, chỉ lấy một phần để tiết kiệm công vẽ).
+Giấy phép: không có file license đi kèm. Nhiều sprite có dạng của game thương mại; KHÔNG dùng cho bản phát hành. Muốn đổi sang asset CC0 chỉ cần thay sprite
+trong UiTheme hoặc chạy lại menu S3 với bộ khác (mọi nơi dùng sprite đều đi qua tên trong UiPackSkinTools).
+
+Sprites/Pack  : sprite đang dùng (vào UiSprites.spriteatlas): holder đồng hồ/pill, nút booster, nút hộp thoại, khung popup, ribbon, khung toggle, icon cài đặt/âm thanh/rung/đóng...
+Library       : icon dự phòng để kéo vào khi cần (coin, tim, chìa khóa, booster, rương, cúp, huy chương...). Không nằm trong atlas nên chỉ vào build khi được tham chiếu.
+Lọc bỏ khi nhập : logo game, nhân vật, màn hình quảng cáo, ảnh nền minh họa. Một số icon (đồng xu, chìa khóa, cúp) có hình đầu cáo của game gốc.
+
+icon_hint.png: dấu hỏi trắng của Kenney Game Icons (CC0), cùng gói đã duyệt ở KenneyIcons-License.txt.
+
+9-slice (border) lấy từ .meta của dự án nguồn; PPU đặt 100; userData của importer lưu lề trong suốt để canh thân nút theo phần nhìn thấy.
+Menu: Tools/Squeaky Lane/013 Theme/S3 Import UI Pack (đặt importer) và S3 Apply UI Pack Skin (dựng HUD/hộp thoại).

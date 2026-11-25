@@ -29,6 +29,8 @@ namespace SqueakyLane.Presentation
         [SerializeField] private TMP_Text undoBadge = null, hintBadge = null;
         [SerializeField] private Image hintBadgePlate = null;
         [SerializeField] private CanvasGroup messageBubble = null;
+        [Header("013 S3 · nút phụ")]
+        [SerializeField, Tooltip("Nút phụ cũng là Tiếp tục (vd dấu X ở góc hộp thoại Tạm dừng).")] private Button[] extraResumeButtons = Array.Empty<Button>();
         private float messageAge;
         private Button[] levelButtons;
         private TMP_Text[] levelLabels;
@@ -56,6 +58,7 @@ namespace SqueakyLane.Presentation
             pauseButton.onClick.AddListener(() => Send(NavigationAction.Pause));
             resumeButton.onClick.AddListener(() => Send(NavigationAction.Resume));
             nextButton.onClick.AddListener(() => Send(NavigationAction.NextLevel));
+            foreach (var button in extraResumeButtons) { if (button == null) throw new InvalidOperationException("Extra Resume Buttons có ô trống"); button.onClick.AddListener(() => Send(NavigationAction.Resume)); }
             undoButton.onClick.AddListener(() => { ButtonClicked?.Invoke(); Undo?.Invoke(); });
             hintButton.onClick.AddListener(() => { ButtonClicked?.Invoke(); Hint?.Invoke(); });
             foreach (var button in restartButtons) { if (button == null) throw new InvalidOperationException("Restart Buttons có ô trống"); button.onClick.AddListener(() => Send(NavigationAction.Restart)); }
@@ -106,16 +109,20 @@ namespace SqueakyLane.Presentation
             bool skinned = theme != null && theme.HasHudSkin;
             levelTitle.text = skinned && ids != null ? "Màn " + ids[index] : title;
             movesText.text = moves + " nước";
-            clockText.text = timer.IsTimed ? Mathf.CeilToInt(timer.Remaining) + " s" : skinned ? "∞" : "Không tính giờ";
+            clockText.text = timer.IsTimed ? (skinned ? FormatClock(timer.Remaining) : Mathf.CeilToInt(timer.Remaining) + " s") : skinned ? "∞" : "Không tính giờ";
             float ratio = timer.IsTimed ? timer.Remaining / timer.TimeLimit : 1;
-            clockFill.fillAmount = ratio;
-            clockFill.color = ratio < config.LowTimeRatio ? lowClock : normalClock;
-            if (skinned && clockFill.type == Image.Type.Sliced)
+            if (skinned)
             {
-                // Filled bỏ qua Border. Sliced thu rect trong track, giữ hai đầu bo ở mọi chiều rộng.
-                var rect = clockFill.rectTransform;
-                rect.anchorMax = new Vector2(Mathf.Clamp01(ratio), 1);
-                clockFill.enabled = ratio > 0;
+                // Không còn thanh chạy: giờ hiển thị dạng mm:ss trong một pill, sắp hết giờ thì đổi sang sprite pill đỏ.
+                // clockFill giờ là Image nền của pill (giữ nguyên tham chiếu Inspector).
+                var pill = timer.IsTimed && ratio < config.LowTimeRatio ? theme.ClockLow : theme.ClockNormal;
+                if (pill != null) { clockFill.sprite = pill; }
+                clockFill.color = Color.white;
+            }
+            else
+            {
+                clockFill.fillAmount = ratio;
+                clockFill.color = ratio < config.LowTimeRatio ? lowClock : normalClock;
             }
             if (!skinned)
             {
@@ -125,21 +132,28 @@ namespace SqueakyLane.Presentation
             {
                 if (undoBadge != null) { undoBadge.text = "-" + config.UndoPenalty + "s"; }
                 if (hintBadge != null) { hintBadge.text = hintCount < 0 ? "∞" : hintCount.ToString(); }
-                if (hintBadgePlate != null) { hintBadgePlate.color = hintCount == 0 ? theme.ExhaustedColor : theme.BadgeColor; }
-                if (hintButton.targetGraphic is Image hintImage)
-                {
-                    hintImage.sprite = hintCount == 0 ? theme.RegularButton : theme.YellowSquare;
-                    hintImage.color = hintCount == 0 ? Color.white : theme.ButtonYellow;
-                }
+                // Sprite có sẵn màu + viền: đổi sprite chứ không tint (tint sẽ nhuộm cả viền).
+                var plate = hintCount == 0 ? theme.BadgeOff : theme.BadgeOn;
+                if (hintBadgePlate != null && plate != null) { hintBadgePlate.sprite = plate; }
+                var square = hintCount == 0 ? theme.HintOff : theme.HintOn;
+                if (hintButton.targetGraphic is Image hintImage && square != null) { hintImage.sprite = square; }
             }
             undoButton.interactable = canUndo; hintButton.interactable = canPlay && hintCount != 0;
             // Giữ HUD hiện nhưng khóa các nút khi chờ hoạt hình/chúc mừng kết thúc màn.
             playing.interactable = canPlay;
             undoLabel.text = skinned ? "Hoàn tác" : (theme != null ? "<sprite name=undo> " : "") + "Hoàn tác (-" + config.UndoPenalty + "s)";
             hintLabel.text = skinned ? "Gợi ý" : (theme != null ? "<sprite name=hint> " : "") + "Gợi ý (-" + config.HintPenalty + "s)";
-            wonText.text = "Thắng!\n" + (theme != null ? theme.Stars(timer.StarsOnWin()) : timer.StarsOnWin() + "/3 sao") + " · còn " + Mathf.CeilToInt(timer.Remaining) + " s";
+            // Có skin: tiêu đề "Thắng!" nằm ở dải ribbon của thẻ nên chữ thân chỉ gồm sao và thời gian còn lại.
+            int levelId = ids != null ? ids[index] : index + 1;
+            wonText.text = skinned ? theme.Stars(timer.StarsOnWin()) + "\nMàn " + levelId + " · còn " + Mathf.CeilToInt(timer.Remaining) + " s"
+                : "Thắng!\n" + (theme != null ? theme.Stars(timer.StarsOnWin()) : timer.StarsOnWin() + "/3 sao") + " · còn " + Mathf.CeilToInt(timer.Remaining) + " s";
             lostText.text = "Hết giờ";
             nextLabel.text = index + 1 < totalLevels ? "Màn kế" : "Chọn màn";
+        }
+        private static string FormatClock(float seconds)
+        {
+            int total = Mathf.Max(0, Mathf.CeilToInt(seconds));
+            return (total / 60).ToString("00") + ":" + (total % 60).ToString("00");
         }
         public void ShowMessage(string message)
         {
