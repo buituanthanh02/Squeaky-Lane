@@ -62,6 +62,24 @@ namespace SqueakyLane.Presentation
         [SerializeField, Range(0, 2)] private float lightIntensity = 1.1f;
         [SerializeField] private Vector3 lightAngles = new Vector3(50, -30, 0);
         [SerializeField] private Color ambient = Hex("4A5568");
+        [Header("013 S4 · bóng giả và khay; asset do menu tạo, không material runtime")]
+        [SerializeField] private GameObject contactShadowPrefab = null, parkedCarPrefab = null;
+        [SerializeField] private GameObject[] southPropPrefabs = System.Array.Empty<GameObject>();
+        [SerializeField] private bool trayEnabled = false, southPropsEnabled = false;
+        [SerializeField, Range(0, .5f)] private float contactShadowAlpha = .28f;
+        [SerializeField, Range(.3f, 3)] private float contactShadowFalloff = .8f;
+        [SerializeField, Range(.002f, .03f)] private float contactShadowLift = .008f;
+        [SerializeField, Tooltip("Lệch bóng trên trục X/Z của bãi, không quay theo thân xe. Preset hướng đèn50/−30 đi về −X/+Z.")] private Vector2 contactShadowOffset = new Vector2(-.12f, .1f);
+        [SerializeField, Range(.5f, 1.2f)] private float carShadowWidth = .9f, carShadowLengthRatio = .95f;
+        [SerializeField, Range(.05f, .6f)] private float trayThickness = .25f;
+        [SerializeField] private Color pavementSide = Hex("7E8B9A"), pavementHighlight = new Color(1, 1, 1, .6f);
+        [SerializeField, Range(.01f, .12f)] private float pavementHighlightWidth = .035f;
+        [SerializeField, Range(.2f, 2)] private float groundShadowSpread = 1;
+        [SerializeField, Range(.1f, .5f), Tooltip("Độ cao tối đa props dải dưới; S4 giữ ≤0,5 ô.")] private float southPropHeight = .45f;
+        [SerializeField, Tooltip("Cỡ lớn nhất của Garage/Office; số khởi điểm chờ vòng ảnh S4.")] private Vector2 buildingSizes = new Vector2(2.8f, 2);
+        [SerializeField, Tooltip("Cỡ lớn nhất của cây nhỏ/lớn; số khởi điểm chờ vòng ảnh S4.")] private Vector2 treeSizes = new Vector2(1.1f, 1.5f);
+        [SerializeField, Range(.5f, 3)] private float sceneryLightSize = 1.2f;
+        [SerializeField, Range(2, 6)] private float sceneryRoadSize = 3.8f;
 
         public Sprite PrimaryButton => primaryButton;
         public Sprite RegularButton => regularButton;
@@ -141,6 +159,27 @@ namespace SqueakyLane.Presentation
         public float LightIntensity => lightIntensity;
         public Vector3 LightAngles => lightAngles;
         public Color Ambient => ambient;
+        public GameObject ContactShadowPrefab => contactShadowPrefab;
+        public GameObject ParkedCarPrefab => parkedCarPrefab;
+        public GameObject[] SouthPropPrefabs => southPropPrefabs;
+        public bool TrayEnabled => trayEnabled;
+        public bool SouthPropsEnabled => southPropsEnabled;
+        public float ContactShadowAlpha => contactShadowAlpha;
+        public float ContactShadowFalloff => contactShadowFalloff;
+        public float ContactShadowLift => contactShadowLift;
+        public Vector2 ContactShadowOffset => contactShadowOffset;
+        public float CarShadowWidth => carShadowWidth;
+        public float CarShadowLengthRatio => carShadowLengthRatio;
+        public float TrayThickness => trayThickness;
+        public Color PavementSide => pavementSide;
+        public Color PavementHighlight => pavementHighlight;
+        public float PavementHighlightWidth => pavementHighlightWidth;
+        public float GroundShadowSpread => groundShadowSpread;
+        public float SouthPropHeight => southPropHeight;
+        public Vector2 BuildingSizes => buildingSizes;
+        public Vector2 TreeSizes => treeSizes;
+        public float SceneryLightSize => sceneryLightSize;
+        public float SceneryRoadSize => sceneryRoadSize;
         public string Stars(int count)
         {
             count = Mathf.Clamp(count, 0, 3);
@@ -183,6 +222,23 @@ namespace SqueakyLane.Presentation
             propSpacing = Clean(propSpacing, 1.5f, 4, 2.8f);
             gateStripDepth = Clean(gateStripDepth, .05f, .6f, .3f);
             lightIntensity = Clean(lightIntensity, 0, 2, 1.1f);
+            contactShadowAlpha = Clean(contactShadowAlpha, 0, .5f, .28f);
+            contactShadowFalloff = Clean(contactShadowFalloff, .3f, 3, .8f);
+            contactShadowLift = Clean(contactShadowLift, .002f, .03f, .008f);
+            contactShadowOffset.x = Clean(contactShadowOffset.x, -.3f, .3f, -.12f);
+            contactShadowOffset.y = Clean(contactShadowOffset.y, -.3f, .3f, .1f);
+            carShadowWidth = Clean(carShadowWidth, .5f, 1.2f, .9f);
+            carShadowLengthRatio = Clean(carShadowLengthRatio, .5f, 1.2f, .95f);
+            trayThickness = Clean(trayThickness, .05f, .6f, .25f);
+            pavementHighlightWidth = Clean(pavementHighlightWidth, .01f, .12f, .035f);
+            groundShadowSpread = Clean(groundShadowSpread, .2f, 2, 1);
+            southPropHeight = Clean(southPropHeight, .1f, .5f, .45f);
+            buildingSizes.x = Clean(buildingSizes.x, 1, 5, 2.8f);
+            buildingSizes.y = Clean(buildingSizes.y, 1, 5, 2);
+            treeSizes.x = Clean(treeSizes.x, .5f, 3, 1.1f);
+            treeSizes.y = Clean(treeSizes.y, .5f, 3, 1.5f);
+            sceneryLightSize = Clean(sceneryLightSize, .5f, 3, 1.2f);
+            sceneryRoadSize = Clean(sceneryRoadSize, 2, 6, 3.8f);
             dialogInset.x = Clean(dialogInset.x, 0, .2f, .04f);
             dialogInset.y = Clean(dialogInset.y, 0, .2f, .08f);
             levelCellSize.x = Clean(levelCellSize.x, 160, 400, 280);

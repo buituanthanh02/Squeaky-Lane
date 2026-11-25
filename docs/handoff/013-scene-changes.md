@@ -1214,3 +1214,18 @@ Mục "S2 ·" và "S2b ·" cũ đã bỏ vì mô tả các object không còn. M
 **LevelButton.prefab:** `013 ButtonVisual/013 Body` sprite `Btn_square_green_v1`, Button chuyển sang SpriteSwap (disabled = `Btn_square_grey_v1`), nhãn `HudOutline`; On Click giữ nguyên.
 
 **Asset:** thêm `Sprites/Pack` (38 PNG), `Library` (72 PNG), `Pack-Source.txt` (+`.meta` do Unity tạo); xóa 5 PNG S2 cũ (`softShadow`, `blueButton`, `blueSquare`, `yellowSquare`, `blueRound`) và 16 PNG `ck_*` (hết tham chiếu). `UiTheme.asset`: bỏ field `chunky*`, `pill*`, thông số nướng; thêm `clockNormal/Low`, `hintOn/Off`, `badgeOn/Off`, `dimAlpha`, `frameScale`, `cardWidth`; `pillOutline` → `#24104F`; `levelCellSize` → (256,180). `Fonts/HudOutline|HudSmall|CardText.mat`: viền indigo `#24104F`, `CardText` mặt chữ `#2A1760` (màu `[HDR]` truyền dạng linear); `_FaceDilate` HudOutline 0 → .25, HudSmall 0 → .10, `_OutlineWidth` HudOutline .30 → .20; `UiTheme`: thêm `hudOutlineDilate`, `hudSmallDilate`, `hudOutlineWidth` .30 → .20. `UiSprites.spriteatlas`: gồm `Sprites/Pack`.
+
+## S4 · Asset Lab (scenery chưa áp)
+
+### Asset Lab
+
+Assets/_Project/Scenes/AssetLab.unity · Scene · tồn tại · không → scene kiểm riêng, không thêm Build Settings
+Asset Lab · AssetLabView · config · không → Assets/_Project/Config/AssetLabConfig.asset
+Asset Lab · AssetLabView · previewLight · không → Preview Directional Light
+Preview Directional Light · Light · type/shadows/intensity · không → Directional/None/1
+Preview Directional Light · Transform · eulerAngles · không → (50.00, -30.00, 0.00)
+Preview Camera · Camera · projection/orthographicSize/clearFlags/backgroundColor · không → Orthographic/4/SolidColor/#6E7C91
+Preview Camera · Transform · rotation/position · không → Euler(70,0,0)/−forward×12
+AssetLab/RenderSettings · RenderSettings · ambientMode/ambientLight · scene mặc định → Flat/RGBA(0.604, 0.663, 0.761, 1.000)
+Assets/_Project/Config/AssetLabConfig.asset · AssetLabConfig · samples/shadowPrefab/groundMaterial · không → 36 mẫu/Assets/_Project/Prefabs/Environment/ContactShadow.prefab/AssetLabFloor.mat
+Object preview · GameObject · lưu vào scene/build · không → vẫn không (DontSaveInEditor/Build), chỉ hiển thị Editor và hủy khi đổi mẫu.

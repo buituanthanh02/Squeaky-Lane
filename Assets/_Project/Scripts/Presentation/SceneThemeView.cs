@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using SqueakyLane.Core.Model;
+using SqueakyLane.Game;
 
 namespace SqueakyLane.Presentation
 {
@@ -11,7 +12,8 @@ namespace SqueakyLane.Presentation
         private Vector3[] groundVertices;
         private float minimumX, minimumZ, overscan;
         private readonly List<GameObject> props = new List<GameObject>(12);
-        public void Configure(LevelDef level, UiTheme theme)
+        public const int GroundColorCount = 11;
+        public void Configure(LevelDef level, UiTheme theme, CarCatalog vehicles = null)
         {
             if (ownedMesh != null) { Release(ownedMesh); }
             ownedMesh = BuildGround(level, theme);
@@ -23,25 +25,104 @@ namespace SqueakyLane.Presentation
             GetComponent<MeshRenderer>().sharedMaterial = theme.GroundMaterial;
             for (int i = 0; i < props.Count; i++) { Release(props[i]); }
             props.Clear();
-            var prefabs = theme.PropPrefabs;
-            if (prefabs == null || prefabs.Length == 0) { return; }
-            for (int i = 0; i < theme.PropCount; i++)
+            if (theme.TrayEnabled && theme.ContactShadowPrefab != null)
             {
-                var prefab = prefabs[i % prefabs.Length];
-                if (prefab == null) { continue; }
-                var root = Instantiate(prefab, transform, false);
-                // Mọi prop nằm PHÍA SAU mép Bắc, cách mép ít nhất PropGap; không che xe ở camera nhìn từ Nam.
-                int slot = (i + 1) / 2 * (i % 2 == 0 ? 1 : -1);
-                float halfDepth = .5f;
-                foreach (var renderer in root.GetComponentsInChildren<Renderer>())
-                {
-                    halfDepth = Mathf.Max(halfDepth, renderer.bounds.extents.z);
-                }
-                root.transform.localPosition = new Vector3(slot * theme.PropSpacing, LotSurfaceView.Top,
-                    level.Rows * .5f + theme.PropGap + halfDepth);
-                props.Add(root);
+                var shadow = Instantiate(theme.ContactShadowPrefab, transform, false);
+                shadow.name = "013 Tray Shadow";
+                shadow.transform.localPosition = new Vector3(theme.ContactShadowOffset.x,
+                    GroundY(theme) + theme.ContactShadowLift, theme.ContactShadowOffset.y);
+                shadow.transform.localScale = new Vector3(level.Cols + 2 * (theme.PavementWidth + theme.GroundShadowSpread),
+                    1, level.Rows + 2 * (theme.PavementWidth + theme.GroundShadowSpread));
+                props.Add(shadow);
             }
+            SpawnProps(level, theme, vehicles);
         }
+
+        private void SpawnProps(LevelDef level, UiTheme theme, CarCatalog vehicles)
+        {
+            var prefabs = theme.PropPrefabs;
+            int count = prefabs == null ? 0 : Mathf.Min(theme.PropCount, prefabs.Length, 12);
+            int used = 0;
+            for (int i = 0; i < count; i++)
+            {
+                if (prefabs[i] == null) { continue; }
+                var root = Instantiate(prefabs[i], transform, false);
+                var bounds = LocalBounds(root);
+                float x;
+                // Hai nhà cạnh nhau ở hàng trước; cây/đèn ở hàng sau, không xếp chồng hình.
+                if (i < 2)
+                {
+                    float other = count > 1 && prefabs[1 - i] != null ? LocalBounds(prefabs[1 - i]).size.x : 0;
+                    x = count > 1 ? (other + theme.PropGap) * .5f * (i == 0 ? -1 : 1) : 0;
+                }
+                else { x = (i - 2 - (count - 3) * .5f) * theme.PropSpacing; }
+                float frontRowDepth = 0;
+                if (i >= 2)
+                {
+                    for (int house = 0; house < Mathf.Min(count, 2); house++)
+                    { if (prefabs[house] != null) { frontRowDepth = Mathf.Max(frontRowDepth, LocalBounds(prefabs[house]).size.z); } }
+                    frontRowDepth += theme.PropGap;
+                }
+                root.transform.localPosition = new Vector3(x - bounds.center.x, GroundY(theme) - bounds.min.y,
+                    level.Rows * .5f + theme.PropGap + frontRowDepth - bounds.min.z);
+                props.Add(root);
+                used++;
+            }
+            if (!theme.SouthPropsEnabled) { return; }
+            var lower = theme.SouthPropPrefabs;
+            float roadZ = -level.Rows * .5f - theme.PropGap;
+            float roadHeight = 0;
+            for (int i = 0; lower != null && i < lower.Length && used < 12; i++)
+            {
+                if (lower[i] == null) { continue; }
+                var root = Instantiate(lower[i], transform, false);
+                var bounds = LocalBounds(root);
+                float x = i == 0 ? 0 : (i % 2 == 0 ? 1 : -1) * level.Cols * .3f;
+                float z = -level.Rows * .5f - theme.PropGap - bounds.max.z;
+                root.transform.localPosition = new Vector3(x - bounds.center.x, GroundY(theme) - bounds.min.y, z);
+                if (i == 0) { roadZ = z; roadHeight = bounds.size.y; }
+                props.Add(root);
+                used++;
+            }
+            if (used >= 12 || theme.ParkedCarPrefab == null || vehicles == null) { return; }
+            // Không dùng CarView/collider cho xe trang trí: raycast không thể ra lệnh nhầm cho xe đỗ.
+            for (int color = 0; color < (int)TileColor.Water; color++)
+            {
+                bool gateColor = false;
+                foreach (var gate in level.Gates) { if ((int)gate.Color == color) { gateColor = true; break; } }
+                var entry = vehicles.Find((TileColor)color);
+                if (gateColor || entry == null || entry.material == null) { continue; }
+                var parked = Instantiate(theme.ParkedCarPrefab, transform, false);
+                var bounds = LocalBounds(parked);
+                parked.transform.localPosition = new Vector3(-bounds.center.x, GroundY(theme) + roadHeight - bounds.min.y + theme.ContactShadowLift,
+                    Mathf.Min(roadZ, -level.Rows * .5f - theme.PropGap - bounds.max.z));
+                parked.GetComponent<MeshRenderer>().sharedMaterial = entry.material;
+                props.Add(parked);
+                break;
+            }
+            // Nếu cả sáu màu đều có cổng thì bỏ xe trang trí thay vì phá quy tắc khác màu cổng.
+        }
+
+        public static Bounds LocalBounds(GameObject root)
+        {
+            var bounds = new Bounds(Vector3.zero, Vector3.zero);
+            bool found = false;
+            foreach (var filter in root.GetComponentsInChildren<MeshFilter>(true))
+            {
+                if (filter.sharedMesh == null) { continue; }
+                var local = filter.sharedMesh.bounds;
+                for (int corner = 0; corner < 8; corner++)
+                {
+                    var p = local.center + Vector3.Scale(local.extents,
+                        new Vector3((corner & 1) == 0 ? -1 : 1, (corner & 2) == 0 ? -1 : 1, (corner & 4) == 0 ? -1 : 1));
+                    p = root.transform.InverseTransformPoint(filter.transform.TransformPoint(p));
+                    if (found) { bounds.Encapsulate(p); }
+                    else { bounds = new Bounds(p, Vector3.zero); found = true; }
+                }
+            }
+            return bounds;
+        }
+        public static float GroundY(UiTheme theme) => LotSurfaceView.Top - (theme.TrayEnabled ? theme.TrayThickness + .02f : .04f);
 
         // Chỉ chạy sau FitCamera/đổi safe area, không mỗi frame. Chỉ nới quad cỏ, không nới vỉa hè/cổng.
         public void EnsureGroundCoverage(Camera camera)
@@ -71,10 +152,27 @@ namespace SqueakyLane.Presentation
             var indices = new List<int>();
             var uv = new List<Vector2>();
             float x = level.Cols * .5f, z = level.Rows * .5f;
+            int columns = theme.TrayEnabled ? GroundColorCount : 9;
             Quad(vertices, indices, uv, -x - theme.GroundMargin, -z - theme.GroundMargin,
-                x + theme.GroundMargin, z + theme.GroundMargin, LotSurfaceView.Top - .04f, 0);
+                x + theme.GroundMargin, z + theme.GroundMargin, GroundY(theme), 0, columns);
             Quad(vertices, indices, uv, -x - theme.PavementWidth, -z - theme.PavementWidth,
-                x + theme.PavementWidth, z + theme.PavementWidth, LotSurfaceView.Top - .02f, 1);
+                x + theme.PavementWidth, z + theme.PavementWidth, LotSurfaceView.Top - .02f, 1, columns);
+            if (theme.TrayEnabled)
+            {
+                float left = -x - theme.PavementWidth, right = x + theme.PavementWidth;
+                float back = -z - theme.PavementWidth, front = z + theme.PavementWidth;
+                float top = LotSurfaceView.Top - .02f, bottom = top - theme.TrayThickness;
+                Face(vertices, indices, uv, new Vector3(left, bottom, back), new Vector3(left, top, back), new Vector3(right, top, back), new Vector3(right, bottom, back), 9);
+                Face(vertices, indices, uv, new Vector3(right, bottom, front), new Vector3(right, top, front), new Vector3(left, top, front), new Vector3(left, bottom, front), 9);
+                Face(vertices, indices, uv, new Vector3(left, bottom, front), new Vector3(left, top, front), new Vector3(left, top, back), new Vector3(left, bottom, back), 9);
+                Face(vertices, indices, uv, new Vector3(right, bottom, back), new Vector3(right, top, back), new Vector3(right, top, front), new Vector3(right, bottom, front), 9);
+                float w = theme.PavementHighlightWidth;
+                // Viền sáng được trộn trắng/alpha sẵn vào atlas, không thêm draw/alpha layer trên nền.
+                Quad(vertices, indices, uv, left, back, right, back + w, top + .001f, 10);
+                Quad(vertices, indices, uv, left, front - w, right, front, top + .001f, 10);
+                Quad(vertices, indices, uv, left, back + w, left + w, front - w, top + .001f, 10);
+                Quad(vertices, indices, uv, right - w, back + w, right, front - w, top + .001f, 10);
+            }
             if (theme.GateStrips)
             {
                 foreach (var gate in level.Gates)
@@ -96,7 +194,7 @@ namespace SqueakyLane.Presentation
                             b = (level.Rows - 1) * .5f - gate.Index - halfLane; d = b + halfLane * 2;
                             a = x; c = x + theme.GateStripDepth; break;
                     }
-                    Quad(vertices, indices, uv, a, b, c, d, LotSurfaceView.Top + .001f, 2 + (int)gate.Color);
+                    Quad(vertices, indices, uv, a, b, c, d, LotSurfaceView.Top + .001f, 2 + (int)gate.Color, columns);
                 }
             }
             var mesh = new Mesh { name = "013 Cỏ + vỉa hè + sơn cổng" };
@@ -104,17 +202,24 @@ namespace SqueakyLane.Presentation
             mesh.RecalculateNormals(); mesh.RecalculateBounds();
             return mesh;
         }
-        private static void Quad(List<Vector3> v, List<int> t, List<Vector2> uv, float left, float back, float right, float front, float y, int color)
+        private static void Quad(List<Vector3> v, List<int> t, List<Vector2> uv, float left, float back, float right, float front, float y, int color, int columns = GroundColorCount)
         {
             int first = v.Count;
             v.Add(new Vector3(left, y, back)); v.Add(new Vector3(left, y, front));
             v.Add(new Vector3(right, y, front)); v.Add(new Vector3(right, y, back));
-            var point = new Vector2((color + .5f) / 9, .5f);
+            var point = new Vector2((color + .5f) / columns, .5f);
             for (int i = 0; i < 4; i++)
             {
                 // Atlas hai hàng: cỏ gần ở hàng0, xa ở hàng1; các cột khác cùng màu cả hai hàng.
                 uv.Add(color == 0 ? new Vector2(point.x, i == 0 || i == 3 ? .25f : .75f) : point);
             }
+            t.Add(first); t.Add(first + 1); t.Add(first + 2); t.Add(first + 2); t.Add(first + 3); t.Add(first);
+        }
+        private static void Face(List<Vector3> v, List<int> t, List<Vector2> uv, Vector3 a, Vector3 b, Vector3 c, Vector3 d, int color)
+        {
+            int first = v.Count;
+            v.Add(a); v.Add(b); v.Add(c); v.Add(d);
+            for (int i = 0; i < 4; i++) { uv.Add(new Vector2((color + .5f) / GroundColorCount, .5f)); }
             t.Add(first); t.Add(first + 1); t.Add(first + 2); t.Add(first + 2); t.Add(first + 3); t.Add(first);
         }
         private static void Release(Object value)

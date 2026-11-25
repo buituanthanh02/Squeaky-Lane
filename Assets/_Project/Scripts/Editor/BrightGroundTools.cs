@@ -102,9 +102,9 @@ namespace SqueakyLane.EditorTools
             Debug.Log("013 S1 đã áp: nền cỏ/vỉa hè 1 mesh/1 material, padding theo UiTheme, vignette dưới HUD không chặn input. Chạy Run All + Console, Play chụp màn01/30 và Stats16 trước S2. Báo cáo: " + ReportPath);
         }
 
-        private static Material BuildGroundMaterial(UiTheme theme, VisualPalette palette)
+        internal static Material BuildGroundMaterial(UiTheme theme, VisualPalette palette)
         {
-            var texture = new Texture2D(9, 2, TextureFormat.RGBA32, false);
+            var texture = new Texture2D(theme.TrayEnabled ? SceneThemeView.GroundColorCount : 9, 2, TextureFormat.RGBA32, false);
             try
             {
                 for (int row = 0; row < 2; row++)
@@ -112,6 +112,11 @@ namespace SqueakyLane.EditorTools
                     texture.SetPixel(0, row, row == 0 ? theme.Grass : theme.GrassFar);
                     texture.SetPixel(1, row, theme.Pavement);
                     for (int i = 0; i <= (int)TileColor.Water; i++) { texture.SetPixel(i + 2, row, palette.Car((TileColor)i)); }
+                    if (theme.TrayEnabled)
+                    {
+                        texture.SetPixel(9, row, theme.PavementSide);
+                        texture.SetPixel(10, row, Color.Lerp(theme.Pavement, theme.PavementHighlight, theme.PavementHighlight.a));
+                    }
                 }
                 texture.Apply();
                 WriteTexture(Art + "/GroundColors.png", texture, false);
@@ -129,7 +134,7 @@ namespace SqueakyLane.EditorTools
             return material;
         }
 
-        private static void BuildEnvironment(Material material)
+        internal static void BuildEnvironment(Material material)
         {
             var preview = EditorSceneManager.NewPreviewScene();
             try
@@ -170,6 +175,8 @@ namespace SqueakyLane.EditorTools
             AssetDatabase.ImportAsset(path, ImportAssetOptions.ForceSynchronousImport);
             var importer = (TextureImporter)AssetImporter.GetAtPath(path);
             importer.textureType = sprite ? TextureImporterType.Sprite : TextureImporterType.Default;
+            // Atlas9/11 cột phải giữ đúng kích thước; ToNearest đổi9→8/11→8 và trộn sai màu UV.
+            importer.npotScale = TextureImporterNPOTScale.None;
             importer.spriteImportMode = SpriteImportMode.Single;
             importer.mipmapEnabled = false; importer.filterMode = FilterMode.Bilinear;
             importer.wrapMode = TextureWrapMode.Clamp; importer.alphaIsTransparency = sprite;

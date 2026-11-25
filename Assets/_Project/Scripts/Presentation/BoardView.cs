@@ -137,6 +137,7 @@ namespace SqueakyLane.Presentation
                 var view = root.GetComponent<CarView>();
                 if (view == null) view = root.AddComponent<CarView>();
                 view.Initialize(i, definitionCar.Len, colors, carCatalog, definitionCar.Truck, color, WarnMissingCar);
+                view.ConfigureShadow(sceneTheme);
                 cars[i] = view;
                 if (sceneTheme == null || !sceneTheme.HideCarNumbers)
                 {
@@ -148,7 +149,7 @@ namespace SqueakyLane.Presentation
             {
                 var environment = Instantiate(sceneTheme.EnvironmentPrefab, content.transform, false);
                 environmentView = environment.GetComponent<SceneThemeView>();
-                environmentView.Configure(level, sceneTheme);
+                environmentView.Configure(level, sceneTheme, carCatalog);
             }
         }
         private void Edge(GateEdge edge, int index)
@@ -197,6 +198,15 @@ namespace SqueakyLane.Presentation
             var instance = Instantiate(prefab, content.transform, false);
             instance.transform.localPosition = position;
             instance.transform.localRotation = Quaternion.Euler(0, yaw, 0);
+            if (kind != MechanicKind.Surface && kind != MechanicKind.Mud)
+            {
+                var bounds = SceneThemeView.LocalBounds(instance);
+                if (bounds.size.sqrMagnitude > 0)
+                {
+                    ContactShadowView.Attach(instance.transform, sceneTheme, new Vector2(bounds.size.x, bounds.size.z), LotSurfaceView.Top,
+                        new Vector2(bounds.center.x, bounds.center.z));
+                }
+            }
             var occlusion = instance.GetComponent<MechanicOcclusion>();
             if (occlusion != null && occlusion.IsConfigured) { occluders.Add(occlusion); }
             return instance.GetComponent<MechanicView>();

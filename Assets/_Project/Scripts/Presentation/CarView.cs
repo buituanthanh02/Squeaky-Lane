@@ -26,10 +26,18 @@ namespace SqueakyLane.Presentation
         private int lastDirt = -1;
         private float mudAlpha, mudFadeTime;
         private bool fadingMud;
+        private ContactShadowView contactShadow;
         public TileColor Color => lastColor;
         public int Index { get; private set; }
         public int Length { get; private set; }
         public Vector3 PositiveDirection => transform.right;
+        public void ConfigureShadow(UiTheme theme)
+        {
+            if (contactShadow != null) { return; }
+            if (theme == null) { return; }
+            contactShadow = ContactShadowView.Attach(transform, theme,
+                new Vector2(Length * theme.CarShadowLengthRatio, theme.CarShadowWidth), LotSurfaceView.Top);
+        }
         public void ConfigureFeel(FeelConfig config)
         {
             feel = config;
@@ -141,6 +149,7 @@ namespace SqueakyLane.Presentation
             transform.localPosition = position; transform.localRotation = Quaternion.Euler(0, yaw, 0);
             transform.localScale = Vector3.one * scale;
             gameObject.SetActive(alive);
+            if (alive && contactShadow != null) { contactShadow.Project(); }
             if (!appearanceReady || color != lastColor)
             {
                 ApplyAppearance(color);

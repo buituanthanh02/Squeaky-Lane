@@ -39,6 +39,14 @@ namespace SqueakyLane.EditorTools
 
         // Chỉ áp preset chữ (độ đậm/viền), không đụng scene.
         public static void ApplyTextMaterials() { Run("S3 Apply Text Materials", UiPackSkinTools.ApplyTextMaterials); }
+        public static void ApplyS4()
+        {
+            Run("S4 Apply Scenery", () =>
+            {
+                EditorSceneManager.OpenScene(ScenePath, OpenSceneMode.Single);
+                SceneryTools.Apply();
+            });
+        }
 
         // So sánh các mức độ đậm/viền chữ HudOutline (không lưu gì).
         public static void RenderFontVariants()

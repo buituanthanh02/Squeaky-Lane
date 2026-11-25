@@ -131,7 +131,7 @@ namespace SqueakyLane.EditorTools
             Debug.Log("013: đã tạo cảnh1 mesh/1 material,5 prefab prop (tối đa12 instance), chuẩn hóa/collider tắt; padding0.1, ánh sáng theo UiTheme. Không sửa Project Settings. Chạy Run All và Play/Stats16.");
         }
 
-        private static GameObject BakeProp(string sourcePath, float size, UnityEngine.SceneManagement.Scene preview)
+        internal static GameObject BakeProp(string sourcePath, float size, UnityEngine.SceneManagement.Scene preview, float maxHeight = float.PositiveInfinity)
         {
             string name = Path.GetFileNameWithoutExtension(sourcePath);
             string path = "Assets/_Project/Prefabs/Environment/" + name + ".prefab";
@@ -145,6 +145,7 @@ namespace SqueakyLane.EditorTools
             var bounds = renderers[0].bounds;
             foreach (var renderer in renderers) { bounds.Encapsulate(renderer.bounds); }
             float fit = size / Mathf.Max(bounds.size.x, bounds.size.y, bounds.size.z);
+            fit = Mathf.Min(fit, maxHeight / Mathf.Max(.0001f, bounds.size.y));
             model.transform.localScale *= fit;
             model.transform.localPosition = new Vector3(-bounds.center.x * fit, -bounds.min.y * fit, -bounds.center.z * fit);
             var groups = new Dictionary<Material, List<CombineInstance>>();
