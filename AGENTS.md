@@ -14,7 +14,7 @@
 - Thực tập sinh Unity, làm một mình, **quyết định sản phẩm và thiết kế**. Đây là bài thi thực tập: người làm phải **hiểu và giải thích được** code mình nộp. `[CHỐT]`
 - Nói **tiếng Việt**, giải thích thuật ngữ khi cần; giữ nguyên tên code, API, đường dẫn, lệnh.
 - Người làm còn mới: hay nói thiếu, có thể sai. Hãy **hỏi và phản biện** (mục 3.9), không chiều theo.
-- Hai AI không nói chuyện trực tiếp với nhau; mọi thứ đi qua **người làm và phiếu bàn giao** (mục 1).
+- Từ 26/11 **Claude gọi Codex trực tiếp** (`tools/codex-run.sh`, xem `CLAUDE.md` §9) và trả kết quả cho người làm; người làm chỉ cần làm việc với Claude. Mọi thứ vẫn có dấu vết trong **phiếu bàn giao** (mục 1).
 
 ## 1. Hai AI cùng làm một việc
 
@@ -66,7 +66,7 @@ YYYY-MM-DD HH:mm · Ai → Ai · [HỎI|TRẢ LỜI|BÀN GIAO|BÁO]: nội dung 
 ```
 
 ### 1.6. Trao đổi giữa hai AI và khi mở chat mới `[CHỐT 22/11]`
-- Hai AI **không nói trực tiếp**; mọi thứ đi qua repo (phiếu, `PROJECT.md`). Người làm chỉ cần nói với AI kia: "xem phiếu NNN".
+- Mọi thứ đi qua repo (phiếu, `PROJECT.md`). Claude gọi Codex bằng `codex exec` (`CLAUDE.md` §9); nếu người làm mở chat Codex riêng thì chỉ cần nói: "xem phiếu NNN".
 - **Mục "Trao đổi" cuối phiếu:** bên nào (Claude, Codex, người làm) cũng được **thêm dòng mới ở cuối, kể cả khi không cầm gậy**; không sửa hay xóa dòng cũ. Mỗi dòng: `YYYY-MM-DD HH:mm · Ai → Ai · [thẻ]: nội dung ngắn`. Giờ lấy từ đồng hồ máy (lệnh `Get-Date`), không tự đoán.
 - **Thẻ:** `[HỎI]` bên nhận hoặc người làm phải trả lời trước khi làm tiếp phần liên quan · `[TRẢ LỜI]` · `[BÀN GIAO]` trao gậy (ghi: đã làm gì, còn gì, nhánh/commit hiện tại, đã kiểm / chưa kiểm) · `[BÁO]` thông tin, không cần trả lời.
 - **Trao gậy** = trong cùng một lượt: sửa dòng `Đang cầm` ở đầu phiếu **và** thêm dòng `[BÀN GIAO]`. Thiếu một trong hai thì chưa coi là đã trao.

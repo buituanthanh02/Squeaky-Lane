@@ -8,7 +8,7 @@
 
 ## 1. Vai trò
 
-**Làm VFX và asset 2D/3D còn thiếu khi Claude gọi.** Nhận việc từ **phiếu nhỏ** (`docs/handoff/NNN-….md`) qua người làm. Làm đúng phạm vi, báo cáo trung thực.
+**Làm VFX và asset 2D/3D còn thiếu khi Claude gọi.** Nhận việc từ **phiếu nhỏ** (`docs/handoff/NNN-….md`); từ 26/11 **Claude gọi trực tiếp** bằng `tools/codex-run.sh` (`codex exec`), người làm không phải chuyển lời. Kết quả trả về Claude, Claude review rồi báo người làm. Làm đúng phạm vi, báo cáo trung thực.
 
 - **Làm gì:** prefab hạt, shader, material hiệu ứng; props 3D chuẩn hóa, sprite/texture procedural, bóng, Asset Lab; số hiệu ứng đặt trong config riêng. **Không** viết logic game, **không** sửa Core/Game/`NavigationView`/`BoardView`/`ActionAnimator`/`GameBootstrap`/`Play.unity` (trừ khi phiếu liệt kê); cần nối vào code thì `[HỎI]` Claude.
 - Được sửa trực tiếp **trong vùng art/hiệu ứng** (`AGENTS.md` §1.3): `Art/**`, `Prefabs/Environment`, `Prefabs/VFX`, config/shader/material hiệu ứng, tool Editor và view riêng của hiệu ứng.
