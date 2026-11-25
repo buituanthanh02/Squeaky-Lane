@@ -5,6 +5,7 @@
 > **Thứ tự đọc:** `PROJECT.md` → file này → file riêng của bạn. Không đọc lại file chưa đổi. Hai file mâu thuẫn nhau → **dừng, hỏi người làm**.
 > Nhãn: `[CHỐT]` người làm đã quyết · `[FILE]` đọc từ repo · `[ĐỀ XUẤT]` · `[CHƯA KIỂM CHỨNG]`.
 > Thông tin kỹ thuật của dự án (phiên bản Unity, pipeline, package, repo…) nằm ở **`PROJECT.md` §3.1**, không lặp ở đây.
+> **Quy tắc phối hợp mới `[CHỐT 25/11]`:** **Claude chủ trì code**; **Codex được gọi ra** làm VFX và asset 2D/3D còn thiếu; cả hai nối Unity qua **MCP**; Claude được commit trên nhánh việc. Quy tắc cũ (Claude review/visual, Codex code) là commit `c092dac`; quay lại bằng `git checkout c092dac -- AGENTS.md CLAUDE.md CODEX.md PROJECT.md`.
 
 ---
 
@@ -20,22 +21,25 @@
 ### 1.1. Vai trò `[CHỐT]`
 | | Làm gì |
 |---|---|
-| **Claude** | Lập kế hoạch, quyết định visual/feeling, review code, quyết định khi nào đủ tốt để push. **Được sửa trực tiếp** (visual, và cả code khi Codex không làm được). |
-| **Codex** | Viết code ổn định, setup Unity cơ bản, làm việc lớn theo kế hoạch. |
-| **Người làm** | Quyết định cuối. Chơi thử, build APK, commit, merge. |
+| **Claude (chủ trì)** | Lập kế hoạch, **viết và sửa code chính** (Core, Game, Presentation, UI, tool Editor, test), quyết định visual/feeling, kiểm bằng MCP (biên dịch, test, Console, Play, chụp Game view), commit trên nhánh việc. Gọi Codex bằng một phiếu nhỏ khi cần VFX hoặc asset. |
+| **Codex (được gọi ra)** | Làm **VFX** (prefab hạt, shader, material hiệu ứng) và **asset 2D/3D còn thiếu** (props, sprite/texture procedural, bóng, material, Asset Lab), chỉ trong vùng file ở 1.3. Không viết logic game, không commit. |
+| **Người làm** | Quyết định cuối. Chơi thử, build APK, **merge/push**. Duyệt việc giao Codex. |
 
 Mọi **số cảm giác** (thời lượng, độ nảy, màu, góc camera, giờ, gợi ý) nằm trong `GameConfig` hoặc JSON màn, **không hard-code**, để chỉnh không cần sửa code.
 
 ### 1.2. "Người cầm gậy" `[ĐỀ XUẤT]`
-Mỗi việc lớn có **một nhánh** và **một AI đang cầm** tại một thời điểm (ghi ở đầu phiếu: `Đang cầm: Codex|Claude|Người làm`). Chỉ người cầm gậy được sửa file (ngoại lệ duy nhất: thêm dòng vào mục **Trao đổi** của phiếu, xem 1.6). Muốn trao gậy thì sửa `Đang cầm` ở đầu phiếu, thêm dòng `[BÀN GIAO]` vào mục Trao đổi rồi báo người làm. Nhờ đó hai AI **không bao giờ sửa cùng một file cùng lúc**.
+Mỗi việc lớn có **một nhánh** và **một AI đang cầm** tại một thời điểm (ghi ở đầu phiếu: `Đang cầm: Codex|Claude|Người làm`). **Mặc định Claude cầm**; khi cần VFX/asset thì Claude mở phiếu nhỏ (mục tiêu, vùng file, đầu ra, ngân sách, cách kiểm), trao gậy Codex và Codex trao lại khi xong. Chỉ người cầm gậy được sửa file (ngoại lệ duy nhất: thêm dòng vào mục **Trao đổi** của phiếu, xem 1.6). Muốn trao gậy thì sửa `Đang cầm` ở đầu phiếu, thêm dòng `[BÀN GIAO]` vào mục Trao đổi rồi báo người làm. Nhờ đó hai AI **không bao giờ sửa cùng một file cùng lúc**.
+**Người lái Editor (MCP) `[CHỐT 25/11]`:** tại một thời điểm chỉ người cầm gậy được sửa scene/asset, bấm Play hoặc lưu scene; AI còn lại chỉ đọc (Console, hierarchy). Không lưu `Play.unity` khi người làm hoặc AI kia đang sửa dở.
 
 ### 1.3. Sửa trực tiếp `[CHỐT]`
-Vì hạn 30/11, **cả hai AI được sửa trực tiếp** code, config, scene, prefab (không cần xin từng lần), với các hàng rào ở mục 4.2. Chỉ những việc ở mục 2 "phải hỏi" mới cần xin.
+Vì hạn 30/11, AI cầm gậy được sửa trực tiếp (không cần xin từng lần), với các hàng rào ở mục 4.2. Chỉ những việc ở mục 2 "phải hỏi" mới cần xin.
+- **Claude:** mọi thứ trong repo (code, config, scene, prefab, tài liệu).
+- **Codex `[CHỐT 25/11]`:** chỉ **vùng art/hiệu ứng**: `Assets/_Project/Art/**`, `Prefabs/Environment`, `Prefabs/VFX`, config/asset riêng của hiệu ứng, shader/material, tool Editor và view **riêng** của hiệu ứng (file mới, tên rõ). **Không sửa** Core, Game, `NavigationView`, `BoardView`, `ActionAnimator`, `GameBootstrap`, `Play.unity` (trừ khi phiếu liệt kê), test của Claude. Cần nối vào những chỗ đó thì ghi `[HỎI]` cho Claude làm.
 
-### 1.4. Không tự review code mình viết `[ĐỀ XUẤT]`
-- Codex viết → **Claude review**. Claude sửa trực tiếp → **Codex review** (chạy kiểm tra, đọc diff).
-- Nếu AI kia không làm được (không có công cụ): ghi **"review yếu"** vào phiếu và nhờ người làm chơi thử/chạy kiểm tra. Không tự APPROVE code của chính mình.
-- Claude APPROVE chỉ nghĩa là "ổn theo những gì Claude thấy", **không thay thế** việc người làm chơi thử.
+### 1.4. Review `[CHỐT 25/11]`
+- **Code của Claude:** bằng chứng là biên dịch/test/Console **qua MCP** (hoặc CLI khi Editor đóng) ghi vào phiếu, rồi **người làm chơi thử trước khi merge**. Codex chỉ review diff khi **người làm yêu cầu**.
+- **Asset/VFX của Codex:** **Claude review** (ngân sách batch/hạt, quy tắc asset, ảnh Game view, Codex có ở trong vùng 1.3 không).
+- Chưa nối MCP hoặc chưa chạy: ghi **"chưa chạy"**, không viết "đã test". Claude APPROVE chỉ nghĩa là "ổn theo những gì Claude thấy", **không thay thế** việc người làm chơi thử.
 
 ### 1.5. Phiếu bàn giao `docs/handoff/NNN-<tên-ngắn>.md`
 Một file đi suốt vòng đời một việc. `NNN` là **mã việc**, tăng dần theo thứ tự mở việc (kiểm tra thư mục trước khi lấy số).
@@ -88,7 +92,7 @@ Dự án Unity hỏng một cách lặng lẽ: mất GUID, lưu scene dư thay �
 
 **BẠN KHÔNG ĐƯỢC — trừ khi người làm yêu cầu đúng việc đó trong cuộc trò chuyện (phải hỏi trước):**
 - Push, mở PR, merge vào `main`, xóa nhánh, rebase nhánh dùng chung, force-push.
-- Đổi phiên bản Unity; thêm/xóa/nâng package (`manifest.json`, `packages-lock.json`).
+- Đổi phiên bản Unity; thêm/xóa/nâng package (`manifest.json`, `packages-lock.json`). Ngoại lệ đã duyệt 25/11: `com.coplaydev.unity-mcp` (CoplayDev, MIT) ghim `v10.3.0` (Unity MCP).
 - Đổi Project Settings: Player, Quality, Graphics, Input, Tags & Layers, Physics, Time, Script Execution Order, Editor, build profiles, scripting defines.
 - Sửa tay `guid`/`fileID`, xóa hoặc tạo lại `.meta`, xóa asset/script có thể đang được tham chiếu.
 - Đổi tên/đảo thứ tự enum được serialize; đổi tên field serialize mà thiếu `[FormerlySerializedAs]`; đổi tên asset mà tên được dùng làm khóa (đường dẫn `Resources.Load`, tên file JSON màn).
@@ -130,7 +134,7 @@ Luôn được phép (chỉ đọc): `git status/diff/log/show`, đọc file, xe
 | **V3** | Cảm giác / visual / hiệu năng | Ảnh hoặc video Game view, hoặc APK trên máy; đo fps nếu liên quan |
 
 - Phiếu nói bậc nào thì làm bậc đó; không nói thì **tự chọn và nêu**. Chỉ hỏi người làm về **kết quả chấp nhận được**, không đẩy việc chọn kiểm tra thường lệ cho họ.
-- **Ai kiểm bậc nào** `[CHỐT 22/11]`: bậc **V1 và V2** (chạy test, biên dịch, Console, Play) do **Codex** (Unity MCP/CLI) hoặc **người làm** chạy. **Claude** không chạy được Unity: chỉ đọc code, đọc `Editor.log` (4.3) và đánh giá **V3** qua ảnh/video. Code Claude sửa ghi **"chưa chạy"** cho tới khi Codex hoặc người làm chạy và ghi kết quả vào phiếu.
+- **Ai kiểm bậc nào** `[CHỐT 25/11]`: bậc **V1 và V2** (test, biên dịch, Console, Play) do **AI đang cầm gậy** chạy **qua Unity MCP** (hoặc Unity CLI khi Editor đóng) và ghi kết quả vào phiếu. Bậc **V3** (hình, cảm giác): ảnh/video do người làm gửi, hoặc ảnh Game view chụp qua MCP nếu công cụ có `[CHƯA KIỂM CHỨNG]`. Chưa nối MCP/chưa chạy thì ghi **"chưa chạy"**.
 - `git diff --stat` chỉ có file định sửa; mỗi asset mới có `.meta`.
 - Không có Editor/máy: nói rõ kiểm tra nào chưa chạy. **Đọc tĩnh không phải "đã test".**
 
@@ -145,7 +149,7 @@ Luôn được phép (chỉ đọc): `git status/diff/log/show`, đọc file, xe
 ### 3.5. Lặp đúng mức
 - Việc đơn giản: một lượt. Việc phức tạp: **Core C# thuần + test** → `MonoBehaviour`/view → prefab → **scene (cuối cùng, tối thiểu)**.
 - Sau mỗi lượt: đã làm gì, còn gì, cần người làm làm gì.
-- Khi người làm **duyệt rõ** (ví dụ "oke", "ổn", "duyệt"): đưa **nội dung commit sao chép được** (tiêu đề `[NNN] …` + vài dòng nếu cần). Không tự stage/commit; push/PR/merge cần yêu cầu riêng. Đồng ý ý tưởng hay kế hoạch **không** có nghĩa việc dở dang sẵn sàng commit.
+- Khi người làm **duyệt rõ** (ví dụ "oke", "ổn", "duyệt"): đưa **nội dung commit sao chép được** (tiêu đề `[NNN] …` + vài dòng nếu cần). Claude được commit trên nhánh việc theo mục 8 (Codex không commit); push/PR/merge cần yêu cầu riêng. Đồng ý ý tưởng hay kế hoạch **không** có nghĩa việc dở dang sẵn sàng commit.
 
 ### 3.6. Giữ phạm vi
 Chỉ đổi điều được yêu cầu. Không refactor, đổi tên, format "tiện tay". Thấy việc đáng sửa → **ghi vào phiếu** (và `PROJECT.md` nếu quan trọng), không sửa lén. Diff scene/prefab khó đọc: giữ nhỏ và mô tả bằng lời.
@@ -177,7 +181,7 @@ Chỉ đổi điều được yêu cầu. Không refactor, đổi tên, format "
 ## 4. Unity Editor và sửa trực tiếp
 
 ### 4.1. Kết nối Editor
-Bạn thường **không tự mở/bấm Editor** được. Khi công cụ báo chưa kết nối: kiểm tra MCP có phản hồi không (hoặc `unity status`), nhờ người làm mở đúng phiên bản và nối cầu, chờ xác nhận rồi thử lại. Editor mất focus có thể bị giảm tốc: khi cần Play, nhờ người làm giữ focus hoặc bật *Run In Background*. Cài MCP/CLI là đổi package: hỏi trước.
+**Unity MCP `[CHỐT 25/11]`:** `com.coplaydev.unity-mcp` (CoplayDev, MIT) ghim `v10.3.0`, cho Claude và Codex điều khiển Editor **đang mở** (Window → MCP for Unity; server chạy cục bộ qua `uv`, không bật chế độ remote). Công cụ MCP chỉ xuất hiện ở **chat mới** sau khi cấu hình; xem danh sách công cụ để biết tên đúng, đừng đoán. Khi chưa nối: kiểm tra MCP có phản hồi không, nhờ người làm mở đúng phiên bản Unity và bấm Start/Configure, chờ xác nhận rồi thử lại. Editor mất focus có thể bị giảm tốc: khi cần Play, nhờ người làm giữ focus hoặc bật *Run In Background*. Editor đang mở thì **không chạy CLI batch** cho cùng project; Editor đóng thì dùng `unity test`/`unity run` (PROJECT §2.5). Chỉ **một AI lái Editor** tại một thời điểm (1.2).
 
 ### 4.2. Sửa trực tiếp scene/prefab `[CHỐT]` (hàng rào `[ĐỀ XUẤT]`)
 Được sửa trực tiếp, theo thứ tự ưu tiên:
@@ -187,11 +191,11 @@ Bạn thường **không tự mở/bấm Editor** được. Khi công cụ báo 
 
 Luôn: **một người cầm gậy** (1.2); sửa nhỏ, ưu tiên prefab hơn scene; **không lưu scene kèm thay đổi ngẫu nhiên**; báo cáo liệt kê `đường dẫn object · component · field · cũ → mới`. **Không bao giờ sửa YAML khi Editor đang mở file đó** (lần lưu sau của Editor sẽ ghi đè).
 
-### 4.3. Đọc Console khi không có cầu nối Editor `[CHỐT 22/11]`
-Claude **không có cầu nối Editor** và không cài thêm package cho việc này. Thay vào đó:
+### 4.3. Console và kiểm tra khi MCP chưa nối `[CHỐT 25/11]`
+Có MCP thì đọc Console trực tiếp qua công cụ MCP. Khi MCP chưa nối (hoặc chat chưa nạp công cụ):
 - **Đọc `Editor.log`** (chỉ đọc, không sửa/xóa): `%LOCALAPPDATA%\Unity\Editor\Editor.log`. Lọc theo `error CS`, `warning CS`, `Exception`, `NullReference`. Log của lần chạy trước thường nằm ở `Editor-prev.log` `[CHƯA KIỂM CHỨNG]`. Người làm nói rõ đã nạp lại hoặc Play lúc nào để biết đoạn nào là mới.
 - **Ảnh/video** Game view, ảnh chụp Console, APK quay màn hình do người làm gửi (bậc V3).
-- **Chạy test và Play trong Editor:** Codex (Unity MCP/CLI) hoặc người làm; kết quả ghi vào phiếu ("Test và kết quả") hoặc mục Trao đổi.
+- **Chạy test và Play trong Editor:** AI đang cầm gậy qua MCP (hoặc CLI khi Editor đóng), hoặc người làm; kết quả ghi vào phiếu ("Test và kết quả") hoặc mục Trao đổi.
 - Đọc `Editor.log` **không thay** cho "đã Play thử": nhãn bằng chứng vẫn là "đã kiểm trong code/log", không phải "đã kiểm trong Editor/Play".
 
 ---
@@ -269,8 +273,8 @@ Cây thư mục và quy ước đặt tên: **`PROJECT.md` §8** (Core / Game / 
 - **Các bước mở nhánh mới:** (1) `git status` phải **sạch**, không sạch thì dừng và hỏi, không tự stash/reset; (2) đưa `main` local về bản mới nhất (fetch rồi fast-forward; không có remote thì bỏ qua); (3) lấy mã: việc mới → `NNN` kế tiếp (số lớn nhất trong `docs/handoff/`, sổ việc và `git branch -a`, cộng 1); bản sửa/làm lại → `NNN-MM` kế tiếp của việc gốc; (4) `git switch --no-track -c <tên-nhánh> main`; (5) tạo phiếu có `Liên quan` (nếu là bản sửa/làm lại); (6) thêm một dòng vào sổ việc. Báo người làm biết Unity sẽ import lại khi đổi nhánh.
 - Muốn xem lại theo thứ tự thì dựa vào sổ việc (ghi theo thứ tự mở thật) và số `NNN`.
 - Không tạo trước nhánh cho ý tưởng chưa làm.
-- **AI không tự stage/commit/push/merge.** Chỉ đưa nội dung commit: tiêu đề `[NNN] …` (việc lớn) hoặc `[nhỏ] …` (việc nhỏ), dòng cuối `AI: Codex, Claude` (AI nào đã sửa). Push chỉ khi được yêu cầu riêng, với refspec cùng tên nhánh; không bao giờ vào `main`.
-- Không merge khi chưa có verdict APPROVE và người làm chưa chơi thử.
+- **Commit `[CHỐT 25/11]`:** **Claude được commit** trên nhánh việc theo mốc (biên dịch/test xanh), tiêu đề `[NNN] …` (việc lớn) hoặc `[nhỏ] …` (việc nhỏ), dòng cuối `AI: Claude` (thêm `, Codex` nếu có phần Codex). **Codex không commit**: báo Claude. **Không push/PR/merge**, không bao giờ vào `main`: người làm làm (hoặc cho phép riêng, refspec cùng tên nhánh).
+- Không merge khi chưa có bằng chứng kiểm đúng bậc V của phiếu và người làm chưa chơi thử.
 - Scene/prefab: mô tả thay đổi bằng lời trong commit/phiếu (diff YAML khó đọc). Xung đột scene toàn nhiễu `fileID`: **không tự gộp tay**, dừng và hỏi (thường lấy một phía rồi làm lại thay đổi kia trong Editor).
 - **Sổ việc** ở `PROJECT.md` §13: một dòng mỗi **việc lớn** `NNN` hoặc `NNN-MM` `| việc | nhánh | AI | trạng thái | verdict | liên quan`, ghi theo **thứ tự mở thật**. Trạng thái có thể là `Bỏ` khi nhánh bị bỏ. Cập nhật khi **mở** và khi **xong**; không ghi hash, reflog, giờ phút.
 - **Báo cáo cuối việc** là phần "AI làm điền" của phiếu (mục 1.5). Không sửa lỗi không liên quan trong việc đang làm.

@@ -26,11 +26,11 @@ Dòng nào không có nhãn là mô tả, không phải quyết định.
 ### 2.1. Vai trò `[CHỐT]`
 | Ai | Làm gì |
 |---|---|
-| **Người làm (điều phối)** | Quyết định cuối cùng. Thao tác trong Unity Editor, commit, push, merge. Mang thông tin qua lại giữa hai AI. |
-| **Claude** | Lên kế hoạch, quyết định visual và feeling, phân tích cảm giác chơi, **sửa trực tiếp** (visual, và cả code khi Codex không làm được), **review code và quyết định khi nào đủ tốt để push**. Vẽ minh hoạ/ý tưởng riêng với người làm (ngoài luồng repo). |
-| **Codex** | Viết code ổn định, setup Unity cơ bản, làm các việc lớn theo plan của Claude. |
+| **Người làm (điều phối)** | Quyết định cuối cùng. Chơi thử, build APK, **merge/push**. Duyệt việc giao Codex. Mang thông tin qua lại khi AI chưa nối được. |
+| **Claude (chủ trì code, từ 25/11)** | Lên kế hoạch, **viết và sửa code chính** (Core, Game, Presentation, UI, tool Editor, test), quyết định visual và feeling, kiểm bằng Unity MCP, **commit trên nhánh việc**. Gọi Codex bằng phiếu nhỏ khi cần VFX/asset. |
+| **Codex (được gọi ra, từ 25/11)** | Làm **VFX** (prefab hạt, shader, material hiệu ứng) và **asset 2D/3D còn thiếu** trong vùng art/hiệu ứng (`AGENTS.md` §1.3). Không viết logic game, không commit. |
 
-Hai AI **không nói chuyện trực tiếp với nhau**. Mọi thứ đi qua người làm.
+Hai AI **không nói chuyện trực tiếp với nhau**; mọi thứ đi qua phiếu và người làm. Quy tắc phối hợp cũ (Claude review/visual, Codex code chính) ở commit `c092dac`. `[CHỐT 25/11]`
 `[ĐỀ XUẤT]` Vì vậy cần "phiếu bàn giao" ngắn nằm trong repo (`docs/handoff/NNN-<việc>.md`): Claude ghi mục tiêu, phạm vi, tiêu chí xong, điều cấm; Codex đọc phiếu, làm, ghi lại đã làm gì và chưa chắc gì; Claude review dựa trên diff + phiếu. Người làm không phải chép tay. Cuối phiếu có mục **Trao đổi** (chỉ thêm dòng, thẻ `[HỎI]` `[TRẢ LỜI]` `[BÀN GIAO]` `[BÁO]`) để hai AI hỏi–đáp–bàn giao; chat mới đọc phiếu để biết việc đang ở đâu (`AGENTS.md` §1.6). `[CHỐT 22/11]`
 
 ### 2.2. Quy tắc bắt buộc với AI `[CHỐT]`
@@ -49,12 +49,12 @@ Hai AI **không nói chuyện trực tiếp với nhau**. Mọi thứ đi qua ng
 ### 2.4. Git `[CHỐT]` + `[ĐỀ XUẤT]` phần chi tiết
 - **Việc nhỏ** (cỡ S, ≤ 2 file code/config/tài liệu, không đụng luật/asset/scene/prefab/package/settings): **sửa và commit thẳng**, không nhánh riêng. `[CHỐT]`
 - **Việc lớn**: **một nhánh mới**, đặt theo **mã việc**, không theo AI: `NNN-<mô-tả>` (ví dụ `004-hint-button`). `NNN` tăng theo thứ tự mở việc để xem lại nhánh cũ theo trình tự; cả hai AI cùng commit lên nhánh của việc đó theo luật "người cầm gậy". `[CHỐT]` Sửa lỗi/làm lại một việc đã có thì đặt `NNN-MM-<mô-tả>` (ví dụ `003-01-fix-undo-timer`), đi bằng nhánh riêng từ `main` để nhánh việc đang làm bỏ được mà không mất bản sửa; chi tiết ở `AGENTS.md` §8. `[CHỐT]` AI nào tham gia ghi ở phiếu và dòng cuối commit.
-- AI **không tự commit/push**; chỉ đưa sẵn nội dung commit để người làm dán. Commit message kết thúc bằng dòng ghi AI tham gia (theo cấu hình của công cụ).
-- Không merge vào `main` khi Claude chưa review. `[ĐỀ XUẤT]` review = đọc diff + đối chiếu phiếu bàn giao + người làm gửi ảnh/video Game view (Claude không chạy được Unity Editor).
+- **Claude được commit** trên nhánh việc theo mốc; **Codex không commit**; **không AI nào push/merge** (người làm làm). Commit message kết thúc bằng dòng `AI: …` ghi AI tham gia. `[CHỐT 25/11]`
+- Không merge vào `main` khi chưa có bằng chứng kiểm đúng bậc V (MCP/test/Console) và người làm chưa chơi thử. `[CHỐT 25/11, thay "Claude review" cũ]`
 - Khi phiên làm việc có repo, người làm sẽ mở chat riêng gắn repo để Claude xem nhánh/diff. `[CHỐT]` (chat này chỉ để lấy ý tưởng và kết luận tổng thể).
 
 ### 2.5. Làm việc với Unity Editor `[ĐỀ XUẤT kế thừa từ cách làm cũ của người làm, cần xác nhận lại]`
-- **Từ 23/11: Codex không điều khiển máy/Editor.** Khi cần mở scene, chạy Test Runner hoặc chơi thử, gửi bước cụ thể để người làm thực hiện và báo kết quả; Codex tiếp tục sửa code/đọc log. `[CHỐT 23/11]`
+- **Unity MCP `[CHỐT 25/11]`:** `com.coplaydev.unity-mcp` (CoplayDev, MIT) ghim `v10.3.0` trong `Packages/manifest.json`; Claude và Codex cùng điều khiển Editor đang mở qua MCP (một AI lái tại một thời điểm, `AGENTS.md` §1.2); công cụ nạp ở chat mới; server chạy cục bộ qua `uv`. Thay quyết định 22/11 "Claude không dùng MCP" và 23/11 "Codex không điều khiển Editor".
 - **Để người làm học:** Codex viết code và hướng dẫn từng bước có giải thích; người làm tự setup scene/UI/prefab và gắn tài nguyên. Không dựng tự động hết thay người làm. `[CHỐT 23/11, bắt đầu từ 009]`
 - Người làm chơi thử, build APK và commit. AI được sửa trực tiếp scene/prefab (`AGENTS.md` §4.2); với việc cần thao tác tay trong Editor thì AI viết từng bước cụ thể hoặc viết menu Editor để người làm bấm.
 - **Sửa Inspector đơn giản** (alpha/màu, checkbox, kích thước): hướng dẫn người làm sửa tay, không tạo thêm menu/tool riêng. Menu Editor dành cho tạo asset hoặc sửa hàng loạt/lặp lại. `[CHỐT 25/11]`
@@ -397,7 +397,7 @@ namespace SqueakyLane.Game
 - Test `LevelTimer`: hoàn tác trừ giờ, hết giờ = thua, sao đúng ngưỡng.
 - Chạm nhanh liên tiếp: không xe chồng hình; hoàn tác giữa lúc xe đang chạy phải huỷ mọi animation rồi dựng lại từ trạng thái cũ.
 - Kiểm trên điện thoại thật: fps ≥ 30, nút bàn xoay không bấm nhầm, đọc được cơ chế ở góc nghiêng đã chọn, build < 250 MB.
-- Claude không chạy được Unity: phần visual/feeling kiểm bằng **ảnh chụp, video Game view hoặc APK quay màn hình** do người làm gửi. Console: Claude đọc `Editor.log` (`AGENTS.md` §4.3); chạy test, Play và xem Console trong Editor do Codex (Unity MCP) hoặc người làm. Claude không dùng cầu nối Unity MCP và không dựng project .NET phụ. `[CHỐT 22/11]`
+- Kiểm chứng: AI cầm gậy chạy biên dịch/test/Console/Play **qua MCP** (hoặc CLI khi Editor đóng) và ghi vào phiếu; visual/feeling kiểm bằng ảnh Game view (người làm gửi hoặc chụp qua MCP nếu có), video hoặc APK quay màn hình. Chưa nối MCP thì ghi "chưa chạy". `[CHỐT 25/11, thay 22/11]`
 
 ---
 

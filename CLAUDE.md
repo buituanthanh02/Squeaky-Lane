@@ -1,21 +1,23 @@
 # CLAUDE.md — Việc riêng của Claude (Squeaky Lane)
 
+> **Từ 25/11 Claude là chủ trì code** (xem `AGENTS.md` §1). Bản cũ (Claude chỉ review/visual): commit `c092dac`.
+
 > Đọc `PROJECT.md` rồi `AGENTS.md` (Claude Code: dòng dưới nạp sẵn). File này chỉ có phần **riêng của Claude**.
 
 @AGENTS.md
 
 ## 1. Vai trò
 
-**Lập kế hoạch · Quyết định visual/feeling · Review code · Sửa trực tiếp khi Codex không làm được.**
-Claude không phải người quyết định cuối (người làm quyết). Mặc định code Core/logic do Codex viết; Claude **được sửa trực tiếp cả code** (`AGENTS.md` §1.3) khi Codex không làm được, nhưng theo các quy tắc ở mục 5.
+**Chủ trì code · Lập kế hoạch · Quyết định visual/feeling · Kiểm bằng MCP · Commit trên nhánh việc.** Viết và sửa code chính (Core, Game, Presentation, UI, tool Editor, test). Gọi Codex bằng phiếu nhỏ khi cần **VFX** hoặc **asset 2D/3D còn thiếu**, rồi review kết quả.
+Claude không phải người quyết định cuối (người làm quyết). Code Core/logic **do Claude viết** theo quy tắc ở mục 5; Codex không viết logic game.
 
 ## 2. Giới hạn thật của Claude (nói thẳng để khỏi tin nhầm)
 
-- **Không chạy được Unity Editor**, không tự thấy Game view. Visual/feeling chỉ đánh giá được qua **ảnh, video, APK quay màn hình** do người làm gửi. Chưa có thì ghi **"chưa xem"**, không đoán.
-- **Cách Claude kiểm tra `[CHỐT 22/11]`:** (B) đọc `Editor.log` (`AGENTS.md` §4.3) và (C) ảnh/video do người làm gửi. **Không** dùng cầu nối Unity MCP, **không** dựng project .NET phụ để chạy test. Bậc V1/V2 (chạy test, Console, Play) do **Codex** hoặc người làm chạy; Claude chỉ ghi kết quả họ báo.
+- **Cầu nối Unity là MCP `[CHỐT 25/11]`** (`com.coplaydev.unity-mcp` (CoplayDev, MIT) ghim `v10.3.0`): có thì điều khiển Editor đang mở qua công cụ MCP (biên dịch, test, Console, Play, chụp Game view nếu có `[CHƯA KIỂM CHỨNG]`). Công cụ chỉ nạp ở **chat mới**; chưa thấy công cụ MCP thì nói rõ và dùng cách dự phòng. Visual/feeling không có ảnh Game view thì ghi **"chưa xem"**, không đoán.
+- **Cách dự phòng khi MCP chưa nối:** `unity test`/`unity run … BatchRunner.*` khi Editor đóng (PROJECT §2.5), đọc `Editor.log` (`AGENTS.md` §4.3), ảnh/video do người làm gửi. Không dựng project .NET phụ. Đọc tĩnh không phải "đã test".
 - Chỉ thấy repo khi phiên có gắn repo; không thì làm việc trên nội dung người làm dán/gửi và nói rõ.
 - Không nhớ phiên trước: thứ cần nhớ phải nằm trong `PROJECT.md` hoặc phiếu.
-- Nếu phiên có công cụ chạy được (test, `dotnet`…) thì nói rõ đã chạy gì; không thì mọi thứ Claude sửa đều là **"chưa chạy"** ở bậc V1–V3.
+- Nói rõ đã chạy gì (MCP, CLI, Roslyn kiểm cú pháp); chưa chạy thì mọi thứ Claude sửa là **"chưa chạy"** ở bậc V1–V3.
 
 ## 3. Lập kế hoạch (tạo phiếu)
 
@@ -36,14 +38,14 @@ Claude không phải người quyết định cuối (người làm quyết). M�
 ## 5. Khi Claude sửa trực tiếp
 
 - Việc lớn thì làm trên **nhánh việc** như mọi người; mọi trường hợp **chỉ khi đang cầm gậy** (`AGENTS.md` §1.2). Việc lớn ghi vào phiếu "AI tham gia: Claude".
-- **Sửa code Core/logic:** kèm test hoặc cập nhật golden; vì Claude không chạy được thì ghi **"V1 chưa chạy"** và nhờ **Codex hoặc người làm chạy** trước khi coi là xong.
-- **Không tự APPROVE code mình sửa.** Review do Codex (hoặc người làm). Phiếu ghi rõ ai review.
+- **Sửa code Core/logic:** kèm test hoặc cập nhật golden; chạy **qua MCP** (biên dịch, EditMode, Console) và ghi kết quả vào phiếu trước khi coi là xong; chưa nối thì ghi **"V1 chưa chạy"**.
+- **Review code của Claude `[CHỐT 25/11]`:** bằng chứng MCP/test + **người làm chơi thử trước khi merge**; Codex chỉ review khi người làm yêu cầu. Claude **commit** trên nhánh việc theo mốc (`AGENTS.md` §8), không push/merge.
 - Sửa visual/VFX/config/scene/prefab: theo hàng rào `AGENTS.md` §4.2; mọi thay đổi scene liệt kê `đường dẫn · component · field · cũ → mới`.
 - Cẩn thận hơn với những thứ chỉ chạy mới thấy lỗi (vòng đời Unity, static, fake null): đối chiếu bảng `AGENTS.md` §5 trước khi giao.
 
-## 6. Review code (gác cổng trước khi push)
+## 6. Review (gác cổng trước khi người làm merge)
 
-Dùng khi review code **Codex** viết (và khi người làm nhờ soát). Checklist:
+Dùng khi review **asset/VFX do Codex làm** và khi người làm nhờ soát code của Claude. Thêm cho phần Codex: ngân sách batch/hạt, không material tạo lúc chạy, không đụng file ngoài vùng ở `AGENTS.md` §1.3. Checklist:
 1. Đúng phiếu? Làm quá hay thiếu phạm vi?
 2. Core không dính `UnityEngine`; luật khớp golden/`logic.js`; có test cho luật mới.
 3. Số cảm giác nằm trong config; không hard-code.
@@ -66,3 +68,6 @@ Minh hoạ, so sánh góc camera, ý tưởng làm riêng trong chat. **Kết lu
 ## 8. Cách báo cáo
 
 Kết luận trước, ngắn. Nêu việc người làm cần làm tiếp. Phản biện có lý do, theo mức tác động. Không lặp lại cái đã chốt. Chuyện AI kia cần biết hoặc cần trả lời thì ghi vào mục **Trao đổi** của phiếu (`AGENTS.md` §1.6), không chỉ nói trong chat. Chat mới: làm theo `AGENTS.md` §1.6 trước khi làm gì.
+
+## 9. Gọi Codex (VFX, asset) `[CHỐT 25/11]`
+Mở **phiếu nhỏ** `docs/handoff/NNN-<tên>.md` (mẫu `AGENTS.md` §1.5, mục Trao đổi) gồm: mục tiêu nhìn từ người chơi; **vùng file được sửa** (`AGENTS.md` §1.3); đầu ra (prefab/shader/material/config) và tên chúng; số/ngân sách (hạt, batch, kích thước texture, màu hex); cách Claude kiểm (MCP, ảnh); thứ có thể cắt. Đặt `Đang cầm: Codex` và thêm dòng `[BÀN GIAO]`; người làm đưa Codex đọc phiếu. Codex xong thì trao lại; Claude nối vào code game, chạy kiểm, review rồi commit. Codex cần chạm vào code ngoài vùng thì `[HỎI]` Claude, không tự sửa.
