@@ -21,7 +21,7 @@ MonoBehaviour:
   waterDipCells: 0.6
   rotateMidScale: 0.65
   transitionSeconds: 0.2
-  winDialogDelaySeconds: 0.5
+  winDialogDelaySeconds: 0.9
   sfxVolume: 0.7
   sfxVoices: 8
   hapticGapSeconds: 0.12

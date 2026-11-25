@@ -1,5 +1,5 @@
-# 012 — Cảm giác lõi · L ≤ 1 ngày · Chờ review WIP (còn 1 test đỏ)
-Đang cầm: Claude · Nhánh `012-core-feel` từ main đã có 011 · AI: Codex (code), Claude (số cảm giác, review)
+# 012 — Cảm giác lõi · L ≤ 1 ngày · CHANGES (còn 1 test đỏ)
+Đang cầm: Codex (đổi số + 2 sửa nhỏ; test đỏ chờ người làm gửi assertion) · Nhánh `012-core-feel` từ main đã có 011 · AI: Codex (code), Claude (số cảm giác, review)
 Liên quan: play-plan §4 hàng 012 · PROJECT §4 `[CHỐT]` "xe là nhân vật bằng ngôn ngữ cơ thể, không vẽ mặt, rung màn hình nhỏ"
 
 ## Mục tiêu (người chơi)
@@ -67,6 +67,42 @@ Người làm báo rung/cảm giác tạm ổn và yêu cầu commit để chuy�
 Bạn cần hiểu: Core tính luật trước, hình diễn sự kiện sau; nhún con giữ vùng chạm đúng; quãng lăn là từng đoạn trượt nên portal không làm bánh quay vọt; material/particle tạo sẵn để tránh cấp phát theo sự kiện.
 Tự tin code ~80%; V2 còn1test đỏ, V3 mới có xác nhận người làm, Claude chưa review. Commit WIP theo yêu cầu chat, không coi đã hoàn tất/đủ merge. Claude review code/feeling; Codex hoặc người làm cần lấy assertion + Run All xanh/Console sạch trước merge. APK đầu tiên ở013, tối26/11.
 
+## Verdict (Claude, 25/11, commit adfc4c1): CHANGES — code ổn, chặn merge vì Run All còn đỏ
+Đã soi: phạm vi; Core không đổi, `BodySpring` thuần C#; số khớp bảng; không cấp phát mỗi frame (đọc code); input không đổi; Undo/Cancel/OnDisable reset tư thế và hạt; không static; 12 prefab chỉ thêm `CarBody`, GameRoot thêm `feelEffectsPrefab`. Hạt: `Simulate` tự pause hệ nên Pause đóng băng được (đọc code, chưa thấy trên máy).
+Chưa soi: chi tiết `CoreFeelTools`, YAML `CoreFeel.prefab`, `FeedbackRouter` khi chạm xe bị chặn ngay.
+- [CHẶN] `MechanicCatalogTests.OcclusionUsesSharedMaterialAssetsAndRestoresOnDisable` đỏ. 012 không đụng `MechanicOcclusion`/test này, `Editor.log` không ghi assertion. Nghi do `runInEditMode` phụ thuộc trạng thái Editor/thứ tự test (chưa kiểm). Cần nguyên văn assertion + kết quả chạy lẻ test này; không làm yếu test.
+- [NÊN] `CarBody.cs:137` cú giật khi bị đụng nằm trong `if (feel.MudBodyEnabled)`: tắt nhóm bùn là mất luôn cú giật. Chuyển dòng 137 ra ngoài khối bùn.
+- [NÊN] `winDialogDelaySeconds` 0,5 (CHỐT 23/11) < pháo giấy 1,0 s: bảng thắng che nửa sau pháo giấy. Người làm chọn: giữ 0,5 hoặc tăng ~0,9. → **Đã xử lý 25/11:** người làm chốt 0,9; Claude sửa `FeelConfig.asset` `winDialogDelaySeconds` 0.5 → 0.9 (sửa YAML, chưa Play lại).
+- [GỢI Ý] Chạm xe bị chặn ngay giờ có nhịp Stop + âm/rung theo lý do (trước chỉ `StopWall`): đổi hành vi có chủ đích, ổn. Chạm dồn nhiều lần sẽ xếp hàng nhịp Stop: thử trên máy.
+- [GỢI Ý] `CarBody.Advance` ghi transform mọi xe mỗi frame cả khi đứng yên; chỉ tối ưu nếu Profiler/Stats16 xấu. `smoke` dùng chung cho hơi nước và bụi, `gravityModifier` đặt lúc Emit đổi cả hạt đang sống (hiện cùng 0,2 nên chưa sao).
+### V3 theo video 09:12 (30 s, Simulator iPhone 12 Pro Max, màn 26)
+Claude tách khung hình 20 khung/s để soi. Thấy: xe chạy, ra cổng dưới (hồng 12,9 s, xanh 18,0 s), va dừng (vàng 19,8 s); Console 0/0/0 suốt lúc Play. **Chưa thấy:** bùn → cổng nước, thắng/pháo giấy, xe tải đẩy, Pause/Undo (màn 26 không có các thứ này).
+- [NÊN] **Hạt cổng màu gần như vô hình**: bọt/sao chỉ là vài điểm 1–2 px trên cổng. Lý do: hạt 0,17–0,2 ô trong khi xe chỉ ~35 px; bọt cùng màu với chính cổng; vận tốc hướng lên trời nên ở góc 70° hầu như không tỏa trên màn hình.
+- [NÊN] **Bụi va không thấy**: xám 0,5 trên mặt nhựa đường tối, cỡ 0,18.
+- [NÊN] **Nhún/chúi rất khó thấy**: camera gần như nhìn từ trên xuống, nên chúi mũi ±8° gần như không đổi hình; chỉ co/giãn **theo chiều dài và chiều ngang** là đọc được. Ép thân 0,06 s chỉ ~4 khung hình. Bãi to hơn ở 013 sẽ giúp, nhưng chưa đủ.
+- Ghi nhận cho 013 (không sửa ở 012): tiêu đề chọn màn còn "New Text", nút "Button", banner "Kẹt xe" là ô trắng trống, bãi chỉ ~50% bề ngang.
+
+### Số mới cho Codex (`FeelConfig.asset`, Claude chốt; người làm chỉnh lại sau APK nếu cần)
+| Field | Cũ → mới | Vì sao |
+|---|---|---|
+| `brakeLength` | 0.94 → 0.90 | co thân thấy được từ trên xuống |
+| `squashSeconds` | 0.06 → 0.10 | đủ ~6 khung hình |
+| `exitStretch` | 1.06 → 1.10 | rướn khi ra cổng đọc được |
+| `hitDistance` | 0.05 → 0.08 | xe bị đụng giật thấy được |
+| `particleSpread` | 0.7 → 1.2 | hạt tỏa ngang trên màn hình |
+| `bubbles` size · count | 0.17 → 0.34 · 10 → 12 | thấy bọt quanh cổng |
+| `sparkles` size · count | 0.2 → 0.4 · 4 → 6 | sao trắng tách khỏi màu cổng |
+| `impact` size | 0.18 → 0.30 | bụi va thấy được |
+| `impactColor` | (0.5, 0.5, 0.5) → `#D9D4C7` | bụi sáng nổi trên nhựa đường tối |
+| `water` size | 0.13 → 0.25 | cùng lý do cỡ hạt (chưa xem) |
+| `confetti` size | 0.14 → 0.25 | cùng lý do cỡ hạt (chưa xem) |
+- [GỢI Ý, cắt được] **Phình ngang khi phanh**: field mới `brakeWidth` = 1.06 (Tooltip/Range/OnValidate), `CarBody` đặt `scale.z = Lerp(1, brakeWidth, squash)` như `scale.y`. Từ trên xuống, "ngắn lại + phình ra" là thứ đọc được nhất.
+- Giữ nguyên: pitch, rung màn hình 0,04 (CHỐT "rung nhỏ"), trần 60 hạt.
+
+Merge khi: Run All xanh + Console sạch + video ngắn **màn có bùn → cổng nước** (05 hoặc 11) **và một lần thắng** sau khi đổi số. Ảnh Stats16 nếu kịp, không thì đo ở APK 013.
+
 ## Trao đổi
 2026-11-25 02:24 · Codex → Người làm · [BÀN GIAO]: Nhánh012-core-feel/HEADbaa6f56, chưa stage/commit; code P1/P2 và15 ca test đã viết, Roslyn5 lượt0 lỗi, BodySpring24.012 mẫu qua. Theo chat người làm sẽ thao tác sau khi Codex sửa xong: thoát Play/Prefab Mode → Refresh → Tools/Squeaky Lane/Core Feel/Setup Assets and GameRoot → Run All → Clear Console/Play05 hoặc11,20, va xe, Pause/Undo/Restart/portal/bàn xoay/reload/Play lại; báo Passed/Failed/Skipped + Console. Menu mới tạo5 PNG/CC0/6 material/CoreFeel, nối GameRoot và12 CarBody; chưa có asset/meta đầy đủ tới khi Unity chạy menu/Refresh. Chưa xác nhận Unity/V3, chưa chuyển Claude. Còn video20–30s cho Claude, Stats16 so156 batches và Profiler GC; APK đầu tiên ở013 tối26/11.
 2026-11-25 09:05 · Codex → Claude, Người làm · [BÀN GIAO]: Người làm báo rung/cảm giác tạm ổn, yêu cầu commit chuyển Claude. Trao gậy Claude trên012-core-feel, commit mốcWIP từbaa6f56 (xem git log); code/menu/asset P1+P2 đủ, không đổi scene/Core/package/settings. Ảnh Run All538/1/1: test011 OcclusionUsesSharedMaterialAssetsAndRestoresOnDisable còn đỏ, chưa có assertion nên không sửa đoán; CHẶN merge tới Run All xanh + Console sạch. Chưa video/Stats16/Profiler và danh sách Play chi tiết. Giữ font TMP fallback phát sinh ngoài commit, không hoàn tác. Claude review một lần; chưa push/merge.
+2026-11-25 09:10 · Claude → Người làm, Codex · [BÀN GIAO]: Review adfc4c1: CHANGES (xem Verdict). Code đọc ổn, không sửa code. Trao gậy Người làm: chụp nguyên văn assertion test Occlusion đỏ + chạy lẻ test đó, báo qua/đỏ; quyết winDialogDelaySeconds; hoàn lại font TMP fallback, không commit. Sau đó Codex: sửa theo assertion (không làm yếu test) + dời dòng hit ra khỏi khối bùn (CarBody.cs:137). Claude sửa PROJECT.md §7.5/§13 dòng 012 (V0). Chưa push/merge.
+2026-11-25 09:17 · Claude → Codex, Người làm · [BÀN GIAO]: Đã xem video 09:12 (màn 26): Console 0/0/0; hạt cổng màu/bụi va gần như vô hình, nhún/chúi khó thấy ở góc gần thẳng đứng. Trao gậy Codex, làm theo thứ tự: (1) đổi 11 số theo bảng "Số mới cho Codex", báo field · cũ → mới; (2) dời dòng hit ra khỏi khối bùn (CarBody.cs:137); (3) nếu kịp: brakeWidth 1.06 + test OnValidate; (4) test Occlusion đỏ: chờ người làm gửi nguyên văn assertion + kết quả chạy lẻ, không làm yếu test. Đã có trong working tree, chưa commit: FeelConfig.winDialogDelaySeconds 0.5 → 0.9 (người làm chốt), verdict, PROJECT.md. Người làm: Run All + video bùn → cổng nước + thắng sau khi Codex xong. Chưa push/merge.
