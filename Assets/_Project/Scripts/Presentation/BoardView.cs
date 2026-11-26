@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using SqueakyLane.Core.Model;
 using SqueakyLane.Core.Rules;
@@ -37,10 +37,18 @@ namespace SqueakyLane.Presentation
         {
             return level != null && washStations.TryGetValue(r * level.Cols + c, out var station) ? station : null;
         }
+        // 015: hầm rửa ở cổng nước, khóa theo (cạnh, chỉ số); rỗng khi catalog chưa có WashGate (dùng cổng nước cũ).
+        private readonly Dictionary<int, WashStationView> washGates = new Dictionary<int, WashStationView>();
+        private static int GateKey(GateEdge edge, int index) => (int)edge * 1024 + index;
+        public WashStationView WashGateAt(GateDef gate)
+        {
+            return washGates.TryGetValue(GateKey(gate.Edge, gate.Index), out var station) ? station : null;
+        }
         // Tắt mọi trạm đang chạy (Hoàn tác/Chơi lại/hủy hoạt hình).
         public void CancelWash()
         {
             foreach (var station in washStations.Values) { if (station != null) { station.Cancel(); } }
+            foreach (var station in washGates.Values) { if (station != null) { station.Cancel(); } }
         }
         public LevelDef Level => level;
         public CarView Car(int index) => cars[index];
@@ -57,7 +65,7 @@ namespace SqueakyLane.Presentation
             carCatalog = vehicles;
             mechanicCatalog = mechanics;
             occluders.Clear();
-            washStations.Clear();
+            washStations.Clear(); washGates.Clear();
             switchWalls.Clear(); switchWallCells.Clear();
             if (labelFont == null) labelFont = Font.CreateDynamicFontFromOSFont(new[] { "Arial", "Roboto", "Droid Sans", "sans-serif" }, 24);
             content = new GameObject("Board Runtime"); content.transform.SetParent(transform, false);
@@ -181,12 +189,42 @@ namespace SqueakyLane.Presentation
             if (gate.HasValue)
             {
                 bool water = gate.Value.Color == TileColor.Water;
+                if (water && SpawnWashGate(edge, index)) { return; }
                 float yaw = edge == GateEdge.Top ? 0 : edge == GateEdge.Bottom ? 180 : edge == GateEdge.Left ? 90 : -90;
                 if (SpawnMechanic(water ? MechanicKind.WaterGate : MechanicKind.ColorGate,
                     Cell(r, c, LotSurfaceView.Top), water ? 0 : (int)gate.Value.Color, yaw) != null) return;
             }
             else if (hasSurface) { return; }
             Box(gate.HasValue ? "Cổng " + gate.Value.Color : "Viền", Cell(r, c, .14f), horizontal ? new Vector3(.97f, .28f, .22f) : new Vector3(.22f, .28f, .97f), gate.HasValue ? palette.Car(gate.Value.Color) : palette.Wall);
+        }
+        // Hầm rửa đặt gốc ở tâm mép bãi, +Z của prefab hướng ra ngoài; thảm kéo dài ra ngoài bãi để xe chạy xuyên qua.
+        // Thiếu prefab hợp lệ thì trả false (không cảnh báo) để dùng cổng nước cũ như trước 015.
+        private bool SpawnWashGate(GateEdge edge, int index)
+        {
+            var prefab = mechanicCatalog != null ? mechanicCatalog.Prefab(MechanicKind.WashGate, 0) : null;
+            if (!MechanicView.Usable(prefab, MechanicKind.WashGate)) { return false; }
+            float r = edge == GateEdge.Top ? -.5f : edge == GateEdge.Bottom ? level.Rows - .5f : index;
+            float c = edge == GateEdge.Left ? -.5f : edge == GateEdge.Right ? level.Cols - .5f : index;
+            float yaw = edge == GateEdge.Top ? 0 : edge == GateEdge.Bottom ? 180 : edge == GateEdge.Left ? -90 : 90;
+            var view = SpawnMechanic(MechanicKind.WashGate, Cell(r, c, LotSurfaceView.Top), 0, yaw);
+            var station = view != null ? view.GetComponent<WashStationView>() : null;
+            if (station == null) { if (view != null) { view.gameObject.SetActive(false); Release(view.gameObject); } return false; }
+            washGates[GateKey(edge, index)] = station;
+            return true;
+        }
+        // Ô dư ngoài bãi cần chừa cho xe chạy xuyên hầm rửa: chỉ tính trục có cổng nước (cạnh trái/phải → ngang).
+        private float WashGateReach(bool horizontalEdges)
+        {
+            if (washGates.Count == 0) { return 0; }
+            float longest = 0;
+            for (int i = 0; i < cars.Length; i++) { if (cars[i] != null) { longest = Mathf.Max(longest, cars[i].Length); } }
+            foreach (var key in washGates.Keys)
+            {
+                var edge = (GateEdge)(key / 1024);
+                bool sideEdge = edge == GateEdge.Left || edge == GateEdge.Right;
+                if (sideEdge == horizontalEdges) { return longest; }
+            }
+            return 0;
         }
         private void Face(PortalFace p, string link, int pair)
         {
@@ -315,8 +353,9 @@ namespace SqueakyLane.Presentation
             camera.clearFlags = CameraClearFlags.SolidColor;
             camera.transform.rotation = Quaternion.Euler(config.TiltDegrees, 0, 0);
             float aspect = camera.pixelRect.width / Mathf.Max(1, camera.pixelRect.height);
-            float halfWidth = level.Cols * .5f + .9f + config.Padding;
-            float halfHeight = (level.Rows * .5f + .9f + config.Padding) * Mathf.Sin(config.TiltDegrees * Mathf.Deg2Rad) + .7f;
+            // 015: cạnh có hầm rửa cần thêm chỗ cho cả thân xe ra ngoài bãi (+ thảm), nếu không xe chạy khỏi màn hình.
+            float halfWidth = level.Cols * .5f + Mathf.Max(.9f, WashGateReach(true) + .4f) + config.Padding;
+            float halfHeight = (level.Rows * .5f + Mathf.Max(.9f, WashGateReach(false) + .4f) + config.Padding) * Mathf.Sin(config.TiltDegrees * Mathf.Deg2Rad) + .7f;
             camera.orthographicSize = Mathf.Max(halfHeight / Mathf.Max(.001f, viewport.height),
                 halfWidth / (aspect * Mathf.Max(.001f, viewport.width)));
             // Dịch tâm nhìn để bãi vẫn nằm giữa khoảng chơi, kể cả safe area không đối xứng.

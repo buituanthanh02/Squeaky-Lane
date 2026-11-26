@@ -85,6 +85,20 @@ namespace SqueakyLane.Presentation
                         if (crawl) { var washClip = draft[draft.Count - 1]; washClip.Crawl = true; draft[draft.Count - 1] = washClip; }
                         break;
                     }
+                    case MoveEventKind.Water when ev.Gate.HasValue && board.WashGateAt(ev.Gate.Value) != null:
+                    {
+                        // 015: cổng nước có hầm rửa: xe bò xuyên hẳn qua hầm ra thảm ngoài bãi (cả thân qua cổng),
+                        // đứng một nhịp rồi lùi về mép bãi; Step lùi tiếp theo luật Core như cũ. Không đổi luật, chỉ thêm hình.
+                        to.Position += Direction(pose.Yaw) * (ev.Sign * (board.Car(selected).Length + feel.WashGateExtraCells)); to.Mud = 0;
+                        Add(selected, cursor, feel.WashGateCrawlSeconds, to, true);
+                        var gateClip = draft[draft.Count - 1]; gateClip.Crawl = true; gateClip.WashGate = true; draft[draft.Count - 1] = gateClip;
+                        cursor += feel.WashGateCrawlSeconds;
+                        if (feel.WashGatePauseSeconds > 0) { Add(selected, cursor, feel.WashGatePauseSeconds, to); cursor += feel.WashGatePauseSeconds; }
+                        pose.Mud = 0; Add(selected, cursor, feel.WashGateBackSeconds, pose, true); cursor += feel.WashGateBackSeconds;
+                        // Đang lùi đủ đà: các ô lùi tiếp theo chạy tốc độ tối đa, không bứt tốc lại từ đầu.
+                        accelStep = int.MaxValue / 2;
+                        break;
+                    }
                     case MoveEventKind.Water:
                         to.Position += Direction(pose.Yaw) * (ev.Sign * feel.WaterDipCells); to.Mud = 0;
                         Add(selected, cursor, feel.ExitSeconds * .5f, to, true); cursor += feel.ExitSeconds * .5f;
@@ -235,7 +249,7 @@ namespace SqueakyLane.Presentation
                         {
                             // Xe bắt đầu bò qua trạm rửa: lắc theo chổi, bùn trôi giữa chừng, chổi quay + xịt bọt.
                             board.Car(i).BeginWash(clip.Duration);
-                            var station = board.WashStationAt(clip.EventData.R, clip.EventData.C);
+                            var station = clip.WashGate ? board.WashGateAt(clip.EventData.Gate.Value) : board.WashStationAt(clip.EventData.R, clip.EventData.C);
                             if (station != null) { station.Begin(clip.Duration, feel.WashRollerSpinDegrees); }
                         }
                         if (clip.HasEvent)
@@ -306,7 +320,7 @@ namespace SqueakyLane.Presentation
         }
         private sealed class Lane { public readonly List<Clip> Clips = new List<Clip>(64); public int Head; public float End; }
         private struct Pose { public Vector3 Position; public float Yaw, Scale; public TileColor Color; public int Mud; public bool Alive; }
-        private struct Clip { public int Car, ConsumedMud, StartSign, Slide; public bool Accelerate; public float ShrinkStart; public float Start, Duration, RollDistance, RollProgress; public float End => Start + Duration; public Pose From, To; public Rect Swept; public bool Started, HasEvent, StartsMove, Crawl; public MoveEventKind EventKind; public StopReason? Reason; public MoveEvent EventData; }
+        private struct Clip { public int Car, ConsumedMud, StartSign, Slide; public bool Accelerate; public float ShrinkStart; public float Start, Duration, RollDistance, RollProgress; public float End => Start + Duration; public Pose From, To; public Rect Swept; public bool Started, HasEvent, StartsMove, Crawl, WashGate; public MoveEventKind EventKind; public StopReason? Reason; public MoveEvent EventData; }
         private struct PylonClip { public int Index; public float Start, End, From, To; public bool Started; }
     }
 }

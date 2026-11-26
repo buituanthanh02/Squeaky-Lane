@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace SqueakyLane.Presentation
 {
-    // 014: trạm rửa ở ô vòi xịt. Chỉ là hình: chổi lăn quay và hệ hạt bọt khi xe bò qua; luật vẫn do Core quyết.
+    // 014: trạm rửa ở ô vòi xịt; 015: dùng chung cho hầm rửa ở cổng nước (WashGate_0). Chỉ là hình: chổi lăn quay và hệ hạt bọt khi xe bò qua; luật vẫn do Core quyết.
     // Prefab do Codex dựng (Art), Claude gắn script này. Tìm phần tử theo tên để prefab không phải gán tay:
     //   "Roller N|S|E|W" có con "Spin" (quay quanh trục dọc cạnh: N/S theo X, E/W theo Z của trạm),
     //   các ParticleSystem con (Spray N|S|E|W) phun bọt vào tâm ô.
@@ -35,13 +35,19 @@ namespace SqueakyLane.Presentation
             {
                 if (t.name != "Spin" || t.parent == null || !t.parent.name.StartsWith("Roller ", System.StringComparison.Ordinal)) { continue; }
                 string side = t.parent.name.Substring("Roller ".Length);
-                var stationAxis = side == "E" || side == "W" ? Vector3.forward : Vector3.right;
-                rollers.Add(new Roller
+                Vector3 axis;
+                if (side == "N" || side == "S" || side == "E" || side == "W")
                 {
-                    Spin = t,
-                    Rest = t.localRotation,
-                    Axis = t.parent.InverseTransformDirection(transform.TransformDirection(stationAxis)).normalized
-                });
+                    // Trạm rửa 014: trục theo cạnh của trạm (N/S dọc X, E/W dọc Z).
+                    var stationAxis = side == "E" || side == "W" ? Vector3.forward : Vector3.right;
+                    axis = t.parent.InverseTransformDirection(transform.TransformDirection(stationAxis)).normalized;
+                }
+                else
+                {
+                    // Hầm rửa 015 (Roller L/R/Top): mỗi Spin quay quanh trục X của chính nó (chổi đứng hay ngang đều được).
+                    axis = (t.localRotation * Vector3.right).normalized;
+                }
+                rollers.Add(new Roller { Spin = t, Rest = t.localRotation, Axis = axis });
             }
             sprays = GetComponentsInChildren<ParticleSystem>(true);
             for (int i = 0; i < sprays.Length; i++)

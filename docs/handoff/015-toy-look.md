@@ -1,6 +1,6 @@
-# 015 — Hình "đồ chơi" + cổng nước + UI nét     Cỡ: L (chia 5 bước)     Trạng thái: Plan (chờ người làm duyệt)
+# 015 — Hình "đồ chơi" + cổng nước + UI nét     Cỡ: L (chia 5 bước)     Trạng thái: Đang làm (bước 1 chờ người làm xem ảnh)
 Đang cầm: Claude        AI tham gia: Claude (lập kế hoạch), Codex (asset khi cần)
-Liên quan: 013 (theme/UI, S4 chưa áp), 014 (xe chạy, bùn, trạm rửa). Nhánh: chưa mở (đề xuất `015-toy-look` từ `main` sau khi merge 014).
+Liên quan: 013 (theme/UI, S4 chưa áp), 014 (xe chạy, bùn, trạm rửa). Nhánh: `015-toy-look` (rẽ từ `014-car-feel` vì 014 chưa merge).
 
 ## Yêu cầu người làm (26/11)
 Cổng nước (xe đi qua được rửa rồi quay vào bãi): dùng hình trạm rửa đã vẽ, đi chậm + rửa, **phải thấy xe đi qua cổng rồi mới quay lại**. Xe bớt đơn điệu: có độ bóng/đổ bóng (chỉ học cách đổ bóng, không chép hình). Camera nghiêng thêm. Chữ trên nút không nét. Theme nền vẽ lại, cảm giác 3D, nhộn, có đường nét/viền bóng. Tham chiếu: Loop Sort, video Color Bus Trip (Voodoo).
@@ -22,5 +22,13 @@ Cổng nước (xe đi qua được rửa rồi quay vào bãi): dùng hình tr�
 ## Rủi ro / cắt nếu trễ
 Cắt theo thứ tự: bước 5 props → viền tối → bước 5. **Không cắt:** bước 1, APK thử trên máy. Viền kiểu mesh phóng to thêm 1 draw mỗi mesh. Nền bãi sáng làm giảm tương phản xe vàng/cam: phải kiểm. Chưa có APK, chưa chốt 25 màn, hạn 30/11.
 
+--- AI làm điền khi xong ---
+## Bước 1 — Cổng rửa (Claude + Codex 015-a)
+- **Đã làm:** cổng nước có hầm rửa `WashGate_0` (Codex vẽ, phiếu 015-a): xe bò `washGateCrawlSeconds` 1,1 s xuyên hầm ra thảm cho tới khi đuôi qua mép bãi thêm `washGateExtraCells` 0,3 ô (chổi quay + phun bọt, bùn trôi), đứng 0,15 s, lùi về mép bãi 0,45 s rồi lùi tiếp theo luật. Thiếu prefab thì giữ cổng nước cũ. Camera chừa thêm (xe dài nhất + 0,4 ô) ở trục có hầm rửa.
+- **Tệp:** `FeelConfig.cs` (+4 field nhóm "015 — Cổng rửa"), `ActionAnimator.cs`, `BoardView.cs` (`WashGateAt`, `SpawnWashGate`, lề camera), `WashStationView.cs` (chổi `Roller L/R/Top` quay quanh X local của Spin), `MechanicCatalog.cs` (enum thêm cuối `WashGate`), `Config/MechanicCatalog.asset` (+1 dòng), test mới `WashGate015Tests` (3), asset Codex. Không đổi Core/luật/scene.
+- **Đã chạy (MCP):** biên dịch sạch; EditMode **580 · 579 Passed · 0 Failed · 1 Skipped**; Console sau Run All chỉ còn cảnh báo khối dự phòng do test cố ý (1 cái mới từ `WashGate015Tests`, catalog test không có Surface). Play màn 03 (Editor dừng, bước animator tay): ảnh `Logs/015-shots/01-gate-crawl`, `02-gate-out`, `03-gate-back`.
+- **Chưa kiểm:** hạt bọt khi Play chạy liền, Hoàn tác giữa lúc rửa trong Play (có test), cổng cạnh trái/phải trên khung dọc điện thoại, máy thật.
+
 ## Trao đổi
 2026-11-26 · Claude → Người làm · [HỎI]: duyệt độ nghiêng, kiểu quay lại ở cổng nước, thứ tự bước, và việc merge 014 trước.
+2026-11-26 09:13 · Claude → Người làm · [BÁO]: bước 1 xong trên `015-toy-look`, chờ người làm xem ảnh trước khi sang bước 2.

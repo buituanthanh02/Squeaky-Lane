@@ -1,9 +1,9 @@
-using System;
+﻿using System;
 using UnityEngine;
 
 namespace SqueakyLane.Game
 {
-    public enum MechanicKind { Surface, ColorGate, WaterGate, Mud, Cone, Turntable, TrafficLight, Pylon, Portal, WashStation }
+    public enum MechanicKind { Surface, ColorGate, WaterGate, Mud, Cone, Turntable, TrafficLight, Pylon, Portal, WashStation, WashGate }
 
     [CreateAssetMenu(menuName = "Squeaky Lane/Mechanic Catalog")]
     public sealed class MechanicCatalog : ScriptableObject
