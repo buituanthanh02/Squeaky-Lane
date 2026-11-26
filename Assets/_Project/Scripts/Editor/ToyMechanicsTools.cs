@@ -11,6 +11,7 @@ using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.SceneManagement;
 using Object = UnityEngine.Object;
+using static SqueakyLane.EditorTools.EditorAssets;
 
 namespace SqueakyLane.EditorTools
 {
@@ -705,22 +706,6 @@ namespace SqueakyLane.EditorTools
             var a = first.FindProperty(field).objectReferenceValue;
             var b = second.FindProperty(field).objectReferenceValue;
             return a != null && b != null && a.name == b.name;
-        }
-
-        private static T RequireAsset<T>(string path) where T : Object
-        {
-            var asset = AssetDatabase.LoadAssetAtPath<T>(path);
-            if (asset == null) { throw new InvalidOperationException("Thiếu " + path); }
-            return asset;
-        }
-
-        private static void EnsureFolder(string path)
-        {
-            if (AssetDatabase.IsValidFolder(path)) { return; }
-            int split = path.LastIndexOf('/');
-            var parent = path.Substring(0, split);
-            EnsureFolder(parent);
-            AssetDatabase.CreateFolder(parent, path.Substring(split + 1));
         }
 
         private void RenderPreview(GameObject blue)

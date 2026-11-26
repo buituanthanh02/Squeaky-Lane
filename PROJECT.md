@@ -59,8 +59,7 @@ Hai AI **không nói chuyện trực tiếp với nhau**; mọi thứ đi qua ph
 - Người làm chơi thử, build APK và commit. AI được sửa trực tiếp scene/prefab (`AGENTS.md` §4.2); với việc cần thao tác tay trong Editor thì AI viết từng bước cụ thể hoặc viết menu Editor để người làm bấm.
 - **Sửa Inspector đơn giản** (alpha/màu, checkbox, kích thước): hướng dẫn người làm sửa tay, không tạo thêm menu/tool riêng. Menu Editor dành cho tạo asset hoặc sửa hàng loạt/lặp lại. `[CHỐT 25/11]`
 - Không sửa tay YAML scene/prefab khi Editor đang mở.
-- **Unity CLI khi Editor ĐÓNG `[CHỐT 25/11]`:** `unity test … --mode EditMode` chạy test; `unity run … -- -executeMethod SqueakyLane.EditorTools.BatchRunner.<ImportPack|ApplyS3|RenderPreviews>` chạy menu 013 hoặc render UI Edit-mode ra `Logs/013-preview` (không có bãi 3D, không thay ảnh Game view thật). Không lái được Editor đang mở (cần package Unity 6+); kiểm `tasklist` trước và không tự tắt Editor của người làm.
-- **Asset Lab riêng `[CHỐT 25/11]`:** người làm yêu cầu scene kiểm asset/bóng trong Scene view và chọn mẫu qua config, cập nhật ngay ngoài Play. Menu `S4 Open Asset Lab` tạo/mở `Assets/_Project/Scenes/AssetLab.unity` + `Config/AssetLabConfig.asset`; chưa thêm vào Build Settings. Config thử độc lập cho mẫu, ánh sáng, nền, bóng, góc/cỡ/độ nâng asset; preview không sửa prefab/material/UiTheme của game. Các object xem trước không lưu vào scene/build.
+- **Unity CLI khi Editor ĐÓNG `[CHỐT 25/11]`:** `unity test … --mode EditMode` chạy test. Không lái được Editor đang mở (cần package Unity 6+); kiểm `tasklist` trước và không tự tắt Editor của người làm.
 - Nếu một sửa đổi phải đợi người làm chạy Play mới kiểm được thì AI ghi rõ "chưa kiểm chứng" thay vì khẳng định.
 - Khi sự thật của dự án đổi (luật, thư mục, tool…), **sửa PROJECT.md trong cùng commit**.
 
@@ -304,20 +303,21 @@ Assets/_Project/
 │  │  ├─ FeelEffects.cs         # 012: hạt dùng chung, trần60; offset rung camera
 │  │  ├─ InputController.cs     # chạm/vuốt → lệnh; ưu tiên raycast UI
 │  │  ├─ ActionAnimator.cs      # events, hàng đợi mỗi xe và đặt chỗ đường hình
-│  │  ├─ DebugHud.cs            # chỉ HUD gỡ lỗi; không tạo font/object khi không dùng
-│  │  ├─ TableButtons.cs        # class thường, nút bàn xoay độc lập với DebugHud
+│  │  ├─ TableButtons.cs        # class thường, nút bàn xoay vẽ đè theo vị trí bàn
 │  │  ├─ FeedbackRouter.cs      # class thường, nối input/animator/UI với âm/rung và cài đặt
 │  │  ├─ NavigationView.cs      # tham chiếu UI do người làm dựng trong Canvas
 │  │  ├─ SfxCatalog.cs
 │  │  ├─ SfxPlayer.cs
 │  │  ├─ Haptics.cs
+│  │  ├─ UnityObjects.cs        # hủy object đúng cách trong và ngoài Play
 │  │  └─ VisualPalette.cs
 │  └─ Editor/
+│     ├─ EditorAssets.cs       # việc chung của tool: thư mục, nạp asset, chặn chạy trong Play
 │     ├─ PlayTools.cs          # Sync dùng kho thiết kế nếu có, nếu chưa có dùng 31 mẫu golden
 │     ├─ LevelEditorWindow.cs  # lưới, thuộc tính, preview riêng, Undo bản nháp, config ngoài Play
 │     ├─ LevelDesignIO.cs      # schema JSON, kiểm/lưu/xuất/thứ tự; không ghi golden
-│     ├─ KenneyTruckMesh.cs   # Editor: chèn đoạn thùng vào mesh phái sinh, giữ cabin/bánh (010)
-│     └─ KenneyCarsWindow.cs  # menu tạo màu/prefab, cập nhật 6 tải và nối catalog, không sửa FBX/scene (010)
+│     ├─ Toy{Mechanics,Town,Look}Tools.cs  # dựng mesh/material/prefab cơ chế, đạo cụ phố, mảng sơn xe
+│     └─ CitySetupTools, MainMenuTools, StuckEdgeTools  # phố, main menu, viền đỏ kẹt xe
 ├─ Resources/Levels/            # 34 JSON màn thử; level_order chỉ chạy 12 màn (xem dưới), chưa phải 25 màn cuối
 ├─ LevelDesign/                 # kho thiết kế ngoài Play: 34 JSON + level_order; Lưu rồi Xuất/Sync
 │                               # [CHỐT 26/11] rút gọn để soát hình: 1,2,3,4,5,6,8,10,20,21,29 (màn cơ chế; bỏ 9 barie, 22–23 chốt vì ngoài 25 màn) + 19 (màn tổng); bản đủ 34 màn: git c3ef1bc
@@ -327,9 +327,9 @@ Assets/_Project/
 └─ Tests/EditMode/              # test luật + so khớp với golden file của prototype
 ```
 
-**Tạo tài nguyên:** menu Setup Play tạo khung chơi ban đầu bằng API Unity. UI 009, LevelButton và SfxCatalog do người làm tạo/gắn qua Inspector; code điều hướng/âm/rung đã có nhưng chưa xác nhận đủ V2/V3. 013 P1 đã gán sprite ClockFill và chữ StuckBanner qua menu, S1 nền sáng đã áp. Menu `Tools/Squeaky Lane/013 Theme/S3 Import UI Pack` đặt importer cho bộ sprite, `S3 Apply UI Pack Skin` đã áp (25/11): dựng HUD, hộp thoại nhiều lớp, LevelButton, đúng3 preset HudOutline/HudSmall/CardText, atlas sprite UI; ghi field đầu→cuối vào `docs/handoff/013-scene-changes.md` (mục S3b là tổng hợp viết tay). Runtime chỉ đổi cách hiển thị HUD/thông báo, giữ điều hướng/luật. Các số skin trong UiTheme, bố cục đã áp có thể chỉnh Inspector; tạo/sửa hàng loạt qua menu, lỗi Inspector nhỏ sửa tay. Còn chờ Play thật/Console/ảnh V3/Stats màn 16 của S3; catalog art và tutorial theo phiếu riêng.
+**Tạo tài nguyên:** asset và UI đã dựng nằm trong repo. Menu còn lại trong `Tools/Squeaky Lane`: Level Editor, Sync Levels, `016 Toy/…` (cơ chế, đạo cụ phố, mảng sơn xe, phố), `016 UI/…` (main menu, viền kẹt xe). **017 dọn dự án `[CHỐT 26/11]`:** đã xóa 19 file tool dùng một lần (010–015, `BatchRunner`), HUD gỡ lỗi và Asset Lab; bản đầy đủ ở commit `c596a01` (`git checkout c596a01 -- <đường dẫn>` nếu cần lấy lại). Phần UI HUD/hộp thoại, VFX rửa/bùn, hầm rửa, xe Kenney muốn dựng lại thì phải khôi phục tool từ đó.
 
-**013 S4 — triển khai sẵn, Play chưa áp; Asset Lab đã tạo:** menu `S4 Finish Scenery and Open Lab` tự mở Play, gọi `S4 Apply Scenery` tạo PNG radial + material/shadow quad prefab dùng chung, ánh sáng Flat (Directional1/None, ambient #9AA9C2), khay có mặt bên/mép sáng trong mesh nền, chuẩn hóa props Kenney đã có, lưu rồi quay về Lab. Atlas màu11×2 giữ `npotScale=None` để UV không trộn sai màu; báo một mục S4 ở `docs/handoff/013-scene-changes.md`. Bóng xe ở root, cập nhật theo `CarView.Show`, không có Update/material instance cho bóng; bãi giữ nguyên tọa độ ô. `AssetLab.unity`/`AssetLabConfig.asset` đã được người làm tạo qua menu18:08 và xác nhận đổi mẫu được:36 mẫu xe/tải/cơ chế/props, sửa config thấy ngay trong Scene view, thử bóng bằng property block trên clone, không lưu clone/không thêm Build Settings. Người làm yêu cầu hoàn tất triển khai rồi tự bắt lỗi sau; Run All/Console/Play/ảnh/Stats S4 chưa chốt, không coi là đã đạt V2/V3. Editor đang mở nên không chạy batch trùng project.
+**013 S4 (đã đóng):** bóng xe dùng chung quad/material ở root, cập nhật theo `CarView.Show`; bãi giữ nguyên tọa độ ô. Cảnh Asset Lab và tool S4 đã gỡ ở 017.
 
 **009-01 ngày 24/11:** đã viết A–F/H–I, không đổi scene/prefab. Người làm yêu cầu bỏ bước Editor vì sát hạn nên **hoãn G**: chưa dùng `PlayArea`, giữ vùng camera cũ theo safe area; không cần gán ô mới. Level Editor dùng chung bảng `DesignKinds` cho schema/nhãn và lấy màu lưới từ `VisualPalette`. Chờ kiểm bản sau F/H/I trong Unity; chi tiết ở phiếu 009-01. `[FILE; CHỐT 24/11]`
 
@@ -479,6 +479,7 @@ namespace SqueakyLane.Game
 | 014 | VFX và juice: UI (popup, sao, nút, đồng hồ), gameplay (cổng, rửa, bùn, chọn xe/gợi ý, Hoàn tác), khoảnh khắc (xe thả vào, pháo giấy toàn màn); có thể lấy sprite VFX từ rar | `014-car-feel` (mở 26/11, phần xe chạy) | Claude, Codex | Đang làm phần **xe chạy** (bứt tốc, lắc khi đâm, vệt bánh, đèn) theo `docs/handoff/014-car-feel.md`; asset Codex ở phiếu 014-a; phần UI/cổng/pháo giấy chưa làm | — | 012, 013 |
 | 015 | Hình đồ chơi: cổng rửa xuyên qua, camera 58°, chữ nét, shading xe, theme nền | `015-toy-look` (mở 26/11 từ `014-car-feel`) | Claude, Codex | 5 bước đã làm, Run All 583/582/0/1; chờ người làm chơi thử | 015-a APPROVE, 015-b APPROVE có sửa (Claude) | 013, 014 |
 | 016 | Thế giới đồ chơi: phố quanh trạm rửa, xe chạy theo phố, cơ chế vẽ lại, mảng sơn xe, main menu, chọn màn | `016-toy-world` (mở 26/11 từ `015-toy-look`) | Claude, Codex | Đã chạy trong game, gồm khu phố hoạt hình; Run All 588/587/0/1; chờ người làm chơi thử | 016-a APPROVE có sửa; b, c, d APPROVE (Claude) | 015 |
+| 017 | Dọn dự án trước khi build: xóa tool dùng một lần, HUD gỡ lỗi, Asset Lab; gộp code trùng | `017-cleanup` (mở 26/11 từ `016-toy-world`) | Claude | Chờ người làm chơi thử | — | 016 |
 
 **Kế hoạch từ 008:** `docs/handoff/play-plan.md` thay `core-plan.md` §7–9; 008 gộp logic phiên chơi + hiển thị + điều khiển, có thể commit theo mốc A/B/C, Claude review một lần cuối. 008 chưa có Navigator/điều hướng; phần đó là 009-A. `[CHỐT 22/11]`
 

@@ -3,6 +3,7 @@ using UnityEngine;
 using SqueakyLane.Core.Model;
 using SqueakyLane.Core.Rules;
 using SqueakyLane.Game;
+using static SqueakyLane.Presentation.UnityObjects;
 
 namespace SqueakyLane.Presentation
 {
@@ -426,7 +427,6 @@ namespace SqueakyLane.Presentation
                 occluder.SetFaded(covered);
             }
         }
-        private static void Release(Object obj) { if (Application.isPlaying) Destroy(obj); else DestroyImmediate(obj); }
         private void OnDestroy() { if (labelFont != null) Release(labelFont); }
     }
 }

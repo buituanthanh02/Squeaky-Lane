@@ -7,6 +7,7 @@ using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.UI;
 using SqueakyLane.Presentation;
+using static SqueakyLane.EditorTools.EditorAssets;
 
 namespace SqueakyLane.EditorTools
 {
@@ -16,19 +17,19 @@ namespace SqueakyLane.EditorTools
     public static class MainMenuTools
     {
         private const string ScenePath = "Assets/_Project/Scenes/Play.unity";
-        private const string Pack = UiThemeAssets.Art + "/Sprites/Pack/";
-        private const string Library = UiThemeAssets.Art + "/Library/";
-        private const string HeroPath = UiThemeAssets.Art + "/Menu/menu_ip.png";
+        private const string Pack = UiArt + "/Sprites/Pack/";
+        private const string Library = UiArt + "/Library/";
+        private const string HeroPath = UiArt + "/Menu/menu_ip.png";
         private static StringBuilder report;
 
         [MenuItem("Tools/Squeaky Lane/016 UI/Build Main Menu")]
         public static void Build()
         {
-            UiThemeAssets.RequireEditMode();
+            RequireEditMode();
             var scene = UnityEngine.SceneManagement.SceneManager.GetActiveScene();
             if (scene.path != ScenePath) { throw new InvalidOperationException("Mở Play.unity trước."); }
             var nav = UnityEngine.Object.FindObjectOfType<NavigationView>(true);
-            var theme = AssetDatabase.LoadAssetAtPath<UiTheme>(UiThemeAssets.ThemePath);
+            var theme = AssetDatabase.LoadAssetAtPath<UiTheme>(UiThemePath);
             if (nav == null || theme == null || theme.HudOutline == null || theme.TitleFont == null) { throw new InvalidOperationException("Thiếu NavigationView hoặc UiTheme/preset chữ 013."); }
             ImportSprites();
             report = new StringBuilder("\n## 016 · Main menu + nút về menu · " + DateTime.Now.ToString("yyyy-MM-dd HH:mm") + "\n\n");

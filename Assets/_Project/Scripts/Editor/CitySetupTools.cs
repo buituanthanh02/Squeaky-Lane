@@ -3,6 +3,7 @@ using System.IO;
 using UnityEditor;
 using UnityEngine;
 using SqueakyLane.Presentation;
+using static SqueakyLane.EditorTools.EditorAssets;
 
 namespace SqueakyLane.EditorTools
 {
@@ -14,7 +15,7 @@ namespace SqueakyLane.EditorTools
         [MenuItem("Tools/Squeaky Lane/016 Toy/City Setup")]
         public static void Run()
         {
-            UiThemeAssets.RequireEditMode();
+            RequireEditMode();
             if (!AssetDatabase.IsValidFolder(Art)) { AssetDatabase.CreateFolder("Assets/_Project/Art/Environment", "City3D"); }
             var texture = Palette();
             var ground = Make("M_CityGround", "Unlit/Texture", texture);
@@ -32,7 +33,7 @@ namespace SqueakyLane.EditorTools
             outlined.SetFloat("_OutlineWidth", 1.9f); outlined.SetColor("_OutlineColor", new Color32(36, 38, 43, 255));
             AssetDatabase.SaveAssets();
 
-            var theme = AssetDatabase.LoadAssetAtPath<UiTheme>(UiThemeAssets.ThemePath);
+            var theme = AssetDatabase.LoadAssetAtPath<UiTheme>(UiThemePath);
             if (theme == null) { throw new InvalidOperationException("Thiếu UiTheme."); }
             var data = new SerializedObject(theme);
             data.FindProperty("cityEnabled").boolValue = true;

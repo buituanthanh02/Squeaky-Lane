@@ -9,6 +9,7 @@ using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.SceneManagement;
 using Object = UnityEngine.Object;
+using static SqueakyLane.EditorTools.EditorAssets;
 
 namespace SqueakyLane.EditorTools
 {
@@ -552,35 +553,6 @@ namespace SqueakyLane.EditorTools
                 throw new InvalidOperationException($"Thiếu shader {name}.");
             }
             return shader;
-        }
-
-        private static T RequireAsset<T>(string path) where T : Object
-        {
-            var asset = AssetDatabase.LoadAssetAtPath<T>(path);
-            if (asset == null)
-            {
-                throw new InvalidOperationException($"Thiếu {typeof(T).Name}: {path}.");
-            }
-            return asset;
-        }
-
-        private static void RequireFreePath(string path)
-        {
-            if (File.Exists(path) || AssetDatabase.LoadMainAssetAtPath(path) != null)
-            {
-                throw new InvalidOperationException($"Đã có file khác tại {path}.");
-            }
-        }
-
-        private static void EnsureFolder(string path)
-        {
-            if (AssetDatabase.IsValidFolder(path))
-            {
-                return;
-            }
-            string parent = Path.GetDirectoryName(path).Replace('\\', '/');
-            EnsureFolder(parent);
-            AssetDatabase.CreateFolder(parent, Path.GetFileName(path));
         }
 
         private sealed class PropMesh

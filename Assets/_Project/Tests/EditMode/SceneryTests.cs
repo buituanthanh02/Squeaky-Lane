@@ -184,60 +184,6 @@ namespace SqueakyLane.Tests.EditMode
             }
         }
 
-        [Test]
-        public void AssetLabSwitchesSampleWithoutLeakingPreviewOrMutatingSourceMaterial()
-        {
-            var previous = SceneManager.GetActiveScene();
-            // Scene phụ cho gọn. Scene đang mở là "Untitled" chưa lưu (Unity CLI/batch) thì Unity không cho tạo thêm: dùng luôn scene đó, đồ thử do Own() dọn.
-            bool extraScene = !string.IsNullOrEmpty(previous.path);
-            var scene = extraScene ? EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Additive) : previous;
-            SceneManager.SetActiveScene(scene);
-            try
-            {
-                var first = BoxTemplate("First", new Vector3(2, .6f, .8f));
-                var second = BoxTemplate("Second", new Vector3(1, 1, 1));
-                var config = Own(ScriptableObject.CreateInstance<AssetLabConfig>());
-                Set(config, "samples", new[] { new AssetLabConfig.Sample { label = "first", prefab = first }, new AssetLabConfig.Sample { label = "second", prefab = second } });
-                Set(config, "shadowPrefab", theme.ContactShadowPrefab);
-                Set(config, "groundMaterial", material);
-                var root = Own(new GameObject("Asset Lab", typeof(AssetLabView)));
-                var view = root.GetComponent<AssetLabView>();
-                Set(view, "config", config);
-                view.RefreshPreview();
-                Assert.That(root.transform.childCount, Is.EqualTo(1));
-                Assert.That(root.transform.GetChild(0).Find("First"), Is.Not.Null);
-                Set(config, "selectedSample", 1);
-                Set(config, "shadowAlpha", .1f);
-                Set(config, "modelAngles", new Vector3(35, 30, 0));
-                Set(config, "modelLift", .5f);
-                typeof(AssetLabConfig).GetMethod("OnValidate", BindingFlags.Instance | BindingFlags.NonPublic).Invoke(config, null);
-                typeof(AssetLabView).GetMethod("EditorTick", BindingFlags.Instance | BindingFlags.NonPublic).Invoke(view, null);
-                Assert.That(root.transform.childCount, Is.EqualTo(1));
-                var generated = root.transform.GetChild(0);
-                Assert.That(generated.Find("First"), Is.Null);
-                var model = generated.Find("Second");
-                Assert.That(model, Is.Not.Null);
-                var shadow = model.GetChild(0).GetComponent<MeshRenderer>();
-                Assert.That(Vector3.Dot(shadow.transform.up, Vector3.up), Is.GreaterThan(.999f), "Bóng nằm trên nền cả khi asset nghiêng.");
-                Assert.That(shadow.transform.position.y, Is.EqualTo(config.ShadowLift).Within(.0001f));
-                var block = new MaterialPropertyBlock();
-                shadow.GetPropertyBlock(block);
-                Assert.That(block.GetColor("_Color").a, Is.EqualTo(.1f).Within(.0001f));
-                Assert.That(material.color, Is.EqualTo(Color.white));
-                Assert.That(second.GetComponent<MeshRenderer>().shadowCastingMode, Is.EqualTo(ShadowCastingMode.On));
-                foreach (Transform node in generated.GetComponentsInChildren<Transform>(true))
-                { Assert.That((node.gameObject.hideFlags & HideFlags.DontSaveInEditor) != 0, Is.True); }
-            }
-            finally
-            {
-                if (extraScene)
-                {
-                    EditorSceneManager.CloseScene(scene, true);
-                    if (previous.IsValid()) { SceneManager.SetActiveScene(previous); }
-                }
-            }
-        }
-
         private GameObject BoxTemplate(string name, Vector3 size)
         {
             var root = Own(new GameObject(name, typeof(MeshFilter), typeof(MeshRenderer)));

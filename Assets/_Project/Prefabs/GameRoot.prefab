@@ -13,7 +13,6 @@ GameObject:
   - component: {fileID: 305265878934969917}
   - component: {fileID: 3040706176131027763}
   - component: {fileID: 5102960225896293144}
-  - component: {fileID: 6008188235077695433}
   m_Layer: 0
   m_Name: GameRoot
   m_TagString: Untagged
@@ -59,7 +58,7 @@ MonoBehaviour:
   board: {fileID: 305265878934969917}
   animator: {fileID: 3040706176131027763}
   input: {fileID: 5102960225896293144}
-  hud: {fileID: 6008188235077695433}
+  hud: {fileID: 0}
   navigationView: {fileID: 0}
   sfxPlayer: {fileID: 0}
   haptics: {fileID: 0}
@@ -99,17 +98,5 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2fef7362709bd7f4db896bd635bf1e9f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!114 &6008188235077695433
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3952998719330405065}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0bb6fa1999ac7fb49afe247146a3843a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 

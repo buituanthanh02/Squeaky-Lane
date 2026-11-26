@@ -2,6 +2,7 @@ using System;
 using UnityEngine;
 using SqueakyLane.Core.Model;
 using SqueakyLane.Game;
+using static SqueakyLane.Presentation.UnityObjects;
 
 namespace SqueakyLane.Presentation
 {
@@ -342,12 +343,6 @@ namespace SqueakyLane.Presentation
             mudOverlay = null;
             mudIsBlob = false;
             mudSolid = null;
-        }
-
-        private static void Release(UnityEngine.Object value)
-        {
-            if (Application.isPlaying) Destroy(value);
-            else DestroyImmediate(value);
         }
     }
 }

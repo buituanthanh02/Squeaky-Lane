@@ -2,6 +2,7 @@
 using UnityEngine;
 using SqueakyLane.Core.Model;
 using SqueakyLane.Game;
+using static SqueakyLane.Presentation.UnityObjects;
 
 namespace SqueakyLane.Presentation
 {
@@ -442,12 +443,6 @@ namespace SqueakyLane.Presentation
             v.Add(a); v.Add(b); v.Add(c); v.Add(d);
             for (int i = 0; i < 4; i++) { uv.Add(new Vector2((color + .5f) / GroundColorCount, .5f)); }
             t.Add(first); t.Add(first + 1); t.Add(first + 2); t.Add(first + 2); t.Add(first + 3); t.Add(first);
-        }
-        private static void Release(Object value)
-        {
-            if (value == null) { return; }
-            if (Application.isPlaying) { Destroy(value); }
-            else { DestroyImmediate(value); }
         }
         private void OnDestroy() { if (ownedMesh != null) { Release(ownedMesh); } if (streetMesh != null) { Release(streetMesh); } ReleaseCity(); }
     }

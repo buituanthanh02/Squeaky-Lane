@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
 using UnityEngine;
 using SqueakyLane.Core.Model;
 using SqueakyLane.Core.Solver;
@@ -33,9 +32,7 @@ namespace SqueakyLane.Presentation
         private ActionAnimator animator;
         [SerializeField]
         private InputController input;
-        [SerializeField]
-        private DebugHud hud;
-        [Header("009 — bạn gắn trong scene sau khi tự dựng UI")]
+        [Header("UI dựng trong scene")]
         [SerializeField]
         private NavigationView navigationView;
         [SerializeField]
@@ -65,15 +62,16 @@ namespace SqueakyLane.Presentation
         private float hudIn;
         private bool mechanicsDirty;
         private int savedHints;
-        public bool DiagnosticsPaused { get; set; }
-        public double LastSearchMilliseconds { get; private set; }
-        public double PeakSearchMilliseconds { get; private set; }
         public GameSession Session => session;
-        public LevelTimer Timer => timer;
-        public ConfigProvider Configs => configs;
+        private bool CanPlay => !transitioning && navigator != null && navigator.Screen == ScreenState.Playing;
 
         private void Awake()
         {
+            if (navigationView == null)
+            {
+                throw new InvalidOperationException("GameBootstrap cần NavigationView trong scene.");
+            }
+
             configs = new ConfigProvider(gameConfig, feelConfig, cameraConfig, carCatalog, mechanicCatalog);
             Input.simulateMouseWithTouches = true;
             Application.targetFrameRate = configs.Game.TargetFps;
@@ -91,27 +89,18 @@ namespace SqueakyLane.Presentation
         {
             input.Command += Apply;
             tableButtons.Command += Apply;
-            hud.Undo += Undo;
-            hud.Restart += Restart;
-            hud.Hint += RequestHint;
-            hud.ChangeLevel += ChangeLevel;
             feedback.Connect(input, animator, navigationView);
             if (feelEffects != null)
             {
                 feelEffects.enabled = true;
                 feelEffects.Initialize(animator, board, boardCamera, feelConfig, palette);
             }
-            if (navigationView != null)
-            {
-                navigationView.Navigate += Navigate;
-                navigationView.Undo += Undo;
-                navigationView.Hint += RequestHint;
-            }
-
+            navigationView.Navigate += Navigate;
+            navigationView.Undo += Undo;
+            navigationView.Hint += RequestHint;
             if (session != null)
             {
-                stuck = new StuckDetector(session, gameConfig.SearchMaxStates);
-                hints = new HintProvider(session, timer, savedHints, gameConfig.SearchMaxStates);
+                CreateSearch(savedHints);
                 animator.CancelAndSnap(session.State);
                 mechanicsDirty = false;
             }
@@ -121,22 +110,15 @@ namespace SqueakyLane.Presentation
         {
             input.Command -= Apply;
             tableButtons.Command -= Apply;
-            hud.Undo -= Undo;
-            hud.Restart -= Restart;
-            hud.Hint -= RequestHint;
-            hud.ChangeLevel -= ChangeLevel;
             feedback.Disconnect();
             if (feelEffects != null)
             {
                 feelEffects.enabled = false;
             }
-            if (navigationView != null)
-            {
-                navigationView.Navigate -= Navigate;
-                navigationView.Undo -= Undo;
-                navigationView.Hint -= RequestHint;
-                navigationView.SetFade(0);
-            }
+            navigationView.Navigate -= Navigate;
+            navigationView.Undo -= Undo;
+            navigationView.Hint -= RequestHint;
+            navigationView.SetFade(0);
 
             if (transition != null)
             {
@@ -166,22 +148,14 @@ namespace SqueakyLane.Presentation
             }
 
             order = data.ids;
-            hud.Initialize(canvas, navigationView == null);
             tableButtons.Initialize(canvas);
-            if (navigationView == null)
-            {
-                LoadLevel(0);
-                return;
-            }
-
             navigator = new Navigator(order.Length);
             navigationView.Initialize(order, progress, gameConfig.UnlockAll);
             ApplyPlayGate();
-            board.SetVisible(false);
-            tableButtons.SetVisible(false);
+            SetBoardVisible(false);
         }
 
-        public void LoadLevel(int position)
+        private void LoadLevel(int position)
         {
             winCelebrating = false;
             winDelayRemaining = 0;
@@ -193,8 +167,7 @@ namespace SqueakyLane.Presentation
             session = new GameSession(level);
             var setup = new LevelSetup(metadata, selected, gameConfig.TutorialLevelsUntimed, gameConfig.BaseSeconds, gameConfig.SecondsPerMove, gameConfig.UnknownMinimumMoves, gameConfig.HintsPerLevel);
             timer = new LevelTimer(setup.TimeLimit, gameConfig.UndoPenalty, gameConfig.HintPenalty, gameConfig.Star3Ratio, gameConfig.Star2Ratio, gameConfig.MaxTickSeconds);
-            stuck = new StuckDetector(session, gameConfig.SearchMaxStates);
-            hints = new HintProvider(session, timer, setup.Hints, gameConfig.SearchMaxStates);
+            CreateSearch(setup.Hints);
             board.Build(session.Level, session.State, palette, configs.Cars, configs.Mechanics);
             animator.Initialize(board, feelConfig, session.State);
             input.Initialize(boardCamera, board, gameConfig);
@@ -202,13 +175,24 @@ namespace SqueakyLane.Presentation
             FitBoardCamera();
             SetMessage("Chạm nửa xe để chạy");
             mechanicsDirty = false;
-            PeakSearchMilliseconds = 0;
             lastCountdownSecond = -1;
             animator.Paused = false;
-            board.SetVisible(true);
-            tableButtons.SetVisible(true);
+            SetBoardVisible(true);
             ApplyPlayGate();
             RefreshHud();
+        }
+
+        private void SetBoardVisible(bool visible)
+        {
+            board.SetVisible(visible);
+            tableButtons.SetVisible(visible);
+        }
+
+        // Dò kẹt và tìm gợi ý bám theo một phiên chơi; tạo và hủy cùng nhau.
+        private void CreateSearch(int hintCount)
+        {
+            stuck = new StuckDetector(session, gameConfig.SearchMaxStates);
+            hints = new HintProvider(session, timer, hintCount, gameConfig.SearchMaxStates);
         }
 
         private void DisposeSearch()
@@ -255,6 +239,11 @@ namespace SqueakyLane.Presentation
             animator.Enqueue(command, before, result);
             mechanicsDirty = true;
             SetMessage("");
+            RefreshControls();
+        }
+
+        private void RefreshControls()
+        {
             tableButtons.Refresh();
             ApplyPlayGate();
             RefreshHud();
@@ -262,7 +251,7 @@ namespace SqueakyLane.Presentation
 
         public void Undo()
         {
-            if (DiagnosticsPaused || transitioning || (navigator != null && navigator.Screen != ScreenState.Playing) || session == null || session.IsWin || !session.Undo())
+            if (!CanPlay || session == null || session.IsWin || !session.Undo())
             {
                 return;
             }
@@ -271,34 +260,9 @@ namespace SqueakyLane.Presentation
             animator.CancelAndSnap(session.State);
             mechanicsDirty = false;
             SetMessage("Đã hoàn tác");
-            tableButtons.Refresh();
-            ApplyPlayGate();
-            RefreshHud();
+            RefreshControls();
             feedback.Play(SoundCue.Undo);
-            if (navigator != null)
-            {
-                ExecuteBanner(navigator.SetStuck(false));
-            }
-        }
-
-        public void Restart()
-        {
-            if (navigator != null)
-            {
-                Navigate(NavigationAction.Restart, -1);
-            }
-            else if (!DiagnosticsPaused && order != null)
-            {
-                LoadLevel(selected);
-            }
-        }
-
-        private void ChangeLevel(int delta)
-        {
-            if (!DiagnosticsPaused && order != null)
-            {
-                LoadLevel(selected + delta);
-            }
+            SetStuck(false);
         }
 
         private void RequestHint()
@@ -315,20 +279,18 @@ namespace SqueakyLane.Presentation
 
         private void Update()
         {
-            if (navigationView != null)
+            if (navigationView.RefreshSafeArea() && session != null)
             {
-                if (navigationView.RefreshSafeArea() && session != null)
-                {
-                    FitBoardCamera();
-                }
-                if (Input.GetKeyDown(KeyCode.Escape))
-                {
-                    Navigate(NavigationAction.Back, -1);
-                }
+                FitBoardCamera();
+            }
+
+            if (Input.GetKeyDown(KeyCode.Escape))
+            {
+                Navigate(NavigationAction.Back, -1);
             }
 
             ApplyPlayGate();
-            if (session == null || DiagnosticsPaused)
+            if (session == null)
             {
                 return;
             }
@@ -336,89 +298,21 @@ namespace SqueakyLane.Presentation
             // Đồng hồ chọn unscaled có chủ đích; chỉ trạng thái thắng/thua mới pause, kẹt vẫn đếm.
             timer.Tick(Time.unscaledDeltaTime);
             ApplyPlayGate();
-            if (navigator != null && navigator.Screen == ScreenState.Playing && !transitioning)
+            if (CanPlay)
             {
-                if (session.IsWin)
-                {
-                    // Core thắng trước hình. Đợi mọi xe chạy hết rồi mới chúc mừng, không cắt xe cuối bằng lớp mờ.
-                    if (!animator.IsBusy)
-                    {
-                        if (!winCelebrating)
-                        {
-                            winCelebrating = true;
-                            winDelayRemaining = feelConfig.WinDialogDelaySeconds;
-                            feedback.Result(true);
-                            if (feelEffects != null)
-                            {
-                                feelEffects.Celebrate();
-                            }
-                        }
-                        else
-                        {
-                            winDelayRemaining -= Time.unscaledDeltaTime;
-                        }
-
-                        if (winDelayRemaining <= 0)
-                        {
-                            progress.RecordWin(order[selected], timer.StarsOnWin());
-                            Navigate(NavigationAction.Won, -1);
-                        }
-                    }
-                }
-                else if (timer.IsOver)
-                {
-                    feedback.Result(false);
-                    Navigate(NavigationAction.Lost, -1);
-                }
+                CheckLevelEnd();
             }
 
             if (input.Accepting)
             {
-                long start = Stopwatch.GetTimestamp();
-                var budget = SearchBudget.Start(gameConfig.SearchMilliseconds);
-                hints.Poll(budget);
-                stuck.Poll(budget);
-                LastSearchMilliseconds = (Stopwatch.GetTimestamp() - start) * 1000.0 / Stopwatch.Frequency;
-                PeakSearchMilliseconds = Math.Max(PeakSearchMilliseconds, LastSearchMilliseconds);
-                if (hints.TryTake(out var move))
-                {
-                    SetMessage(move.Kind == SolverMoveKind.MoveCar ? "Gợi ý: xe " + (move.Index + 1) + (move.Sign > 0 ? " → / ↓" : " ← / ↑") : move.Kind == SolverMoveKind.RotateTable ? "Gợi ý: xoay xe " + (move.Index + 1) : "Gợi ý: xoay trụ " + (move.Index + 1));
-                    RefreshHud();
-                }
-                else if (hints.HasFinished && !hints.HasHint)
-                {
-                    SetMessage("Chưa tìm được gợi ý trong ngân sách");
-                    hints.Cancel();
-                    RefreshHud();
-                }
-
-                if (navigator != null)
-                {
-                    bool isStuck = stuck.Status == StuckStatus.Stuck;
-                    if (isStuck && !navigator.IsStuck)
-                    {
-                        feedback.Play(SoundCue.Stuck);
-                    }
-
-                    ExecuteBanner(navigator.SetStuck(isStuck));
-                }
-
-                int second = Mathf.CeilToInt(timer.Remaining);
-                if (timer.IsTimed && timer.Remaining / timer.TimeLimit < gameConfig.LowTimeRatio && second != lastCountdownSecond)
-                {
-                    lastCountdownSecond = second;
-                    feedback.Play(SoundCue.Countdown);
-                }
+                PollSearch();
+                PlayCountdown();
             }
 
             if (mechanicsDirty && !animator.IsBusy)
             {
                 board.RefreshMechanics(session.State);
                 mechanicsDirty = false;
-            }
-            if (hud.RefreshSafeArea())
-            {
-                FitBoardCamera();
             }
 
             ApplyPlayGate();
@@ -430,20 +324,102 @@ namespace SqueakyLane.Presentation
             } // Chữ đồng hồ chỉ cập nhật 10 Hz, không tạo chuỗi mỗi frame.
         }
 
+        private void CheckLevelEnd()
+        {
+            if (session.IsWin)
+            {
+                // Core thắng trước hình. Đợi mọi xe chạy hết rồi mới chúc mừng, không cắt xe cuối bằng lớp mờ.
+                if (animator.IsBusy)
+                {
+                    return;
+                }
+
+                if (!winCelebrating)
+                {
+                    winCelebrating = true;
+                    winDelayRemaining = feelConfig.WinDialogDelaySeconds;
+                    feedback.Result(true);
+                    if (feelEffects != null)
+                    {
+                        feelEffects.Celebrate();
+                    }
+                }
+                else
+                {
+                    winDelayRemaining -= Time.unscaledDeltaTime;
+                }
+
+                if (winDelayRemaining <= 0)
+                {
+                    progress.RecordWin(order[selected], timer.StarsOnWin());
+                    Navigate(NavigationAction.Won, -1);
+                }
+            }
+            else if (timer.IsOver)
+            {
+                feedback.Result(false);
+                Navigate(NavigationAction.Lost, -1);
+            }
+        }
+
+        // Gợi ý và dò kẹt chia nhau một ngân sách thời gian mỗi frame.
+        private void PollSearch()
+        {
+            var budget = SearchBudget.Start(gameConfig.SearchMilliseconds);
+            hints.Poll(budget);
+            stuck.Poll(budget);
+            if (hints.TryTake(out var move))
+            {
+                SetMessage(HintText(move));
+                RefreshHud();
+            }
+            else if (hints.HasFinished && !hints.HasHint)
+            {
+                SetMessage("Chưa tìm được gợi ý trong ngân sách");
+                hints.Cancel();
+                RefreshHud();
+            }
+
+            bool isStuck = stuck.Status == StuckStatus.Stuck;
+            if (isStuck && !navigator.IsStuck)
+            {
+                feedback.Play(SoundCue.Stuck);
+            }
+
+            SetStuck(isStuck);
+        }
+
+        private static string HintText(SolverMove move)
+        {
+            string number = (move.Index + 1).ToString();
+            switch (move.Kind)
+            {
+                case SolverMoveKind.MoveCar: return "Gợi ý: xe " + number + (move.Sign > 0 ? " → / ↓" : " ← / ↑");
+                case SolverMoveKind.RotateTable: return "Gợi ý: xoay xe " + number;
+                default: return "Gợi ý: xoay trụ " + number;
+            }
+        }
+
+        private void PlayCountdown()
+        {
+            int second = Mathf.CeilToInt(timer.Remaining);
+            if (timer.IsTimed && timer.Remaining / timer.TimeLimit < gameConfig.LowTimeRatio && second != lastCountdownSecond)
+            {
+                lastCountdownSecond = second;
+                feedback.Play(SoundCue.Countdown);
+            }
+        }
+
         private void SetMessage(string value)
         {
             message = value;
             // Gửi theo sự kiện để thông báo trùng nội dung vẫn hiện lại; tick HUD 10 Hz không kéo dài tuổi bong bóng.
-            if (navigationView != null)
-            {
-                navigationView.ShowMessage(value);
-            }
+            navigationView.ShowMessage(value);
         }
 
         private void FitBoardCamera()
         {
-            var viewport = navigationView != null ? hud.BoardViewport(cameraConfig.PlayingBottomInset) : hud.BoardViewport();
-            board.FitCamera(boardCamera, cameraConfig, viewport);
+            board.FitCamera(boardCamera, cameraConfig, NavigationView.BoardViewport(cameraConfig.PlayingBottomInset));
         }
 
         private void RefreshHud()
@@ -453,18 +429,8 @@ namespace SqueakyLane.Presentation
                 return;
             }
 
-            string time = timer.IsTimed ? Mathf.CeilToInt(timer.Remaining) + " s" : "Không tính giờ";
-            string title = "Màn " + order[selected] + " · " + levelName + "\n" + time + " · " + session.State.Moves + " nước";
-            string status = session.IsWin ? "Thắng · " + timer.StarsOnWin() + " sao" : timer.IsOver ? "Hết giờ" : stuck.Status == StuckStatus.Stuck && (navigationView == null || !navigationView.HasStuckEdge) ? "Kẹt xe · Hoàn tác hoặc chơi lại" : message;
-            status += "\nGợi ý còn: " + (hints.Remaining < 0 ? "∞" : hints.Remaining.ToString());
-            hud.Show(title, status, !session.IsWin && session.UndoCount > 0, !timer.Paused && hints.Remaining != 0);
-            if (navigationView != null)
-            {
-                navigationView.RefreshHud("Màn " + order[selected] + " · " + levelName, timer, session.State.Moves, hints.Remaining, message, CanPlay && !session.IsWin && session.UndoCount > 0, !timer.Paused, order.Length, selected, gameConfig);
-            }
+            navigationView.RefreshHud("Màn " + order[selected] + " · " + levelName, timer, session.State.Moves, hints.Remaining, message, CanPlay && !session.IsWin && session.UndoCount > 0, !timer.Paused, order.Length, selected, gameConfig);
         }
-
-        private bool CanPlay => !DiagnosticsPaused && !transitioning && (navigator == null || navigator.Screen == ScreenState.Playing);
 
         private void ApplyPlayGate()
         {
@@ -497,7 +463,7 @@ namespace SqueakyLane.Presentation
 #endif
         private void Navigate(NavigationAction action, int index)
         {
-            if (navigator == null || DiagnosticsPaused || transitioning)
+            if (navigator == null || transitioning)
             {
                 return;
             }
@@ -548,8 +514,7 @@ namespace SqueakyLane.Presentation
                         DisposeSearch();
                         session = null;
                         timer = null;
-                        board.SetVisible(false);
-                        tableButtons.SetVisible(false);
+                        SetBoardVisible(false);
                         break;
                     case NavigationCommandKind.PauseClock:
                         clockPaused = true;
@@ -593,8 +558,9 @@ namespace SqueakyLane.Presentation
             navigationView.SetFade(to);
         }
 
-        private void ExecuteBanner(IReadOnlyList<NavigationCommand> commands)
+        private void SetStuck(bool value)
         {
+            var commands = navigator.SetStuck(value);
             for (int i = 0; i < commands.Count; i++)
             {
                 navigationView.ShowStuck(commands[i].Kind == NavigationCommandKind.ShowStuck);

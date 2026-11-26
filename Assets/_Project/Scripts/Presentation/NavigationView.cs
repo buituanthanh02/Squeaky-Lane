@@ -253,6 +253,14 @@ namespace SqueakyLane.Presentation
         {
             if (messageBubble != null) { messageBubble.alpha = 0; }
         }
+        // Khung nhìn (tỉ lệ 0–1) dành cho bãi: trong safe area, chừa đỉnh cho đồng hồ và đáy cho nút.
+        public static Rect BoardViewport(float bottomInset)
+        {
+            const float topEdge = .86f;
+            var area = Screen.safeArea;
+            return new Rect(area.x / Screen.width, (area.y + area.height * bottomInset) / Screen.height,
+                area.width / Screen.width, area.height * (topEdge - bottomInset) / Screen.height);
+        }
         public bool RefreshSafeArea()
         {
             if (lastSafe == Screen.safeArea && lastWidth == Screen.width && lastHeight == Screen.height) return false;

@@ -3,6 +3,7 @@ using UnityEngine;
 using UnityEngine.Rendering;
 using SqueakyLane.Core.Model;
 using SqueakyLane.Game;
+using static SqueakyLane.Presentation.UnityObjects;
 
 namespace SqueakyLane.Presentation
 {
@@ -85,10 +86,6 @@ namespace SqueakyLane.Presentation
             vertices.Add(a); vertices.Add(b); vertices.Add(c); vertices.Add(d);
             indices.Add(start); indices.Add(start + 1); indices.Add(start + 2);
             indices.Add(start); indices.Add(start + 2); indices.Add(start + 3);
-        }
-        private static void Release(Object value)
-        {
-            if (Application.isPlaying) { Destroy(value); } else { DestroyImmediate(value); }
         }
         private void OnDestroy() { if (ownedMesh != null) { Release(ownedMesh); } }
     }

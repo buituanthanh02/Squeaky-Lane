@@ -5,6 +5,7 @@ using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.UI;
 using SqueakyLane.Presentation;
+using static SqueakyLane.EditorTools.EditorAssets;
 
 namespace SqueakyLane.EditorTools
 {
@@ -13,17 +14,17 @@ namespace SqueakyLane.EditorTools
     public static class StuckEdgeTools
     {
         private const string ScenePath = "Assets/_Project/Scenes/Play.unity";
-        private const string SpritePath = UiThemeAssets.Art + "/Sprites/stuck_edge.png";
+        private const string SpritePath = UiArt + "/Sprites/stuck_edge.png";
         private const int Size = 128, Border = 60, Fade = 56;
 
         [MenuItem("Tools/Squeaky Lane/016 UI/Build Stuck Edge")]
         public static void Build()
         {
-            UiThemeAssets.RequireEditMode();
+            RequireEditMode();
             var scene = UnityEngine.SceneManagement.SceneManager.GetActiveScene();
             if (scene.path != ScenePath) { throw new InvalidOperationException("Mở Play.unity trước."); }
             var nav = UnityEngine.Object.FindObjectOfType<NavigationView>(true);
-            var theme = AssetDatabase.LoadAssetAtPath<UiTheme>(UiThemeAssets.ThemePath);
+            var theme = AssetDatabase.LoadAssetAtPath<UiTheme>(UiThemePath);
             if (nav == null || theme == null) { throw new InvalidOperationException("Thiếu NavigationView/UiTheme."); }
             var sprite = Sprite();
             var data = new SerializedObject(nav);

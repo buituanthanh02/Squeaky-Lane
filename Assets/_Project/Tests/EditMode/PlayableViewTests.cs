@@ -271,15 +271,12 @@ namespace SqueakyLane.Tests.EditMode
         }
 
         [Test]
-        public void TableButtonsWorkWithoutVisibleDebugHudAndRespectPlayGate()
+        public void TableButtonsRespectPlayGate()
         {
             var canvasObject = new GameObject("Test UI", typeof(RectTransform), typeof(Canvas));
             canvasObject.transform.SetParent(root.transform);
             var canvas = canvasObject.GetComponent<Canvas>();
             canvas.renderMode = RenderMode.ScreenSpaceOverlay;
-            var debug = root.AddComponent<DebugHud>();
-            debug.Initialize(canvas, false);
-            Assert.That(typeof(DebugHud).GetField("font", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(debug), Is.Null);
             var dialog = new GameObject("Dialog", typeof(RectTransform));
             dialog.transform.SetParent(canvas.transform, false);
             var builder = new LevelDefBuilder(3, 3);

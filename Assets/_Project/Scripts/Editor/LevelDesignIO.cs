@@ -7,6 +7,7 @@ using UnityEditor;
 using UnityEngine;
 using SqueakyLane.Core.Model;
 using SqueakyLane.Game;
+using static SqueakyLane.EditorTools.EditorAssets;
 
 [assembly: InternalsVisibleTo("SqueakyLane.Tests.EditMode")]
 namespace SqueakyLane.EditorTools
@@ -447,18 +448,6 @@ namespace SqueakyLane.EditorTools
             {
                 throw new InvalidOperationException("Thoát Play trước khi sửa/lưu/xuất màn.");
             }
-        }
-
-        private static void EnsureFolder(string path)
-        {
-            if (AssetDatabase.IsValidFolder(path))
-            {
-                return;
-            }
-
-            string parent = Path.GetDirectoryName(path).Replace('\\', '/');
-            EnsureFolder(parent);
-            AssetDatabase.CreateFolder(parent, Path.GetFileName(path));
         }
 
         private static void Write(string path, string text)
