@@ -109,6 +109,12 @@ MonoBehaviour:
   comboWindowSeconds: 3
   comboSemitones: 2
   comboMaxSteps: 5
+  comboVolumeStep: 0.13
+  comboLoudSteps: 8
+  comboBigFrom: 4
+  comboLayerGainMin: 0.6
+  comboLayerGainMax: 1.2
+  comboLayerPitchStep: 0.035
   comboPopSeconds: 0.28
   comboPunchScale: 1.35
   comboFadeSeconds: 0.3

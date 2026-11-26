@@ -41,7 +41,7 @@ namespace SqueakyLane.Presentation
             }
         }
         // pitchScale > 1 nâng cao độ (chuỗi ra cổng liên tiếp); nhân với khoảng ngẫu nhiên của catalog.
-        public void Play(SoundCue cue, float pitchScale = 1f)
+        public void Play(SoundCue cue, float pitchScale = 1f, float volumeScale = 1f)
         {
             if (voices == null || catalog == null || !progress.SoundEnabled || feel.SfxVolume <= 0) return;
             var entry = catalog.Find(cue); int index = (int)cue;
@@ -51,9 +51,22 @@ namespace SqueakyLane.Presentation
             nextCue[index] = Time.unscaledTime + entry.cooldown;
             for (int i = 0; i < voices.Length; i++) { if (remaining[i] > 0 && fadeRate[i] <= 0 && voiceCue[i] == cue) { Fade(i); } }
             int slot = FreeSlot();
-            var voice = voices[slot]; voice.Stop(); voice.clip = clip; voice.volume = entry.volume * feel.SfxVolume;
+            var voice = voices[slot]; voice.Stop(); voice.clip = clip; voice.volume = Mathf.Clamp01(entry.volume * feel.SfxVolume * volumeScale);
             voice.pitch = Mathf.Clamp(Random.Range(entry.pitchMin, entry.pitchMax) * pitchScale, .5f, 3f); voice.Play();
             voiceCue[slot] = cue; fadeRate[slot] = 0; remaining[slot] = clip.length / voice.pitch;
+        }
+        // Xe ra cổng: tiếng cổng cao và to dần theo chuỗi; từ combo 2 chồng thêm lớp tiếng combo, càng dài càng "đã".
+        public void PlayExit(int combo)
+        {
+            if (feel == null) return;
+            Play(SoundCue.Exit, feel.ComboPitch(combo), feel.ComboGain(combo));
+            if (combo < ProgressStore.MinCombo) return;
+            Play(combo >= feel.ComboBigFrom ? SoundCue.ComboBig : SoundCue.ComboUp, feel.ComboLayerPitch(combo), feel.ComboLayerGain(combo));
+        }
+        public float LiveVolume(SoundCue cue)
+        {
+            if (voices != null) for (int i = 0; i < voices.Length; i++) if (remaining[i] > 0 && fadeRate[i] <= 0 && voiceCue[i] == cue) return voices[i].volume;
+            return 0;
         }
         // Giọng rảnh; nếu hết thì giọng đang tắt dần nhỏ nhất; cuối cùng là giọng sắp kêu xong.
         private int FreeSlot()
@@ -101,13 +114,13 @@ namespace SqueakyLane.Presentation
             get { int count = 0; if (voices != null) for (int i = 0; i < voices.Length; i++) if (remaining[i] > 0 && fadeRate[i] > 0) count++; return count; }
         }
         public void StopAll() { if (voices != null) for (int i = 0; i < voices.Length; i++) Release(i); }
-        public void PlayEvent(MoveEventKind kind, StopReason? reason, float pitchScale = 1f)
+        public void PlayEvent(MoveEventKind kind, StopReason? reason)
         {
             switch (kind)
             {
                 case MoveEventKind.Step: Play(SoundCue.Step); break;
                 case MoveEventKind.Stop: Play(reason == StopReason.Car ? SoundCue.StopCar : SoundCue.StopWall); break;
-                case MoveEventKind.Exit: Play(SoundCue.Exit, pitchScale); break; case MoveEventKind.Water: Play(SoundCue.Water); break;
+                case MoveEventKind.Exit: Play(SoundCue.Exit); break; case MoveEventKind.Water: Play(SoundCue.Water); break;
                 case MoveEventKind.Mud: Play(SoundCue.Mud); break; case MoveEventKind.Spray: Play(SoundCue.Spray); break;
                 case MoveEventKind.Paint: Play(SoundCue.Paint); break; case MoveEventKind.Splash: Play(SoundCue.Splash); break;
                 case MoveEventKind.Push: Play(SoundCue.Push); break; case MoveEventKind.Tele: Play(SoundCue.Tele); break;

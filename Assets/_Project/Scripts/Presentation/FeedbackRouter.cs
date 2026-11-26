@@ -116,9 +116,9 @@ namespace SqueakyLane.Presentation
             bool heard = kind == MoveEventKind.Spray && animator != null && animator.SprayAlreadyHeard;
             if (sfx != null && !heard)
             {
-                // Xe ra cổng liên tiếp: mỗi xe tiếng cao hơn một chút (bậc thang như bản HTML). Combo do animator đếm.
-                float pitch = kind == MoveEventKind.Exit && animator != null && feel != null ? feel.ComboPitch(animator.ExitCombo) : 1f;
-                sfx.PlayEvent(kind, reason, pitch);
+                // Xe ra cổng liên tiếp: tiếng cao, to và dày dần (combo do animator đếm).
+                if (kind == MoveEventKind.Exit && animator != null) { sfx.PlayExit(animator.ExitCombo); }
+                else { sfx.PlayEvent(kind, reason); }
             }
 
             if (kind == MoveEventKind.Stop || kind == MoveEventKind.Exit)

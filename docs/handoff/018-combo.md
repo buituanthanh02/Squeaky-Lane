@@ -36,3 +36,4 @@ Người làm chốt: kỷ lục riêng từng màn; cửa sổ combo 1,6 → 3 
 ## Trao đổi
 2026-11-26 16:29 · Claude → Người làm · [BÁO]: xong trên `018-combo`, chờ chơi thử.
 2026-11-26 16:36 · Claude → Người làm · [BÁO]: đã đổi sang huy hiệu đóng xuống, chờ chơi thử.
+2026-11-26 16:42 · Claude → Người làm · [BÁO]: tiếng to dần theo combo. Đo trộn Exit + lớp combo: combo 1→8 +0 → +5 dB, đỉnh 0,38 → 0,92 (bản đầu 1,06 gây vỡ tiếng, đã hạ). Hai clip mới `sfx_combo_up`, `sfx_combo_big` (`tools/make-sfx.py`). EditMode 574 · 573 · 0 · 1; Play màn 20: âm lượng cổng 0,42 → 0,64 qua combo 1–5. Chưa nghe bằng tai, chưa thử máy thật.

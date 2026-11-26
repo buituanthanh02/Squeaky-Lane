@@ -79,6 +79,12 @@ namespace SqueakyLane.Game
         [SerializeField, Range(.3f, 5), Tooltip("Hai xe ra cổng cách nhau không quá số giây này thì tính là chuỗi liên tiếp.")] private float comboWindowSeconds = 3;
         [SerializeField, Range(0, 4), Tooltip("Mỗi xe liên tiếp tiếng ra cổng cao thêm bấy nhiêu bán cung.")] private float comboSemitones = 2;
         [SerializeField, Range(1, 8), Tooltip("Chuỗi tối đa tính tới xe thứ mấy; từ đó tiếng không cao thêm.")] private int comboMaxSteps = 5;
+        [SerializeField, Range(0, .5f), Tooltip("Mỗi xe liên tiếp tiếng ra cổng to thêm bấy nhiêu lần so với xe đầu.")] private float comboVolumeStep = .13f;
+        [SerializeField, Range(2, 13), Tooltip("Từ xe thứ này trở đi tiếng không to thêm.")] private int comboLoudSteps = 8;
+        [SerializeField, Range(2, 13), Tooltip("Từ combo này lớp tiếng đổi sang bản lớn (có tiếng trầm và chuông).")] private int comboBigFrom = 4;
+        [SerializeField, Range(0, 2), Tooltip("Hệ số âm lượng lớp tiếng combo ở combo 2.")] private float comboLayerGainMin = .6f;
+        [SerializeField, Range(0, 2), Tooltip("Hệ số âm lượng lớp tiếng combo khi đã to hết cỡ.")] private float comboLayerGainMax = 1.2f;
+        [SerializeField, Range(0, .15f), Tooltip("Mỗi bậc combo lớp tiếng cao thêm bao nhiêu (1 = gấp đôi tần số).")] private float comboLayerPitchStep = .035f;
         [Header("018 — Chữ Combo lúc chơi và bảng kỷ lục")]
         [SerializeField, Range(.05f, 1), Tooltip("Thời gian chữ Combo bật ra.")] private float comboPopSeconds = .28f;
         [SerializeField, Range(1, 2), Tooltip("Cỡ vọt quá lúc bật.")] private float comboPunchScale = 1.35f;
@@ -300,6 +306,13 @@ namespace SqueakyLane.Game
         }
         public float ImpactScale(int slideCells) { return Mathf.Lerp(1, impactMaxScale, ImpactPower(slideCells)); }
 
+        public int ComboBigFrom => comboBigFrom;
+        // Âm lượng tiếng ra cổng theo xe thứ combo (1 = bình thường), tăng đều rồi dừng ở comboLoudSteps.
+        public float ComboGain(int combo) => 1 + comboVolumeStep * (Mathf.Clamp(combo, 1, comboLoudSteps) - 1);
+        // Lớp tiếng chỉ có từ combo 2: to và cao dần cùng chuỗi.
+        public float ComboLayerGain(int combo) => Mathf.Lerp(comboLayerGainMin, comboLayerGainMax, Mathf.InverseLerp(2, comboLoudSteps, combo));
+        public float ComboLayerPitch(int combo) => 1 + comboLayerPitchStep * (Mathf.Clamp(combo, 2, comboLoudSteps) - 2);
+
         // Cao độ tiếng ra cổng theo xe thứ combo trong chuỗi (1 = bình thường). Mỗi xe thêm comboSemitones bán cung, có trần.
         public float ComboPitch(int combo)
         {
@@ -377,6 +390,12 @@ namespace SqueakyLane.Game
             recordPulseScale = Limit(recordPulseScale, 0, .3f, .04f);
             comboSemitones = Limit(comboSemitones, 0, 4, 2);
             comboMaxSteps = Mathf.Clamp(comboMaxSteps, 1, 8);
+            comboVolumeStep = Limit(comboVolumeStep, 0, .5f, .13f);
+            comboLoudSteps = Mathf.Clamp(comboLoudSteps, 2, 13);
+            comboBigFrom = Mathf.Clamp(comboBigFrom, 2, 13);
+            comboLayerGainMin = Limit(comboLayerGainMin, 0, 2, .6f);
+            comboLayerGainMax = Limit(comboLayerGainMax, comboLayerGainMin, 2, 1.2f);
+            comboLayerPitchStep = Limit(comboLayerPitchStep, 0, .15f, .035f);
             impactFullCells = Mathf.Clamp(impactFullCells, 2, 8);
             impactMaxScale = Limit(impactMaxScale, 1, 3, 1.8f);
             shakeMinCells = Mathf.Clamp(shakeMinCells, 1, 8);

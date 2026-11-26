@@ -180,3 +180,17 @@ MonoBehaviour:
     pitchMin: 1
     pitchMax: 1
     cooldown: 0.1
+  - cue: 24
+    clips:
+    - {fileID: 8300000, guid: c0edfca6dab66974f938f061f02d9418, type: 3}
+    volume: 0.6
+    pitchMin: 1
+    pitchMax: 1
+    cooldown: 0.05
+  - cue: 25
+    clips:
+    - {fileID: 8300000, guid: 07a1b4e908140bd46844aabbad5dec12, type: 3}
+    volume: 0.68
+    pitchMin: 1
+    pitchMax: 1
+    cooldown: 0.05

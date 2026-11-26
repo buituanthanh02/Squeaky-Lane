@@ -148,6 +148,33 @@ def slam():
     return finish(x * np.clip(t / 0.003, 0, 1), 0.62)
 
 
+def combo_up():
+    """Lớp combo nhỏ: 'tưng' hai nốt đi lên trên một cú gõ trầm."""
+    t = clock(0.3)
+    x = 0.7 * sweep(t, 200, 90, 0.4) * np.exp(-t / 0.05)
+    for i, f in enumerate([880.0, 1318.5]):
+        bell = note(f, 0.22, 0.07)
+        start = int(i * 0.055 * SR)
+        end = min(len(x), start + len(bell))
+        x[start:end] += 0.6 * bell[:end - start]
+    return finish(x * np.clip(t / 0.003, 0, 1), 0.45)
+
+
+def combo_big():
+    """Lớp combo lớn: 'bùm' trầm dài hơn, hợp âm chuông rải lên và chút lấp lánh."""
+    rng = np.random.default_rng(41)
+    t = clock(0.6)
+    x = 1.1 * sweep(t, 170, 55, 0.4) * np.exp(-t / 0.13)
+    for i, f in enumerate([659.3, 880.0, 1108.7, 1318.5]):
+        bell = note(f, 0.4, 0.13)
+        start = int((0.02 + i * 0.045) * SR)
+        end = min(len(x), start + len(bell))
+        x[start:end] += 0.45 * bell[:end - start]
+    glitter = band(rng.normal(0, 1, len(t)), 3200, 6500)
+    x += 0.12 * glitter / np.abs(glitter).max() * np.clip(t / 0.08, 0, 1) * np.exp(-t / 0.16)
+    return finish(x * np.clip(t / 0.003, 0, 1) * np.clip((t[-1] - t) / 0.08, 0, 1), 0.6)
+
+
 SOUNDS = {
     'sfx_move': move(),
     'sfx_water_gate': washing(1.2, 500, 3400, 24, 11),
@@ -159,6 +186,8 @@ SOUNDS = {
     'sfx_mud': mud(),
     'sfx_record_whoosh': whoosh(),
     'sfx_record_slam': slam(),
+    'sfx_combo_up': combo_up(),
+    'sfx_combo_big': combo_big(),
 }
 
 if __name__ == '__main__':

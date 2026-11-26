@@ -137,6 +137,43 @@ namespace SqueakyLane.Tests.EditMode
             Assert.That(row.gameObject.activeSelf, Is.False);
         }
 
+        [Test]
+        public void ExitSoundGetsLouderAndAddsABiggerLayerAsTheComboGrows()
+        {
+            for (int combo = 2; combo <= 8; combo++)
+            {
+                Assert.That(feel.ComboGain(combo), Is.GreaterThan(feel.ComboGain(combo - 1)), "combo " + combo);
+                Assert.That(feel.ComboLayerGain(combo), Is.GreaterThanOrEqualTo(feel.ComboLayerGain(combo - 1)));
+            }
+
+            Assert.That(feel.ComboGain(1), Is.EqualTo(1));
+            Assert.That(feel.ComboGain(50), Is.EqualTo(feel.ComboGain(13)), "to tới trần rồi dừng");
+
+            var player = Make<SfxPlayer>("sfx");
+            var catalog = AssetDatabase.LoadAssetAtPath<SfxCatalog>("Assets/_Project/Config/SfxCatalog.asset");
+            Set(player, "catalog", catalog);
+            var store = new ProgressStore(new Memory());
+            player.Configure(feel, store);
+            player.PlayExit(1);
+            float first = player.LiveVolume(SoundCue.Exit);
+            Assert.That(player.LiveVoices(SoundCue.ComboUp) + player.LiveVoices(SoundCue.ComboBig), Is.Zero, "xe đầu chưa có lớp combo");
+            player.StopAll();
+            // Cooldown tính theo đồng hồ thật, EditMode không chạy: dùng một player mới cho mỗi mức.
+            var second = Make<SfxPlayer>("sfx2");
+            Set(second, "catalog", catalog);
+            second.Configure(feel, store);
+            second.PlayExit(2);
+            Assert.That(second.LiveVolume(SoundCue.Exit), Is.GreaterThan(first));
+            Assert.That(second.LiveVoices(SoundCue.ComboUp), Is.EqualTo(1));
+            var third = Make<SfxPlayer>("sfx3");
+            Set(third, "catalog", catalog);
+            third.Configure(feel, store);
+            third.PlayExit(feel.ComboBigFrom + 3);
+            Assert.That(third.LiveVoices(SoundCue.ComboBig), Is.EqualTo(1));
+            Assert.That(third.LiveVolume(SoundCue.ComboBig), Is.GreaterThan(second.LiveVolume(SoundCue.ComboUp)));
+            Assert.That(third.LiveVolume(SoundCue.Exit), Is.LessThanOrEqualTo(1));
+        }
+
         private T Make<T>(string name) where T : Component
         {
             var item = new GameObject(name, typeof(RectTransform));

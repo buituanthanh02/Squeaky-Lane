@@ -116,6 +116,8 @@ namespace SqueakyLane.EditorTools
             var entries = data.FindProperty("entries");
             SetSound(entries, SoundCue.RecordWhoosh, "sfx_record_whoosh", .55f);
             SetSound(entries, SoundCue.RecordSlam, "sfx_record_slam", .75f);
+            SetSound(entries, SoundCue.ComboUp, "sfx_combo_up", .6f);
+            SetSound(entries, SoundCue.ComboBig, "sfx_combo_big", .68f);
             data.ApplyModifiedPropertiesWithoutUndo();
             EditorUtility.SetDirty(catalog);
             AssetDatabase.SaveAssetIfDirty(catalog);
@@ -139,7 +141,8 @@ namespace SqueakyLane.EditorTools
             entry.FindPropertyRelative("volume").floatValue = volume;
             entry.FindPropertyRelative("pitchMin").floatValue = 1;
             entry.FindPropertyRelative("pitchMax").floatValue = 1;
-            entry.FindPropertyRelative("cooldown").floatValue = .1f;
+            // Lớp combo phải qua được mọi lần tiếng ra cổng qua được (cooldown .08 của Exit).
+            entry.FindPropertyRelative("cooldown").floatValue = cue == SoundCue.ComboUp || cue == SoundCue.ComboBig ? .05f : .1f;
         }
     }
 }
