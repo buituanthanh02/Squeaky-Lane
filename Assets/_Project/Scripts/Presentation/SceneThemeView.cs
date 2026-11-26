@@ -35,54 +35,8 @@ namespace SqueakyLane.Presentation
                     1, level.Rows + 2 * (theme.PavementWidth + theme.GroundShadowSpread));
                 props.Add(shadow);
             }
-            if (theme.StreetsEnabled)
-            {
-                SpawnStreets(level, theme);
-                if (theme.CityShops != null && theme.CityPark != null) { SpawnIllustratedTown(level, theme); }
-                else { SpawnTown(level, theme); }
-            }
+            if (theme.StreetsEnabled) { SpawnStreets(level, theme); SpawnTown(level, theme); }
             else { SpawnProps(level, theme, vehicles); }
-        }
-
-        // Các sprite phẳng cùng mặt phẳng XZ của đường. Dời cả dải ra ngoài thảm nếu cạnh đó có hầm rửa.
-        private void SpawnIllustratedTown(LevelDef level, UiTheme theme)
-        {
-            float innerX = level.Cols * .5f + theme.StreetInner;
-            float roadDepth = theme.StreetInner + theme.StreetWidth;
-            float north = level.Rows * .5f + roadDepth;
-            float south = north;
-            foreach (var gate in level.Gates)
-            {
-                if (gate.Color != TileColor.Water) { continue; }
-                if (gate.Edge == GateEdge.Top) { north = level.Rows * .5f + Mathf.Max(roadDepth, WashGateReach); }
-                if (gate.Edge == GateEdge.Bottom) { south = level.Rows * .5f + Mathf.Max(roadDepth, WashGateReach); }
-            }
-
-            float width = innerX * 2 * theme.CityBlockWidth;
-            PlaceTownStrip(theme.CityShops, "016 Cửa hàng 2D", new Vector2(width, theme.CityBlockDepth.x), 0, north, 1, theme);
-            PlaceTownStrip(theme.CityPark, "016 Công viên 2D", new Vector2(width, theme.CityBlockDepth.y), 0, south, -1, theme);
-            if (theme.CitySidewalk == null) { return; }
-
-            // Vỉa hè dọc nằm ở hai góc xen kẽ, phía trong hai phố dọc, ngoài vùng bàn và cổng.
-            float sideWidth = Mathf.Min(theme.CitySideSize.x, innerX - width * .5f);
-            var sideSize = new Vector2(sideWidth, theme.CitySideSize.y);
-            float sideX = innerX - sideWidth * .5f;
-            PlaceTownStrip(theme.CitySidewalk, "016 Vỉa hè dọc trên", sideSize, sideX, north, 1, theme);
-            PlaceTownStrip(theme.CitySidewalk, "016 Vỉa hè dọc dưới", sideSize, -sideX, south, -1, theme);
-        }
-
-        private void PlaceTownStrip(Sprite sprite, string label, Vector2 maxSize, float x, float roadEdge, int direction, UiTheme theme)
-        {
-            var size = sprite.bounds.size;
-            float scale = Mathf.Min(maxSize.x / size.x, maxSize.y / size.y);
-            float z = direction * (roadEdge + theme.CityStreetGap + size.y * scale * .5f);
-            var node = new GameObject(label, typeof(SpriteRenderer));
-            node.transform.SetParent(transform, false);
-            node.transform.localPosition = new Vector3(x, GroundY(theme) + theme.ContactShadowLift, z);
-            node.transform.localRotation = Quaternion.Euler(90, 0, 0);
-            node.transform.localScale = Vector3.one * scale;
-            node.GetComponent<SpriteRenderer>().sprite = sprite;
-            props.Add(node);
         }
 
         // 016: khi có phố, nhà/cây xếp thành hàng ngoài hai phố ngang (giữa hai phố dọc), không đè đường và thảm hầm rửa.

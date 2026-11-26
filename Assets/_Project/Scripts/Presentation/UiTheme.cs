@@ -94,12 +94,6 @@ namespace SqueakyLane.Presentation
         [SerializeField, Tooltip("Cỡ lớn nhất của cây nhỏ/lớn; số khởi điểm chờ vòng ảnh S4.")] private Vector2 treeSizes = new Vector2(1.1f, 1.5f);
         [SerializeField, Range(.5f, 3)] private float sceneryLightSize = 1.2f;
         [SerializeField, Range(2, 6)] private float sceneryRoadSize = 3.8f;
-        [Header("016 · Dải nền đô thị 2D đặt ngoài đường")]
-        [SerializeField] private Sprite cityShops = null, cityPark = null, citySidewalk = null;
-        [SerializeField, Range(.5f, .9f), Tooltip("Phần bề ngang giữa hai phố dọc dành cho dải cửa hàng và công viên.")] private float cityBlockWidth = .82f;
-        [SerializeField, Tooltip("Độ sâu tối đa của dải cửa hàng và công viên, theo ô.")] private Vector2 cityBlockDepth = new Vector2(2.15f, 1.55f);
-        [SerializeField, Tooltip("Bề rộng và độ sâu tối đa của dải vỉa hè dọc, theo ô.")] private Vector2 citySideSize = new Vector2(.62f, 1.95f);
-        [SerializeField, Range(0, .5f), Tooltip("Khoảng hở giữa dải nền 2D và phố, theo ô.")] private float cityStreetGap = .12f;
         [Header("016 · Nút bàn xoay")]
         [SerializeField] private Sprite tableRotateBadge = null;
         [SerializeField, Range(.2f, .8f), Tooltip("Đường kính huy hiệu theo đường kính vùng chạm của bàn xoay.")] private float tableBadgeRatio = DefaultTableBadgeRatio;
@@ -223,13 +217,6 @@ namespace SqueakyLane.Presentation
         public Vector2 TreeSizes => treeSizes;
         public float SceneryLightSize => sceneryLightSize;
         public float SceneryRoadSize => sceneryRoadSize;
-        public Sprite CityShops => cityShops;
-        public Sprite CityPark => cityPark;
-        public Sprite CitySidewalk => citySidewalk;
-        public float CityBlockWidth => cityBlockWidth;
-        public Vector2 CityBlockDepth => cityBlockDepth;
-        public Vector2 CitySideSize => citySideSize;
-        public float CityStreetGap => cityStreetGap;
         public Sprite TableRotateBadge => tableRotateBadge;
         public float TableBadgeRatio => tableBadgeRatio;
         public float TableBadgeLaneOffset => tableBadgeLaneOffset;
@@ -305,12 +292,6 @@ namespace SqueakyLane.Presentation
             treeSizes.y = Clean(treeSizes.y, .5f, 3, 1.5f);
             sceneryLightSize = Clean(sceneryLightSize, .5f, 3, 1.2f);
             sceneryRoadSize = Clean(sceneryRoadSize, 2, 6, 3.8f);
-            cityBlockWidth = Clean(cityBlockWidth, .5f, .9f, .82f);
-            cityBlockDepth.x = Clean(cityBlockDepth.x, .5f, 4, 2.15f);
-            cityBlockDepth.y = Clean(cityBlockDepth.y, .5f, 4, 1.55f);
-            citySideSize.x = Clean(citySideSize.x, .3f, 1.5f, .62f);
-            citySideSize.y = Clean(citySideSize.y, .6f, 4, 1.95f);
-            cityStreetGap = Clean(cityStreetGap, 0, .5f, .12f);
             tableBadgeRatio = Clean(tableBadgeRatio, .2f, .8f, DefaultTableBadgeRatio);
             tableBadgeLaneOffset = Clean(tableBadgeLaneOffset, .5f, .9f, DefaultTableBadgeLaneOffset);
             tableBadgeCarGap = Clean(tableBadgeCarGap, 0, .2f, DefaultTableBadgeCarGap);
