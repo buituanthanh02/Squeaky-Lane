@@ -1,5 +1,5 @@
 # 016 — Thế giới đồ chơi: trạm rửa giữa phố, xe mảng đậm nhạt, cơ chế vẽ lại, chọn màn, main menu     Cỡ: L (chia 6 phần)     Trạng thái: Chờ người làm chơi thử
-Đang cầm: Claude        AI tham gia: Claude (code, nối, kiểm), Codex (016-a…d: shader, cơ chế, phố, ảnh IP)
+Đang cầm: Codex        AI tham gia: Claude (code, nối, kiểm), Codex (016-a…d: shader, cơ chế, phố, ảnh IP)
 Liên quan: 015 (hầm rửa, Toy Lit, khay bo góc). Nhánh: `016-toy-world` (rẽ từ `015-toy-look` vì 015 chưa merge).
 
 ## Yêu cầu người làm (26/11, ảnh màn 7 + ảnh game đỗ xe + ảnh menu IP)
@@ -45,6 +45,11 @@ Props phố phụ → ảnh IP (dùng nền tĩnh có sẵn) → vẽ lại cơ 
 - Hầm rửa cạnh trái/phải: thảm đè ngang phố dọc, xe chạy trên phố đó có thể xuyên qua thảm.
 - Tồn tại từ trước: nút "XOAY" che xe trên bàn xoay.
 
+## Bàn giao cho Codex (Claude sắp hết token)
+**Chỗ cần sửa còn biết:** bãi nhỏ đi vì camera chừa phố (`UiTheme.streetVisible/streetInner/streetWidth`, `BoardView.FitCamera`) · hầm rửa cạnh trái/phải đè lên phố dọc · nhà phố chủ yếu thấy mái, bị HUD che (`SceneThemeView.SpawnTown`, `ToyTownTools`) · nút "XOAY" che xe (`TableButtons`) · chưa xem trong Play: đèn, trụ, portal, bùn mới, hộp Cài đặt, xe lùi ra cổng cua phố · chưa APK, chưa chốt 25 màn.
+**Bẫy:** (1) ghi `.asset` qua MCP xong phải `Resources.UnloadAsset` + `AssetDatabase.ImportAsset(ForceUpdate)`, kiểm `IsDirty=false` và `git diff`. (2) Thoát Play trước khi sửa C#. (3) `execute_code` chỉ C# 6; ngay sau khi vào Play lệnh đầu hay lỗi, gọi lại. (4) Test Runner làm bẩn `Play.unity`: mở scene trống, `git checkout -- Assets/_Project/Scenes/Play.unity`, mở lại. (5) Bố cục menu/chọn màn sửa trong `MainMenuTools` rồi chạy menu `016 UI → Build Main Menu`, không sửa tay. (6) Chụp ảnh: focus cửa sổ Simulator trước, hẹn giờ `ScreenCapture` bằng `EditorApplication.update`. (7) Shader Toy Lit dùng chung: `_TopTint` mặc định 1, chỉ material xe bật. (8) Không commit file S4 chưa theo dõi trong `Art/UI/City` và `Prefabs/Environment/*` (props 0 đỉnh).
+
 ## Trao đổi
 2026-11-26 10:08 · Claude → Người làm, Codex · [BÁO]: mở nhánh `016-toy-world` từ `015-toy-look`; giao Codex 016-a…d chạy song song (vùng file tách riêng).
 2026-11-26 10:30 · Claude → Người làm · [BÁO]: 016 đã chạy trong game, chờ chơi thử.
+2026-11-26 10:39 · Claude → Codex · [BÀN GIAO]: nhánh `016-toy-world`, code ở 6478360, Run All 585/584/0/1, Console sạch. Còn việc ở mục 'Bàn giao cho Codex'.
