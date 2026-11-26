@@ -41,12 +41,16 @@ namespace SqueakyLane.Presentation
         private Haptics haptics;
         [SerializeField, Tooltip("018: chữ Combo và bảng kỷ lục; trống thì không hiện.")]
         private ComboFeedback comboFeedback;
+        [SerializeField, Tooltip("019: lớp hướng dẫn; trống thì không có bãi tập, vào thẳng màn.")]
+        private TutorialView tutorialView = null;
         [SerializeField, Tooltip("Prefab hạt dùng chung tạo bởi Tools/Squeaky Lane/Core Feel.")]
         private FeelEffects feelEffectsPrefab = null;
         private FeelEffects feelEffects;
         private Navigator navigator;
         private FeedbackRouter feedback;
         private TableButtons tableButtons;
+        private TutorialDirector tutorial;
+        private TutorialLesson[] lessons = Array.Empty<TutorialLesson>();
         private ProgressStore progress;
         private Coroutine transition;
         private bool transitioning, clockPaused;
@@ -81,6 +85,7 @@ namespace SqueakyLane.Presentation
             progress = new ProgressStore();
             feedback = new FeedbackRouter(sfxPlayer, haptics, feelConfig, progress);
             tableButtons = new TableButtons();
+            tutorial = new TutorialDirector(tutorialView, navigationView, tableButtons);
             if (feelEffectsPrefab != null)
             {
                 feelEffects = Instantiate(feelEffectsPrefab, transform, false);
@@ -105,6 +110,9 @@ namespace SqueakyLane.Presentation
             navigationView.Navigate += Navigate;
             navigationView.Undo += Undo;
             navigationView.Hint += RequestHint;
+            navigationView.ReplayTutorial += ResetTutorials;
+            tutorial.SkipRequested += SkipLesson;
+            tutorial.Connect();
             if (session != null)
             {
                 CreateSearch(savedHints);
@@ -130,6 +138,9 @@ namespace SqueakyLane.Presentation
             navigationView.Navigate -= Navigate;
             navigationView.Undo -= Undo;
             navigationView.Hint -= RequestHint;
+            navigationView.ReplayTutorial -= ResetTutorials;
+            tutorial.SkipRequested -= SkipLesson;
+            tutorial.Disconnect();
             navigationView.SetFade(0);
 
             if (transition != null)
@@ -160,6 +171,16 @@ namespace SqueakyLane.Presentation
             }
 
             order = data.ids;
+            if (tutorial.Available)
+            {
+                var files = configs.TutorialLessons();
+                lessons = new TutorialLesson[files.Length];
+                for (int i = 0; i < files.Length; i++)
+                {
+                    lessons[i] = TutorialLesson.Parse(files[i].text, files[i].name);
+                }
+            }
+
             tableButtons.Initialize(canvas);
             navigator = new Navigator(order.Length);
             navigationView.Initialize(order, progress, gameConfig.UnlockAll);
@@ -176,10 +197,14 @@ namespace SqueakyLane.Presentation
             var json = configs.Level(order[selected]);
             var level = LevelJsonLoader.Load(json.text, json.name, out var metadata);
             levelName = metadata.Name;
-            session = new GameSession(level);
+            // Màn cần cơ chế chưa học thì vào bãi tập trước; xong bài sẽ nạp lại đúng vị trí này.
+            var lesson = TutorialMechanics.Pending(lessons, level, progress.TutorialSeen);
+            session = new GameSession(lesson != null ? lesson.Board : level);
             var setup = new LevelSetup(metadata, selected, gameConfig.TutorialLevelsUntimed, gameConfig.BaseSeconds, gameConfig.SecondsPerMove, gameConfig.UnknownMinimumMoves, gameConfig.HintsPerLevel);
-            timer = new LevelTimer(setup.TimeLimit, gameConfig.UndoPenalty, gameConfig.HintPenalty, gameConfig.Star3Ratio, gameConfig.Star2Ratio, gameConfig.MaxTickSeconds);
-            CreateSearch(setup.Hints);
+            // Bãi tập: không đồng hồ, gợi ý không giới hạn.
+            timer = new LevelTimer(lesson != null ? 0 : setup.TimeLimit, gameConfig.UndoPenalty, gameConfig.HintPenalty, gameConfig.Star3Ratio, gameConfig.Star2Ratio, gameConfig.MaxTickSeconds);
+            CreateSearch(lesson != null ? -1 : setup.Hints);
+            navigationView.PracticeTitle = lesson != null ? "Bãi tập" : null;
             board.Build(session.Level, session.State, palette, configs.Cars, configs.Mechanics);
             animator.Initialize(board, feelConfig, session.State);
             if (comboFeedback != null)
@@ -190,6 +215,7 @@ namespace SqueakyLane.Presentation
             input.Initialize(boardCamera, board, gameConfig);
             tableButtons.Bind(session, board, boardCamera, gameConfig);
             FitBoardCamera();
+            tutorial.Begin(lesson, board, boardCamera, session);
             SetMessage("Chạm nửa xe để chạy");
             mechanicsDirty = false;
             lastCountdownSecond = -1;
@@ -235,6 +261,11 @@ namespace SqueakyLane.Presentation
                 return;
             }
 
+            if (!tutorial.Allows(command, input.LastCommandWasSwipe))
+            {
+                return;
+            }
+
             var before = session.State;
             var result = session.Apply(command);
             if (!result.Moved)
@@ -255,6 +286,7 @@ namespace SqueakyLane.Presentation
 
             animator.Enqueue(command, before, result);
             mechanicsDirty = true;
+            tutorial.Moved();
             SetMessage("");
             RefreshControls();
         }
@@ -268,7 +300,7 @@ namespace SqueakyLane.Presentation
 
         public void Undo()
         {
-            if (!CanPlay || session == null || session.IsWin || !session.Undo())
+            if (!CanPlay || session == null || session.IsWin || !tutorial.AllowsUndo || !session.Undo())
             {
                 return;
             }
@@ -276,6 +308,7 @@ namespace SqueakyLane.Presentation
             timer.ChargeUndo();
             animator.CancelAndSnap(session.State);
             mechanicsDirty = false;
+            tutorial.Undone();
             SetMessage("Đã hoàn tác");
             RefreshControls();
             feedback.Play(SoundCue.Undo);
@@ -284,7 +317,7 @@ namespace SqueakyLane.Presentation
 
         private void RequestHint()
         {
-            if (!CanPlay || session == null || timer.IsOver || session.IsWin)
+            if (!CanPlay || session == null || timer.IsOver || session.IsWin || !tutorial.AllowsHint)
             {
                 return;
             }
@@ -320,9 +353,14 @@ namespace SqueakyLane.Presentation
                 CheckLevelEnd();
             }
 
-            if (input.Accepting)
+            // Bước giải thích không nhận lệnh nhưng vẫn dò kẹt để viền đỏ hiện đúng lúc.
+            if (input.Accepting || tutorial.Active && CanPlay)
             {
                 PollSearch();
+            }
+
+            if (input.Accepting)
+            {
                 PlayCountdown();
             }
 
@@ -343,7 +381,8 @@ namespace SqueakyLane.Presentation
 
         private void CheckLevelEnd()
         {
-            if (session.IsWin)
+            // Bài tập kết thúc khi bãi tập thắng hoặc hết bước.
+            if (session.IsWin || tutorial.Finished)
             {
                 // Core thắng trước hình. Đợi mọi xe chạy hết rồi mới chúc mừng, không cắt xe cuối bằng lớp mờ.
                 if (animator.IsBusy)
@@ -351,7 +390,7 @@ namespace SqueakyLane.Presentation
                     return;
                 }
 
-                if (!winCelebrating)
+                if (session.IsWin && !winCelebrating)
                 {
                     winCelebrating = true;
                     winDelayRemaining = feelConfig.WinDialogDelaySeconds;
@@ -368,6 +407,12 @@ namespace SqueakyLane.Presentation
 
                 if (winDelayRemaining <= 0)
                 {
+                    if (tutorial.Active)
+                    {
+                        CompleteLesson();
+                        return;
+                    }
+
                     progress.RecordWin(order[selected], timer.StarsOnWin());
                     FinishAttempt(NavigationAction.Won);
                 }
@@ -395,6 +440,38 @@ namespace SqueakyLane.Presentation
             Navigate(result, -1);
         }
 
+        // Đánh dấu đã học rồi nạp lại vị trí đang chọn: còn bài thì vào bài kế, hết thì vào màn.
+        private void CompleteLesson()
+        {
+            if (!CanPlay || !tutorial.Active)
+            {
+                return;
+            }
+
+            progress.MarkTutorialSeen(tutorial.Lesson.Key);
+            tutorial.End();
+            Navigate(NavigationAction.Restart, -1);
+        }
+
+        private void SkipLesson()
+        {
+            if (CanPlay && tutorial.Active)
+            {
+                feedback.Play(SoundCue.Hint);
+                CompleteLesson();
+            }
+        }
+
+        private void ResetTutorials()
+        {
+            for (int i = 0; i < lessons.Length; i++)
+            {
+                progress.ResetTutorial(lessons[i].Key);
+            }
+
+            navigationView.ShowTutorialReset("Đã bật lại!");
+        }
+
         // Gợi ý và dò kẹt chia nhau một ngân sách thời gian mỗi frame.
         private void PollSearch()
         {
@@ -403,7 +480,8 @@ namespace SqueakyLane.Presentation
             stuck.Poll(budget);
             if (hints.TryTake(out var move))
             {
-                SetMessage(HintText(move));
+                // Có lớp hướng dẫn thì chỉ bằng bàn tay; chữ "xe N" chỉ còn dùng khi thiếu lớp này.
+                SetMessage(tutorial.ShowHint(move) ? "Làm theo bàn tay" : HintText(move));
                 RefreshHud();
             }
             else if (hints.HasFinished && !hints.HasHint)
@@ -445,6 +523,12 @@ namespace SqueakyLane.Presentation
 
         private void SetMessage(string value)
         {
+            // Bãi tập đã có dòng hướng dẫn, không chồng thêm bong bóng thông báo.
+            if (tutorial != null && tutorial.Active)
+            {
+                value = "";
+            }
+
             message = value;
             // Gửi theo sự kiện để thông báo trùng nội dung vẫn hiện lại; tick HUD 10 Hz không kéo dài tuổi bong bóng.
             navigationView.ShowMessage(value);
@@ -468,8 +552,9 @@ namespace SqueakyLane.Presentation
         private void ApplyPlayGate()
         {
             bool playing = CanPlay && !clockPaused && session != null && !session.IsWin && timer != null && !timer.IsOver;
-            input.Accepting = playing;
-            tableButtons.SetAccepting(playing);
+            bool boardOpen = playing && (tutorial == null || tutorial.AcceptsBoard);
+            input.Accepting = boardOpen;
+            tableButtons.SetAccepting(boardOpen);
             if (timer != null)
             {
                 timer.Paused = !playing;
@@ -544,6 +629,8 @@ namespace SqueakyLane.Presentation
                         LoadLevel(command.LevelIndex);
                         break;
                     case NavigationCommandKind.EndLevel:
+                        tutorial.End();
+                        navigationView.PracticeTitle = null;
                         DisposeSearch();
                         session = null;
                         timer = null;
@@ -608,6 +695,10 @@ namespace SqueakyLane.Presentation
         private void LateUpdate()
         {
             tableButtons.UpdatePositions();
+            if (session != null)
+            {
+                tutorial.Tick(CanPlay && !clockPaused && !session.IsWin, animator.IsBusy || mechanicsDirty, Time.unscaledDeltaTime);
+            }
         }
 
         private void OnDestroy()

@@ -1,0 +1,82 @@
+{
+  "id": 908,
+  "name": "Tập trụ xoay",
+  "minMoves": -1,
+  "timeLimit": 0,
+  "hints": -1,
+  "cols": 5,
+  "rows": 5,
+  "gates": [
+    {
+      "side": "t",
+      "i": 3,
+      "color": "pink"
+    }
+  ],
+  "cars": [
+    {
+      "axis": "h",
+      "r": 1,
+      "c": 0,
+      "color": "pink",
+      "len": 2,
+      "truck": false,
+      "mud": 0
+    }
+  ],
+  "cones": [],
+  "muds": [],
+  "sprays": [],
+  "tables": [],
+  "paints": [],
+  "lights": [],
+  "barriers": [],
+  "switches": [],
+  "portals": [],
+  "pylons": [
+    {
+      "r": 1,
+      "c": 2,
+      "o": "h",
+      "fixed": false,
+      "to": [
+        {
+          "r": 4,
+          "c": 3,
+          "side": "S"
+        },
+        {
+          "r": 4,
+          "c": 0,
+          "side": "S"
+        }
+      ]
+    }
+  ],
+  "splash": false,
+  "lesson": {
+    "key": "pylon",
+    "order": 80,
+    "teaches": [
+      "pylon"
+    ],
+    "steps": [
+      {
+        "action": "pylon",
+        "text": "Chạm trụ để xoay cổng dịch chuyển",
+        "pylon": 0,
+        "focus": [
+          "pylon:0"
+        ]
+      },
+      {
+        "action": "win",
+        "text": "Cổng quay về phía xe: chạy vào!",
+        "focus": [
+          "car:0",
+          "pylon:0"
+        ]
+      }
+    ]
+  }
+}

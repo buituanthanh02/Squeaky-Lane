@@ -19,6 +19,8 @@ namespace SqueakyLane.Game
         // Đây là điểm duy nhất đọc Resources; bootstrap không biết đường dẫn tài nguyên.
         public TextAsset LevelOrder() => LoadText("Levels/level_order");
         public TextAsset Level(int id) => LoadText("Levels/level_" + id.ToString("00"));
+        // Mọi file trong Resources/Tutorial là một bài tập; thứ tự nằm trong file.
+        public TextAsset[] TutorialLessons() => Resources.LoadAll<TextAsset>("Tutorial");
         private static TextAsset LoadText(string path)
         {
             var asset = Resources.Load<TextAsset>(path);

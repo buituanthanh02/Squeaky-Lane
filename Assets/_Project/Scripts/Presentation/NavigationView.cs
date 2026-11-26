@@ -39,6 +39,18 @@ namespace SqueakyLane.Presentation
         [SerializeField, Tooltip("Nút đóng hộp Cài đặt của main menu.")] private Button[] menuSettingsCloseButtons = Array.Empty<Button>();
         [SerializeField, Tooltip("Sprite nền ô màn đang chơi tới (nổi bật). Trống = giữ sprite prefab.")] private Sprite levelCurrentSprite = null;
         [SerializeField, Tooltip("016: viền đỏ nhấp nháy khi kẹt xe; gán rồi thì không hiện bảng chữ Kẹt xe. Menu '016 UI/Build Stuck Edge' dựng và gán.")] private CanvasGroup stuckEdge = null;
+        [SerializeField, Tooltip("019: nút Xem lại hướng dẫn trong Cài đặt của main menu. Menu '019 UI/Build Tutorial' dựng và gán.")] private Button replayTutorialButton = null;
+        [SerializeField] private TMP_Text replayTutorialLabel = null;
+        private string replayTutorialText;
+        // 019: đang ở bãi tập thì ô tên màn ghi chữ này thay cho "Màn N".
+        public string PracticeTitle { get; set; }
+        public RectTransform PauseRect => pauseButton != null ? (RectTransform)pauseButton.transform : null;
+        public RectTransform UndoRect => (RectTransform)undoButton.transform;
+        public RectTransform HintRect => (RectTransform)hintButton.transform;
+        public RectTransform ClockRect => clockFill.rectTransform;
+        public bool StuckEdgeShowing => stuckEdge != null && stuckPulsing;
+        public float StuckEdgeWidth => theme != null ? theme.StuckEdgeWidth : 0;
+        public event Action ReplayTutorial;
         private bool stuckPulsing;
         private float stuckAge;
         private int nextLevelIndex;
@@ -93,6 +105,7 @@ namespace SqueakyLane.Presentation
             if (menuSettingsButton != null) { menuSettingsButton.onClick.AddListener(() => { ButtonClicked?.Invoke(); SetMenuSettings(true); }); }
             foreach (var button in homeButtons) { if (button != null) { button.onClick.AddListener(() => { ButtonClicked?.Invoke(); SetMainMenu(true); }); } }
             foreach (var button in menuSettingsCloseButtons) { if (button != null) { button.onClick.AddListener(() => { ButtonClicked?.Invoke(); SetMenuSettings(false); }); } }
+            if (replayTutorialButton != null) { replayTutorialText = replayTutorialLabel != null ? replayTutorialLabel.text : null; replayTutorialButton.onClick.AddListener(() => { ButtonClicked?.Invoke(); ReplayTutorial?.Invoke(); }); }
             RefreshLevels(progress, unlockAll); RefreshSettings(progress); SetFade(0); ShowScreen(ScreenState.LevelSelect); ShowStuck(false); RefreshSafeArea();
             SetMainMenu(mainMenu != null);
         }
@@ -103,8 +116,14 @@ namespace SqueakyLane.Presentation
             if (mainMenu != null) { Group(mainMenu, open); }
             SetMenuSettings(false);
         }
+        // Báo cho người chơi biết bài tập sẽ hiện lại; mở Cài đặt lần sau chữ trở về như cũ.
+        public void ShowTutorialReset(string confirmation)
+        {
+            if (replayTutorialLabel != null) { replayTutorialLabel.text = confirmation; }
+        }
         private void SetMenuSettings(bool open)
         {
+            if (open && replayTutorialLabel != null && replayTutorialText != null) { replayTutorialLabel.text = replayTutorialText; }
             if (menuSettings != null) { Group(menuSettings, open && MainMenuOpen); }
         }
         // Ô màn đang chơi tới đổi sang sprite nổi bật; các ô khác giữ sprite gốc của prefab.
@@ -181,7 +200,7 @@ namespace SqueakyLane.Presentation
         public void RefreshHud(string title, LevelTimer timer, int moves, int hintCount, string message, bool canUndo, bool canPlay, int totalLevels, int index, GameConfig config)
         {
             bool skinned = theme != null && theme.HasHudSkin;
-            levelTitle.text = skinned && ids != null ? "Màn " + ids[index] : title;
+            levelTitle.text = PracticeTitle ?? (skinned && ids != null ? "Màn " + ids[index] : title);
             movesText.text = moves + " nước";
             clockText.text = timer.IsTimed ? (skinned ? FormatClock(timer.Remaining) : Mathf.CeilToInt(timer.Remaining) + " s") : skinned ? "∞" : "Không tính giờ";
             float ratio = timer.IsTimed ? timer.Remaining / timer.TimeLimit : 1;

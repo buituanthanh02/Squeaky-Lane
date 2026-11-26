@@ -1,0 +1,78 @@
+{
+  "id": 907,
+  "name": "Tập cổng tường",
+  "minMoves": -1,
+  "timeLimit": 0,
+  "hints": -1,
+  "cols": 5,
+  "rows": 5,
+  "gates": [
+    {
+      "side": "l",
+      "i": 3,
+      "color": "blue"
+    }
+  ],
+  "cars": [
+    {
+      "axis": "h",
+      "r": 1,
+      "c": 1,
+      "color": "blue",
+      "len": 2,
+      "truck": false,
+      "mud": 0
+    }
+  ],
+  "cones": [],
+  "muds": [],
+  "sprays": [],
+  "tables": [],
+  "paints": [],
+  "lights": [],
+  "barriers": [],
+  "switches": [],
+  "portals": [
+    {
+      "a": {
+        "r": 1,
+        "c": 0,
+        "side": "W"
+      },
+      "b": {
+        "r": 3,
+        "c": 4,
+        "side": "E"
+      }
+    }
+  ],
+  "pylons": [],
+  "splash": false,
+  "lesson": {
+    "key": "portal",
+    "order": 70,
+    "teaches": [
+      "portal"
+    ],
+    "steps": [
+      {
+        "action": "next",
+        "text": "Hai cổng cùng màu thông với nhau",
+        "focus": [
+          "cell:1,0",
+          "cell:3,4"
+        ]
+      },
+      {
+        "action": "move",
+        "text": "Cho xe chui vào cổng bên này",
+        "car": 0,
+        "sign": -1,
+        "focus": [
+          "car:0",
+          "cell:1,0"
+        ]
+      }
+    ]
+  }
+}

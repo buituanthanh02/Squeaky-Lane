@@ -1,0 +1,118 @@
+{
+  "id": 901,
+  "name": "Tập rửa xe",
+  "minMoves": -1,
+  "timeLimit": 0,
+  "hints": -1,
+  "cols": 5,
+  "rows": 5,
+  "gates": [
+    {
+      "side": "t",
+      "i": 0,
+      "color": "pink"
+    },
+    {
+      "side": "r",
+      "i": 3,
+      "color": "green"
+    },
+    {
+      "side": "l",
+      "i": 3,
+      "color": "water"
+    }
+  ],
+  "cars": [
+    {
+      "axis": "v",
+      "r": 3,
+      "c": 0,
+      "color": "pink",
+      "len": 2,
+      "truck": false,
+      "mud": 1
+    },
+    {
+      "axis": "h",
+      "r": 3,
+      "c": 1,
+      "color": "green",
+      "len": 2,
+      "truck": false,
+      "mud": 0
+    }
+  ],
+  "cones": [],
+  "muds": [
+    {
+      "r": 3,
+      "c": 3
+    }
+  ],
+  "sprays": [
+    {
+      "r": 2,
+      "c": 0
+    }
+  ],
+  "tables": [],
+  "paints": [],
+  "lights": [],
+  "barriers": [],
+  "switches": [],
+  "portals": [],
+  "pylons": [],
+  "splash": false,
+  "lesson": {
+    "key": "mud",
+    "order": 10,
+    "teaches": [
+      "mud",
+      "water",
+      "spray",
+      "puddle"
+    ],
+    "steps": [
+      {
+        "action": "move",
+        "text": "Xe bẩn: cho chạy qua vòi xịt để rửa",
+        "car": 0,
+        "sign": -1,
+        "focus": [
+          "car:0",
+          "cell:2,0",
+          "gate:t,0"
+        ]
+      },
+      {
+        "action": "move",
+        "text": "Vũng bùn làm bẩn xe chạy qua",
+        "car": 1,
+        "sign": 1,
+        "focus": [
+          "car:1",
+          "cell:3,3"
+        ]
+      },
+      {
+        "action": "next",
+        "text": "Còn bùn thì không qua được cổng",
+        "focus": [
+          "car:1",
+          "gate:r,3"
+        ]
+      },
+      {
+        "action": "move",
+        "text": "Cổng nước rửa xe rồi đẩy ngược lại",
+        "car": 1,
+        "sign": -1,
+        "focus": [
+          "car:1",
+          "gate:l,3"
+        ]
+      }
+    ]
+  }
+}

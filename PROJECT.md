@@ -180,6 +180,14 @@ Raycast vào xe → lấy điểm trúng → chiếu lên **trục thân xe tron
 - **"Kẹt xe"**: báo khi hết đường thắng (đồng hồ vẫn chạy, người chơi biết cần hoàn tác sớm). **Giữ** `[CHỐT 22/11]`. Cách báo `[CHỐT 26/11]`: **viền đỏ nhấp nháy quanh màn hình** thay cho chữ/hộp (`UiTheme.stuck*`, nhịp 0,9 s, không chặn chạm; menu `016 UI/Build Stuck Edge`), tiếng kẹt giữ nguyên.
 - **Combo `[CHỐT 26/11]`:** xe ra cổng cách xe trước không quá 3 giây (`FeelConfig.comboWindowSeconds`) nối thành chuỗi; từ 2 xe hiện hình "Combo N" dưới ô số nước (thay chữ "Liên tiếp xN"). **Kỷ lục lưu riêng từng màn** (`ProgressStore.BestCombo`), chốt khi thắng hoặc hết giờ; bảng kết quả ghi combo cao nhất của lượt và kỷ lục, phá kỷ lục thì **huy hiệu "KỶ LỤC MỚI!" đóng xuống** `[CHỐT 26/11, thay dải chữ]`: rung cả giao diện và camera bãi, kèm tiếng đập, vòng xung, sao lấp lánh. Hoàn tác không xóa combo đã đạt trong lượt; combo không đổi sao hay luật. **Tiếng theo combo `[26/11, chờ người làm nghe]`:** tiếng ra cổng cao và to dần (tới xe thứ 8), từ combo 2 chồng lớp "tưng", từ combo 4 đổi sang lớp lớn có tiếng trầm và chuông (`FeelConfig.comboVolumeStep`, `comboBigFrom`, `comboLayerGain…`; đỉnh trộn đo 0,92). Hình `Art/UI/Combo` (Codex, `tools/make-combo-art.py`), số chỉnh trong `UiTheme`/`FeelConfig`, gắn scene bằng menu `018 UI/Build Combo`.
 
+### 6.5. Hướng dẫn `[CHỐT 26/11]`
+- **Bãi tập:** màn cần cơ chế chưa học thì người chơi vào một bãi nhỏ trước, học xong (hoặc Bỏ qua) mới vào màn. Bài bám theo **cơ chế** (`lesson.teaches`), không bám số màn: đổi thứ tự hay thêm màn không phải sửa bài.
+- Bãi đầu dạy **chạm** và **vuốt** (bước nào nhận đúng thao tác đó), rồi cổng cùng màu và cách thắng. Các bãi sau: rửa bùn (vòi xịt, vũng bùn, cổng nước), bùn lây + viền đỏ + Hoàn tác + đồng hồ + Gợi ý, vũng sơn, bàn xoay, đèn, xe tải, cổng tường, trụ xoay. Cọc, barie, chốt chưa có bài (chưa màn nào dùng; thêm màn dùng chúng thì phải thêm bài, test sẽ báo).
+- Hình: lớp tối khoét lỗ + viền vàng, bàn tay chạm/kéo (từ bộ Sand Puzzle Clone), một dòng chữ. Bước tự chơi không phủ tối.
+- Bãi tập không đồng hồ, không ghi sao/kỷ lục. **Màn 1–3 không tính giờ** (`GameConfig.tutorialLevelsUntimed = 3`, luôn 3 sao, gợi ý không giới hạn). "Xem lại hướng dẫn" ở Cài đặt của main menu.
+- **Gợi ý** chỉ bằng bàn tay trên đúng xe/nút (số trên xe đã tắt nên chữ "xe 3" không dùng nữa).
+- Dữ liệu `Resources/Tutorial/lesson_*.json`; số hình ở `UiTheme` nhóm 019; dựng UI bằng menu `019 UI/Build Tutorial` (chạy lại sau `016 UI/Build Main Menu`). Phiếu `docs/handoff/019-tutorial.md`. `[FILE; chờ người làm chơi thử]`
+
 ---
 
 ## 7. Level
@@ -196,7 +204,7 @@ Raycast vào xe → lấy điểm trúng → chiếu lên **trục thân xe tron
 Không tự đặt xe trong scene rồi dùng scene làm dữ liệu màn: dễ lệch luật và khó kiểm bằng solver.
 
 ### 7.3. Đường cong học `[ĐỀ XUẤT]`
-Màn 1–6: tutorial từng cơ chế (cổng màu → cổng nước + bùn → cọc → đèn → bàn xoay) · 7–15: kết hợp 2 cơ chế · 16–25: cổng tường, trụ xoay, xe tải và vài màn khó. Mỗi màn tối đa 2–3 cơ chế. Mỗi cơ chế mới có màn giới thiệu và tutorial bằng hình (bàn tay + vòng sáng + mũi tên; chữ một dòng ngắn).
+Màn 1–6: tutorial từng cơ chế (cổng màu → cổng nước + bùn → cọc → đèn → bàn xoay) · 7–15: kết hợp 2 cơ chế · 16–25: cổng tường, trụ xoay, xe tải và vài màn khó. Mỗi màn tối đa 2–3 cơ chế. Mỗi cơ chế mới có tutorial bằng hình (bàn tay + vùng sáng; chữ một dòng ngắn) trong bãi tập riêng, xem 6.5 `[CHỐT 26/11, thay "màn giới thiệu"]`.
 
 ### 7.4. Định dạng dữ liệu màn Unity `[FILE: LevelJsonLoader.cs, docs/golden/levels]`
 ```json
@@ -286,6 +294,8 @@ Assets/_Project/
 │  ├─ Game/                     # asmdef "SqueakyLane.Game" → tham chiếu Core
 │  │  ├─ LevelJsonLoader.cs     # JSON → LevelDef + LevelInfo trong cùng một lần parse; DTO cùng file
 │  │  ├─ LevelSetup.cs          # dữ liệu thường → giờ, gợi ý, tutorial; không nhận ScriptableObject
+│  │  ├─ TutorialData.cs        # 019: đọc bài tập, nhận ra cơ chế của màn
+│  │  ├─ TutorialRunner.cs      # 019: bước hiện tại, lệnh nào được phép
 │  │  ├─ GameSession.cs         # snapshot, lịch sử Undo/Restart, dùng lại SolverMove
 │  │  ├─ LevelTimer.cs          # dt từ ngoài, giới hạn mỗi tick theo GameConfig; phạt Undo/Hint, sao
 │  │  ├─ SearchServices.cs      # SearchBudget theo ms, StuckDetector, HintProvider
@@ -305,6 +315,9 @@ Assets/_Project/
 │  │  ├─ InputController.cs     # chạm/vuốt → lệnh; ưu tiên raycast UI
 │  │  ├─ ActionAnimator.cs      # events, hàng đợi mỗi xe và đặt chỗ đường hình
 │  │  ├─ TableButtons.cs        # class thường, nút bàn xoay vẽ đè theo vị trí bàn
+│  │  ├─ TutorialDirector.cs    # 019: class thường, đổi đích bài tập thành khung trên màn hình; gợi ý bằng tay
+│  │  ├─ TutorialView.cs        # 019: dòng chữ, bàn tay, nút Bỏ qua
+│  │  ├─ SpotlightGraphic.cs    # 019: lớp tối khoét lỗ và viền, vẽ bằng mesh
 │  │  ├─ FeedbackRouter.cs      # class thường, nối input/animator/UI với âm/rung và cài đặt
 │  │  ├─ NavigationView.cs      # tham chiếu UI do người làm dựng trong Canvas
 │  │  ├─ SfxCatalog.cs
@@ -319,6 +332,7 @@ Assets/_Project/
 │     ├─ LevelDesignIO.cs      # schema JSON, kiểm/lưu/xuất/thứ tự; không ghi golden
 │     ├─ Toy{Mechanics,Town,Look}Tools.cs  # dựng mesh/material/prefab cơ chế, đạo cụ phố, mảng sơn xe
 │     └─ CitySetupTools, MainMenuTools, StuckEdgeTools  # phố, main menu, viền đỏ kẹt xe
+├─ Resources/Tutorial/          # 019: mỗi file một bãi tập + các bước
 ├─ Resources/Levels/            # 34 JSON màn thử; level_order chỉ chạy 12 màn (xem dưới), chưa phải 25 màn cuối
 ├─ LevelDesign/                 # kho thiết kế ngoài Play: 34 JSON + level_order; Lưu rồi Xuất/Sync
 │                               # [CHỐT 26/11] rút gọn để soát hình: 1,2,3,4,5,6,8,10,20,21,29 (màn cơ chế; bỏ 9 barie, 22–23 chốt vì ngoài 25 màn) + 19 (màn tổng); bản đủ 34 màn: git c3ef1bc
@@ -328,7 +342,7 @@ Assets/_Project/
 └─ Tests/EditMode/              # test luật + so khớp với golden file của prototype
 ```
 
-**Tạo tài nguyên:** asset và UI đã dựng nằm trong repo. Menu còn lại trong `Tools/Squeaky Lane`: Level Editor, Sync Levels, `016 Toy/…` (cơ chế, đạo cụ phố, mảng sơn xe, phố), `016 UI/…` (main menu, viền kẹt xe). **017 dọn dự án `[CHỐT 26/11]`:** đã xóa 19 file tool dùng một lần (010–015, `BatchRunner`), HUD gỡ lỗi và Asset Lab; bản đầy đủ ở commit `c596a01` (`git checkout c596a01 -- <đường dẫn>` nếu cần lấy lại). Phần UI HUD/hộp thoại, VFX rửa/bùn, hầm rửa, xe Kenney muốn dựng lại thì phải khôi phục tool từ đó.
+**Tạo tài nguyên:** asset và UI đã dựng nằm trong repo. Menu còn lại trong `Tools/Squeaky Lane`: Level Editor, Sync Levels, `016 Toy/…` (cơ chế, đạo cụ phố, mảng sơn xe, phố), `016 UI/…` (main menu, viền kẹt xe), `018 UI/Build Combo`, `019 UI/Build Tutorial`. **017 dọn dự án `[CHỐT 26/11]`:** đã xóa 19 file tool dùng một lần (010–015, `BatchRunner`), HUD gỡ lỗi và Asset Lab; bản đầy đủ ở commit `c596a01` (`git checkout c596a01 -- <đường dẫn>` nếu cần lấy lại). Phần UI HUD/hộp thoại, VFX rửa/bùn, hầm rửa, xe Kenney muốn dựng lại thì phải khôi phục tool từ đó.
 
 **013 S4 (đã đóng):** bóng xe dùng chung quad/material ở root, cập nhật theo `CarView.Show`; bãi giữ nguyên tọa độ ô. Cảnh Asset Lab và tool S4 đã gỡ ở 017.
 
@@ -482,6 +496,7 @@ namespace SqueakyLane.Game
 | 016 | Thế giới đồ chơi: phố quanh trạm rửa, xe chạy theo phố, cơ chế vẽ lại, mảng sơn xe, main menu, chọn màn | `016-toy-world` (mở 26/11 từ `015-toy-look`) | Claude, Codex | Đã chạy trong game, gồm khu phố hoạt hình; Run All 588/587/0/1; chờ người làm chơi thử | 016-a APPROVE có sửa; b, c, d APPROVE (Claude) | 015 |
 | 017 | Dọn dự án trước khi build: xóa tool dùng một lần, HUD gỡ lỗi, Asset Lab; gộp code trùng | `017-cleanup` (mở 26/11 từ `016-toy-world`) | Claude | Chờ người làm chơi thử | — | 016 |
 | 018 | Combo bằng hình, kỷ lục theo màn, hiệu ứng kỷ lục mới ở bảng kết quả | `018-combo` (mở 26/11 từ `017-cleanup`) | Claude, Codex | Chờ người làm chơi thử | APPROVE hình 018-a (Claude 26/11) | 017 |
+| 019 | Hướng dẫn: bãi tập theo cơ chế, vùng sáng, bàn tay, Bỏ qua/Xem lại, gợi ý bằng tay | `019-tutorial` (mở 26/11 từ `018-combo`) | Claude | Chờ người làm chơi thử | — | 018 |
 
 **Kế hoạch từ 008:** `docs/handoff/play-plan.md` thay `core-plan.md` §7–9; 008 gộp logic phiên chơi + hiển thị + điều khiển, có thể commit theo mốc A/B/C, Claude review một lần cuối. 008 chưa có Navigator/điều hướng; phần đó là 009-A. `[CHỐT 22/11]`
 

@@ -14,15 +14,18 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   baseSeconds: 20
   secondsPerMove: 5
+  maxTickSeconds: 0.25
   undoPenalty: 3
   hintsPerLevel: 3
   hintPenalty: 5
   star3Ratio: 0.5
   star2Ratio: 0.2
   targetFps: 60
-  tutorialLevelsUntimed: 0
+  tutorialLevelsUntimed: 3
   searchMilliseconds: 2
   searchMaxStates: 300000
   unknownMinimumMoves: 20
   swipeShortSideRatio: 0.06
   tableTouchMillimeters: 9
+  unlockAll: 1
+  lowTimeRatio: 0.2

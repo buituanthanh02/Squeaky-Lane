@@ -1,0 +1,79 @@
+{
+  "id": 906,
+  "name": "Tập xe tải",
+  "minMoves": -1,
+  "timeLimit": 0,
+  "hints": -1,
+  "cols": 5,
+  "rows": 5,
+  "gates": [
+    {
+      "side": "r",
+      "i": 2,
+      "color": "blue"
+    },
+    {
+      "side": "t",
+      "i": 4,
+      "color": "pink"
+    }
+  ],
+  "cars": [
+    {
+      "axis": "h",
+      "r": 2,
+      "c": 0,
+      "color": "blue",
+      "len": 3,
+      "truck": true,
+      "mud": 0
+    },
+    {
+      "axis": "v",
+      "r": 1,
+      "c": 3,
+      "color": "pink",
+      "len": 2,
+      "truck": false,
+      "mud": 0
+    }
+  ],
+  "cones": [],
+  "muds": [],
+  "sprays": [],
+  "tables": [],
+  "paints": [],
+  "lights": [],
+  "barriers": [],
+  "switches": [],
+  "portals": [],
+  "pylons": [],
+  "splash": false,
+  "lesson": {
+    "key": "truck",
+    "order": 60,
+    "teaches": [
+      "truck"
+    ],
+    "steps": [
+      {
+        "action": "move",
+        "text": "Xe tải đẩy xe phía trước đi 1 ô",
+        "car": 0,
+        "sign": 1,
+        "focus": [
+          "car:0",
+          "car:1"
+        ]
+      },
+      {
+        "action": "win",
+        "text": "Giờ cho cả hai xe ra cổng",
+        "focus": [
+          "car:1",
+          "gate:t,4"
+        ]
+      }
+    ]
+  }
+}

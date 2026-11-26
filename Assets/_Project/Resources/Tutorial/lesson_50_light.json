@@ -1,0 +1,93 @@
+{
+  "id": 905,
+  "name": "Tập đèn giao thông",
+  "minMoves": -1,
+  "timeLimit": 0,
+  "hints": -1,
+  "cols": 5,
+  "rows": 5,
+  "gates": [
+    {
+      "side": "r",
+      "i": 1,
+      "color": "blue"
+    },
+    {
+      "side": "t",
+      "i": 0,
+      "color": "green"
+    }
+  ],
+  "cars": [
+    {
+      "axis": "h",
+      "r": 1,
+      "c": 0,
+      "color": "blue",
+      "len": 2,
+      "truck": false,
+      "mud": 0
+    },
+    {
+      "axis": "v",
+      "r": 3,
+      "c": 0,
+      "color": "green",
+      "len": 2,
+      "truck": false,
+      "mud": 0
+    }
+  ],
+  "cones": [],
+  "muds": [],
+  "sprays": [],
+  "tables": [],
+  "paints": [],
+  "lights": [
+    {
+      "r": 1,
+      "c": 2,
+      "phase": 1
+    }
+  ],
+  "barriers": [],
+  "switches": [],
+  "portals": [],
+  "pylons": [],
+  "splash": false,
+  "lesson": {
+    "key": "light",
+    "order": 50,
+    "teaches": [
+      "light"
+    ],
+    "steps": [
+      {
+        "action": "next",
+        "text": "Đèn đỏ chặn đường, đèn xanh cho qua",
+        "focus": [
+          "car:0",
+          "cell:1,2"
+        ]
+      },
+      {
+        "action": "move",
+        "text": "Mỗi lượt đi, đèn đổi màu",
+        "car": 1,
+        "sign": -1,
+        "focus": [
+          "car:1",
+          "cell:1,2"
+        ]
+      },
+      {
+        "action": "win",
+        "text": "Đèn xanh rồi: cho xe qua",
+        "focus": [
+          "car:0",
+          "cell:1,2"
+        ]
+      }
+    ]
+  }
+}

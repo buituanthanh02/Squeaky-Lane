@@ -185,3 +185,32 @@ MonoBehaviour:
   menuSettingsToggleSize: {x: 240, y: 184}
   menuSettingsToggleIconSize: 132
   menuSettingsToggleFontSize: 44
+  tutorialDim: {r: 0.03, g: 0.05, b: 0.16, a: 0.72}
+  tutorialRing: {r: 1, g: 0.85, b: 0.24, a: 1}
+  tutorialRingWidth: 8
+  tutorialRingPulseSeconds: 1.1
+  tutorialRingAlphaMin: 0.45
+  tutorialHolePadding: 10
+  tutorialCornerRadius: 36
+  tutorialFadeSeconds: 0.2
+  tutorialTapDelay: 0.45
+  tutorialBubbleHeights: {x: 0.74, y: 0.245}
+  tutorialNudgeSeconds: 0.4
+  tutorialNudgeDistance: 26
+  tutorialTapFrames:
+  - {fileID: 21300000, guid: 791777e48e432aa4cb49ca1f41ff1e8e, type: 3}
+  - {fileID: 21300000, guid: 8ae28130a21e22d4e8002164b757f003, type: 3}
+  - {fileID: 21300000, guid: 7f42774d7781be74e9f5f8a6916ad424, type: 3}
+  - {fileID: 21300000, guid: b98b5846e4596754dacf17eac2a9276b, type: 3}
+  - {fileID: 21300000, guid: fe188cca93369c841b7fcff08149f607, type: 3}
+  - {fileID: 21300000, guid: 5244a13c8ac91cc4985a8fe774f3532a, type: 3}
+  - {fileID: 21300000, guid: c1ed0223a7fcd6947805bc57e98aa661, type: 3}
+  tutorialDragHand: {fileID: 21300000, guid: dd0755091b82c7242bd355f54db46bd1, type: 3}
+  tutorialTapPivot: {x: 0.09, y: 0.73}
+  tutorialDragPivot: {x: 0.18, y: 0.89}
+  tutorialTapSize: {x: 220, y: 220}
+  tutorialDragSize: {x: 160, y: 180}
+  tutorialTapPeriod: 1.2
+  tutorialTapApproach: 36
+  tutorialDragPeriod: 2
+  tutorialHintSeconds: 5

@@ -128,6 +128,20 @@ namespace SqueakyLane.Presentation
             }
         }
 
+        // Vùng chạm (pixel màn hình) của nút bàn xoay đang hiện; dùng để chiếu sáng và đặt bàn tay.
+        public bool TryGetButtonRect(int table, out Rect rect)
+        {
+            rect = default;
+            if (table < 0 || table >= rects.Length || cars[table] < 0 || root == null || !root.activeInHierarchy)
+            {
+                return false;
+            }
+
+            Vector2 size = rects[table].sizeDelta * canvas.scaleFactor;
+            rect = new Rect((Vector2)rects[table].position - size * .5f, size);
+            return true;
+        }
+
         public void SetVisible(bool value)
         {
             if (root != null)

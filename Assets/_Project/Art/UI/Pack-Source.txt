@@ -17,3 +17,5 @@ Menu: Tools/Squeaky Lane/013 Theme/S3 Import UI Pack (đặt importer) và S3 Ap
 
 016 (26/11): thêm Sprites/Pack/bg_main_nav.png và bg_main_nav_bg.png (thanh điều hướng main menu) từ cùng file _Project.rar.
 Ảnh Art/UI/Menu/menu_ip*.png không thuộc bộ này: Codex tạo bằng công cụ tạo ảnh AI (phiếu 016-d).
+
+019 (26/11): thêm Library/finger2.png … finger7.png (bàn tay ấn, cùng finger1 đã có) và ic_finger.png (bàn tay kéo) từ cùng file _Project.rar, theo yêu cầu người làm. Nhịp kéo tham khảo Art/Animation/TutorialHand.anim; không chép script/prefab.

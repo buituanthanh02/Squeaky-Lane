@@ -1,0 +1,68 @@
+{
+  "id": 904,
+  "name": "Tập bàn xoay",
+  "minMoves": -1,
+  "timeLimit": 0,
+  "hints": -1,
+  "cols": 5,
+  "rows": 5,
+  "gates": [
+    {
+      "side": "t",
+      "i": 3,
+      "color": "yellow"
+    }
+  ],
+  "cars": [
+    {
+      "axis": "h",
+      "r": 2,
+      "c": 2,
+      "color": "yellow",
+      "len": 2,
+      "truck": false,
+      "mud": 0
+    }
+  ],
+  "cones": [],
+  "muds": [],
+  "sprays": [],
+  "tables": [
+    {
+      "r": 2,
+      "c": 2
+    }
+  ],
+  "paints": [],
+  "lights": [],
+  "barriers": [],
+  "switches": [],
+  "portals": [],
+  "pylons": [],
+  "splash": false,
+  "lesson": {
+    "key": "table",
+    "order": 40,
+    "teaches": [
+      "table"
+    ],
+    "steps": [
+      {
+        "action": "rotate",
+        "text": "Xe nằm trọn trên bàn: bấm nút xoay",
+        "car": 0,
+        "focus": [
+          "table:0"
+        ]
+      },
+      {
+        "action": "win",
+        "text": "Xoay xong, cho xe ra cổng",
+        "focus": [
+          "car:0",
+          "gate:t,3"
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,71 @@
+{
+  "id": 903,
+  "name": "Tập đổi màu",
+  "minMoves": -1,
+  "timeLimit": 0,
+  "hints": -1,
+  "cols": 5,
+  "rows": 5,
+  "gates": [
+    {
+      "side": "r",
+      "i": 2,
+      "color": "blue"
+    }
+  ],
+  "cars": [
+    {
+      "axis": "h",
+      "r": 2,
+      "c": 2,
+      "color": "pink",
+      "len": 2,
+      "truck": false,
+      "mud": 0
+    }
+  ],
+  "cones": [],
+  "muds": [],
+  "sprays": [],
+  "tables": [],
+  "paints": [
+    {
+      "r": 2,
+      "c": 1,
+      "color": "blue"
+    }
+  ],
+  "lights": [],
+  "barriers": [],
+  "switches": [],
+  "portals": [],
+  "pylons": [],
+  "splash": false,
+  "lesson": {
+    "key": "paint",
+    "order": 30,
+    "teaches": [
+      "paint"
+    ],
+    "steps": [
+      {
+        "action": "move",
+        "text": "Vũng sơn đổi màu xe chạy qua",
+        "car": 0,
+        "sign": -1,
+        "focus": [
+          "car:0",
+          "cell:2,1"
+        ]
+      },
+      {
+        "action": "win",
+        "text": "Xe thành màu xanh: ra cổng xanh",
+        "focus": [
+          "car:0",
+          "gate:r,2"
+        ]
+      }
+    ]
+  }
+}

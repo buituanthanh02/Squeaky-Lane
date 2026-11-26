@@ -57,6 +57,15 @@ namespace SqueakyLane.Game
             Write(Prefix + "combo." + levelId, combo);
             return true;
         }
+        // Bài tập đã học (xong hoặc bỏ qua) thì không tự hiện lại.
+        public bool TutorialSeen(string key) => storage.GetInt(TutorialKey(key), 0) != 0;
+        public void MarkTutorialSeen(string key) { if (!TutorialSeen(key)) Write(TutorialKey(key), 1); }
+        public void ResetTutorial(string key) { if (TutorialSeen(key)) Write(TutorialKey(key), 0); }
+        private static string TutorialKey(string key)
+        {
+            if (string.IsNullOrEmpty(key)) throw new ArgumentException("Thiếu key bài tập", nameof(key));
+            return Prefix + "tutorial." + key;
+        }
         public bool IsUnlocked(IReadOnlyList<int> order, int index, bool unlockAll)
         {
             if (order == null) throw new ArgumentNullException(nameof(order));

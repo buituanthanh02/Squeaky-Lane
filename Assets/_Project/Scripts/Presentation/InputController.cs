@@ -19,6 +19,8 @@ namespace SqueakyLane.Presentation
         private readonly List<RaycastResult> uiHits = new List<RaycastResult>(16);
         public bool Accepting { get; set; }
         public event Action<SolverMove> Command;
+        // Lệnh chạy xe vừa phát là do vuốt hay chạm; bài tập 019 dùng để dạy từng cách.
+        public bool LastCommandWasSwipe { get; private set; }
         public event Action CarSelected;
         public void Initialize(Camera camera, BoardView view, GameConfig settings)
         { boardCamera = camera; board = view; config = settings; CancelGesture(); }
@@ -53,6 +55,7 @@ namespace SqueakyLane.Presentation
                 }
                 if (selected == null)
                 {
+                    LastCommandWasSwipe = false;
                     // Trụ là nút riêng; không đoán luật từ collider của khối trang trí.
                     for (int i = 0; i < board.Level.Pylons.Count; i++)
                     {
@@ -71,6 +74,7 @@ namespace SqueakyLane.Presentation
                 if (fire)
                 {
                     int index = selected.Index;
+                    LastCommandWasSwipe = gesture.Dragged;
                     // Xóa lựa chọn trước callback: giữ tay/nhả tay sau đó không phát thêm lệnh cho cùng gesture.
                     CancelGesture(); Command?.Invoke(new SolverMove(SolverMoveKind.MoveCar, index, sign));
                 }
@@ -94,6 +98,8 @@ namespace SqueakyLane.Presentation
         private float thresholdSquared;
         private int tapSign;
         private bool active, dragged;
+        // Đã kéo vượt ngưỡng trong cử chỉ hiện tại (đọc trước khi Cancel).
+        public bool Dragged => dragged;
         public void Begin(Vector2 position, Vector2 screenAxis, int tapDirection, float thresholdPixels)
         {
             if (thresholdPixels <= 0 || float.IsNaN(thresholdPixels) || float.IsInfinity(thresholdPixels)) throw new ArgumentOutOfRangeException(nameof(thresholdPixels));
