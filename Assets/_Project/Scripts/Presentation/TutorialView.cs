@@ -133,11 +133,16 @@ namespace SqueakyLane.Presentation
         public void Hide()
         {
             visible = false;
-            group.alpha = 0;
-            group.interactable = false;
-            group.blocksRaycasts = false;
-            shade.raycastTarget = false;
-            hand.enabled = false;
+            // Lúc đóng cảnh các object con có thể đã bị hủy trước.
+            if (group != null)
+            {
+                group.alpha = 0;
+                group.interactable = false;
+                group.blocksRaycasts = false;
+            }
+
+            if (shade != null) { shade.raycastTarget = false; }
+            if (hand != null) { hand.enabled = false; }
         }
 
         private void Open()

@@ -270,6 +270,31 @@ namespace SqueakyLane.Tests.EditMode
             }
         }
 
+        // Dừng Play ở màn có bàn xoay: Canvas bị hủy trước GameRoot, OnDisable vẫn gọi SetAccepting(false).
+        [Test]
+        public void TableButtonsSurviveCanvasDestroyedFirst()
+        {
+            var canvasObject = new GameObject("Test UI", typeof(RectTransform), typeof(Canvas));
+            canvasObject.transform.SetParent(root.transform);
+            var builder = new LevelDefBuilder(3, 3);
+            builder.Cars.Add(new CarDef(Axis.Horizontal, 0, 0, TileColor.Pink));
+            builder.Tables.Add(new Cell(0, 0));
+            var session = Bind(builder.Build());
+            using var tableButtons = new TableButtons();
+            tableButtons.Initialize(canvasObject.GetComponent<Canvas>());
+            var settings = ScriptableObject.CreateInstance<GameConfig>();
+            try
+            {
+                tableButtons.Bind(session, board, null, settings);
+                Object.DestroyImmediate(canvasObject);
+                Assert.DoesNotThrow(() => tableButtons.SetAccepting(false));
+            }
+            finally
+            {
+                Object.DestroyImmediate(settings);
+            }
+        }
+
         [Test]
         public void TableButtonsRespectPlayGate()
         {

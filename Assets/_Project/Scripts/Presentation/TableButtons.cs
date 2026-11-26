@@ -124,7 +124,11 @@ namespace SqueakyLane.Presentation
             accepting = value;
             for (int i = 0; i < buttons.Length; i++)
             {
-                buttons[i].interactable = accepting && cars[i] >= 0;
+                // Khi dừng Play hoặc đóng app, Canvas có thể bị hủy trước GameRoot (GameBootstrap.OnDisable vẫn gọi vào đây).
+                if (buttons[i] != null)
+                {
+                    buttons[i].interactable = accepting && cars[i] >= 0;
+                }
             }
         }
 
