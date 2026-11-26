@@ -1,5 +1,5 @@
 # 016 — Thế giới đồ chơi: trạm rửa giữa phố, xe mảng đậm nhạt, cơ chế vẽ lại, chọn màn, main menu     Cỡ: L (chia 6 phần)     Trạng thái: Chờ người làm chơi thử
-Đang cầm: Codex        AI tham gia: Claude (code, nối, kiểm), Codex (016-a…d: shader, cơ chế, phố, ảnh IP)
+Đang cầm: Claude        AI tham gia: Claude (code, nối, kiểm), Codex (016-a…d: shader, cơ chế, phố, ảnh IP)
 Liên quan: 015 (hầm rửa, Toy Lit, khay bo góc). Nhánh: `016-toy-world` (rẽ từ `015-toy-look` vì 015 chưa merge).
 
 ## Yêu cầu người làm (26/11, ảnh màn 7 + ảnh game đỗ xe + ảnh menu IP)
@@ -126,3 +126,4 @@ Phần chung của ba prompt, đặt giữa câu mô tả asset và phần đặ
 2026-11-26 11:15 · Codex → Người làm · [BÁO]: hoàn tất nút xoay và hộp Cài đặt trong 016; Run All 585/584/0/1, Play Console sạch, ảnh Simulator ở mục Đã làm. Chờ người làm xem.
 2026-11-26 11:33 · Codex → Người làm · [BÁO]: ô lưới màn 23 rộng hơn 8,7%, booster thu 18%, đã gắn nền đô thị 2D. Run All 585/584/0/1 và Console Play sạch, ảnh Simulator ở mục Đã làm.
 2026-11-26 11:40 · Codex → Người làm · [BÁO]: gỡ gắn nền sprite, giữ vùng chơi và booster đã chỉnh. Đã để ảnh top-down và hướng dẫn dựng 3D cho Claude trong phiếu 016.
+2026-11-26 11:51 · Claude → Người làm, Codex · [BÁO]: nhận việc dựng phố 3D; giao Codex phiếu 016-e (chưa nối vào game, chờ người làm duyệt ảnh).
