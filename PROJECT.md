@@ -178,7 +178,7 @@ Raycast vào xe → lấy điểm trúng → chiếu lên **trục thân xe tron
 - **Ghi chú tranh luận:** nguyên tắc cũ của người làm là "khó do luật, không do giờ". Bản này đổi sang có giờ. Rủi ro: câu đố cần nghĩ (cổng tường, trụ xoay) sẽ bị áp lực giờ làm mất vui. Cách giảm: giờ rộng, không tính giờ ở màn học cơ chế mới, chỉnh theo thời gian người thật chơi chứ không theo số nước.
 - **Chấp nhận thua khi hết giờ** (đã xác nhận lại). `[CHỐT]`
 - **Gợi ý: có**, và phải tốn kém: trừ giờ **hoặc** giới hạn số lần như booster. `[CHỐT]` `[ĐỀ XUẤT]` mặc định nhẹ cả hai: tối đa 3 lần/màn, mỗi lần trừ ~5 s; cả hai là biến trong file config (7.5) để chỉnh hoặc tắt. Dùng solver sẵn có. Màn tutorial không giới hạn.
-- **"Kẹt xe"**: hộp thoại báo khi hết đường thắng (đồng hồ vẫn chạy, người chơi biết cần hoàn tác sớm). **Giữ** `[CHỐT 22/11]`.
+- **"Kẹt xe"**: báo khi hết đường thắng (đồng hồ vẫn chạy, người chơi biết cần hoàn tác sớm). **Giữ** `[CHỐT 22/11]`. Cách báo `[CHỐT 26/11]`: **viền đỏ nhấp nháy quanh màn hình** thay cho chữ/hộp (`UiTheme.stuck*`, nhịp 0,9 s, không chặn chạm; menu `016 UI/Build Stuck Edge`), tiếng kẹt giữ nguyên.
 
 ---
 
@@ -318,8 +318,9 @@ Assets/_Project/
 │     ├─ LevelDesignIO.cs      # schema JSON, kiểm/lưu/xuất/thứ tự; không ghi golden
 │     ├─ KenneyTruckMesh.cs   # Editor: chèn đoạn thùng vào mesh phái sinh, giữ cabin/bánh (010)
 │     └─ KenneyCarsWindow.cs  # menu tạo màu/prefab, cập nhật 6 tải và nối catalog, không sửa FBX/scene (010)
-├─ Resources/Levels/            # 34 màn thử + level_order (31 gốc, 3 bản sao thử tool), chưa phải 25 màn cuối
+├─ Resources/Levels/            # 34 JSON màn thử; level_order chỉ chạy 12 màn (xem dưới), chưa phải 25 màn cuối
 ├─ LevelDesign/                 # kho thiết kế ngoài Play: 34 JSON + level_order; Lưu rồi Xuất/Sync
+│                               # [CHỐT 26/11] rút gọn để soát hình: 1,2,3,4,5,6,8,10,20,21,29 (màn cơ chế; bỏ 9 barie, 22–23 chốt vì ngoài 25 màn) + 19 (màn tổng); bản đủ 34 màn: git c3ef1bc
 ├─ Config/                      # GameConfig, FeelConfig, CameraConfig, VisualPalette, SfxCatalog + BlockMaterial
 ├─ Prefabs/                     # GameRoot.prefab, LevelButton.prefab
 ├─ Scenes/Play.unity

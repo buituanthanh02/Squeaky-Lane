@@ -89,6 +89,11 @@ namespace SqueakyLane.Presentation
         [SerializeField, Range(0, 1), Tooltip("Phần bề rộng phố hai bên mà camera giữ trong khung (1 = thấy trọn, nhỏ hơn = bãi to hơn).")] private float streetVisible = .9f;
         [SerializeField, Range(10, 80), Tooltip("Chiều dài mỗi phố tính từ tâm bãi ra mỗi phía, ô (đủ ra khỏi màn hình).")] private float streetLength = 40;
         [SerializeField, Tooltip("Material mặt đường (U dọc đường theo ô, V ngang đường 0..1).")] private Material roadMaterial = null;
+        [Header("016 · Cảnh báo kẹt xe: viền đỏ nhấp nháy quanh màn hình")]
+        [SerializeField] private Color stuckEdgeColor = Hex("FF2740");
+        [SerializeField, Range(40, 320), Tooltip("Bề rộng viền, đơn vị Canvas (màn rộng ~980). Đổi xong chạy lại menu Build Stuck Edge.")] private float stuckEdgeWidth = 150;
+        [SerializeField, Range(.5f, 2), Tooltip("Một nhịp sáng–mờ, giây (không dưới 0,5 để tránh nháy gắt).")] private float stuckPulseSeconds = .9f;
+        [SerializeField, Range(0, 1)] private float stuckAlphaMin = .2f, stuckAlphaMax = 1;
         [Header("016 · Khu phố hoạt hình sinh theo màn (khi bật thì thay nền, phố và props cũ; tạo asset bằng menu 016 Toy → City Setup)")]
         [SerializeField] private bool cityEnabled = false;
         [SerializeField, Tooltip("Unlit + palette cho nền/đường.")] private Material cityGroundMaterial = null;
@@ -212,6 +217,11 @@ namespace SqueakyLane.Presentation
         public float PavementHighlightWidth => pavementHighlightWidth;
         public float TrayCornerRadius => trayCornerRadius;
         public float GroundShadowSpread => groundShadowSpread;
+        public Color StuckEdgeColor => stuckEdgeColor;
+        public float StuckEdgeWidth => Mathf.Max(1, stuckEdgeWidth);
+        public float StuckPulseSeconds => Mathf.Max(.5f, stuckPulseSeconds);
+        public float StuckAlphaMin => stuckAlphaMin;
+        public float StuckAlphaMax => stuckAlphaMax;
         public bool CityEnabled => cityEnabled && cityGroundMaterial != null && cityPropMaterial != null;
         public Material CityGroundMaterial => cityGroundMaterial;
         public Material CityPropMaterial => cityPropMaterial;

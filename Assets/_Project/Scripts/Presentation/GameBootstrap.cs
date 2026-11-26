@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -455,7 +455,7 @@ namespace SqueakyLane.Presentation
 
             string time = timer.IsTimed ? Mathf.CeilToInt(timer.Remaining) + " s" : "Không tính giờ";
             string title = "Màn " + order[selected] + " · " + levelName + "\n" + time + " · " + session.State.Moves + " nước";
-            string status = session.IsWin ? "Thắng · " + timer.StarsOnWin() + " sao" : timer.IsOver ? "Hết giờ" : stuck.Status == StuckStatus.Stuck ? "Kẹt xe · Hoàn tác hoặc chơi lại" : message;
+            string status = session.IsWin ? "Thắng · " + timer.StarsOnWin() + " sao" : timer.IsOver ? "Hết giờ" : stuck.Status == StuckStatus.Stuck && (navigationView == null || !navigationView.HasStuckEdge) ? "Kẹt xe · Hoàn tác hoặc chơi lại" : message;
             status += "\nGợi ý còn: " + (hints.Remaining < 0 ? "∞" : hints.Remaining.ToString());
             hud.Show(title, status, !session.IsWin && session.UndoCount > 0, !timer.Paused && hints.Remaining != 0);
             if (navigationView != null)

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -38,6 +38,9 @@ namespace SqueakyLane.Presentation
         [SerializeField, Tooltip("Nút về main menu (ví dụ nút nhà trên màn Chọn màn).")] private Button[] homeButtons = Array.Empty<Button>();
         [SerializeField, Tooltip("Nút đóng hộp Cài đặt của main menu.")] private Button[] menuSettingsCloseButtons = Array.Empty<Button>();
         [SerializeField, Tooltip("Sprite nền ô màn đang chơi tới (nổi bật). Trống = giữ sprite prefab.")] private Sprite levelCurrentSprite = null;
+        [SerializeField, Tooltip("016: viền đỏ nhấp nháy khi kẹt xe; gán rồi thì không hiện bảng chữ Kẹt xe. Menu '016 UI/Build Stuck Edge' dựng và gán.")] private CanvasGroup stuckEdge = null;
+        private bool stuckPulsing;
+        private float stuckAge;
         private int nextLevelIndex;
         private Sprite levelNormalSprite;
         private float messageAge;
@@ -149,8 +152,30 @@ namespace SqueakyLane.Presentation
         }
         private static void Group(CanvasGroup group, bool visible)
         { group.alpha = visible ? 1 : 0; group.interactable = visible; group.blocksRaycasts = visible; }
+        public bool HasStuckEdge => stuckEdge != null;
+        public float StuckPeriod => theme != null ? theme.StuckPulseSeconds : .9f;
         public void ShowStuck(bool visible)
-        { stuckBanner.alpha = visible ? 1 : 0; stuckBanner.interactable = false; stuckBanner.blocksRaycasts = false; }
+        {
+            bool edge = stuckEdge != null;
+            if (stuckBanner != null) { stuckBanner.alpha = visible && !edge ? 1 : 0; stuckBanner.interactable = false; stuckBanner.blocksRaycasts = false; }
+            if (!edge) { return; }
+            if (visible && !stuckPulsing) { stuckAge = 0; }
+            stuckPulsing = visible;
+            stuckEdge.interactable = false; stuckEdge.blocksRaycasts = false;
+            stuckEdge.alpha = visible ? PulseAlpha() : 0;
+        }
+        // Nhấp nháy mềm theo hình cos, bắt đầu ở mức đậm nhất; dùng thời gian không scale.
+        public void TickStuck(float deltaTime)
+        {
+            if (!stuckPulsing || stuckEdge == null) { return; }
+            stuckAge = Mathf.Repeat(stuckAge + deltaTime, StuckPeriod);
+            stuckEdge.alpha = PulseAlpha();
+        }
+        private float PulseAlpha()
+        {
+            float low = theme != null ? theme.StuckAlphaMin : .2f, high = theme != null ? theme.StuckAlphaMax : 1;
+            return Mathf.Lerp(low, high, .5f + .5f * Mathf.Cos(stuckAge / StuckPeriod * 2 * Mathf.PI));
+        }
         public void SetFade(float alpha)
         { if (fadeOverlay == null) return; var color = fadeOverlay.color; color.a = alpha; fadeOverlay.color = color; fadeOverlay.raycastTarget = alpha > 0; }
         public void RefreshHud(string title, LevelTimer timer, int moves, int hintCount, string message, bool canUndo, bool canPlay, int totalLevels, int index, GameConfig config)
@@ -216,6 +241,7 @@ namespace SqueakyLane.Presentation
         private void Update()
         {
             TickMessage(Time.unscaledDeltaTime);
+            TickStuck(Time.unscaledDeltaTime);
         }
         private void TickMessage(float deltaTime)
         {
