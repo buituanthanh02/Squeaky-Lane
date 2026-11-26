@@ -237,6 +237,14 @@ namespace SqueakyLane.Presentation
             return reason.HasValue && reason.Value != StopReason.Push;
         }
 
+        // Rung camera bãi theo yêu cầu (vd đóng huy hiệu kỷ lục); scale là bội số của biên độ va nhẹ.
+        public void Shake(float scale)
+        {
+            if (feel == null || !feel.ShakeEnabled || scale <= 0) { return; }
+            shakeTime = 0;
+            shakeScale = scale;
+        }
+
         public void Celebrate()
         {
             if (feel == null || board == null || board.Level == null || !feel.ConfettiEnabled) { return; }

@@ -634,6 +634,7 @@ MonoBehaviour:
   card: {fileID: 24892874}
   buttons: {fileID: 569620478}
   textTemplate: {fileID: 1426295620}
+  shakeRoot: {fileID: 1791389243}
 --- !u!1 &26193763
 GameObject:
   m_ObjectHideFlags: 0
@@ -16229,6 +16230,7 @@ MonoBehaviour:
   card: {fileID: 1995236331}
   buttons: {fileID: 525984726}
   textTemplate: {fileID: 1426295620}
+  shakeRoot: {fileID: 1791389243}
 --- !u!1 &1997249979
 GameObject:
   m_ObjectHideFlags: 0

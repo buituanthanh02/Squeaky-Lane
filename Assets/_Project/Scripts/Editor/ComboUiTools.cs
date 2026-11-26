@@ -45,8 +45,9 @@ namespace SqueakyLane.EditorTools
 
             var feedback = anchor.GetComponent<ComboFeedback>();
             if (feedback == null) { feedback = anchor.gameObject.AddComponent<ComboFeedback>(); }
-            var wonSummary = Summary(won, template);
-            var lostSummary = Summary(lost, template);
+            var safeArea = (RectTransform)data.FindProperty("safeAreaRoot").objectReferenceValue;
+            var wonSummary = Summary(won, template, safeArea);
+            var lostSummary = Summary(lost, template, safeArea);
             Assign(feedback, ("theme", theme), ("popupAnchor", anchor), ("wonSummary", wonSummary), ("lostSummary", lostSummary));
             Assign(bootstrap, ("comboFeedback", feedback));
             PrefabUtility.RecordPrefabInstancePropertyModifications(bootstrap);
@@ -55,14 +56,14 @@ namespace SqueakyLane.EditorTools
             Debug.Log("018: đã gán hình/tiếng combo và gắn ComboFeedback, ComboSummary vào Play.unity.");
         }
 
-        private static ComboSummary Summary(CanvasGroup dialog, Component template)
+        private static ComboSummary Summary(CanvasGroup dialog, Component template, RectTransform shakeRoot)
         {
             var card = dialog.transform.Find("013 Card") as RectTransform;
             var buttons = card != null ? card.Find("013 Body/013 Buttons") as RectTransform : null;
             if (buttons == null) { throw new InvalidOperationException(dialog.name + ": thiếu 013 Card/013 Body/013 Buttons."); }
             var summary = card.GetComponent<ComboSummary>();
             if (summary == null) { summary = card.gameObject.AddComponent<ComboSummary>(); }
-            Assign(summary, ("card", card), ("buttons", buttons), ("textTemplate", template));
+            Assign(summary, ("card", card), ("buttons", buttons), ("textTemplate", template), ("shakeRoot", shakeRoot));
             return summary;
         }
 
@@ -97,8 +98,8 @@ namespace SqueakyLane.EditorTools
         private static void AssignArt(UiTheme theme)
         {
             var data = new SerializedObject(theme);
-            string[] fields = { "comboWord", "recordBanner", "comboBurst", "comboSpark", "comboStreak", "comboRing" };
-            string[] files = { "combo_word", "record_new", "fx_burst", "fx_spark", "fx_streak", "fx_ring" };
+            string[] fields = { "comboWord", "recordBadge", "comboBurst", "comboSpark", "comboRing" };
+            string[] files = { "combo_word", "record_badge", "fx_burst", "fx_spark", "fx_ring" };
             for (int i = 0; i < fields.Length; i++) { data.FindProperty(fields[i]).objectReferenceValue = Import(files[i]); }
             var digits = data.FindProperty("comboDigits");
             digits.arraySize = 10;

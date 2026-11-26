@@ -56,7 +56,7 @@ namespace SqueakyLane.Tests.EditMode
         {
             Assert.That(theme.ComboWord, Is.Not.Null);
             for (int i = 0; i < 10; i++) { Assert.That(theme.ComboDigit(i), Is.Not.Null, "chữ số " + i); }
-            Assert.That(theme.RecordBanner, Is.Not.Null);
+            Assert.That(theme.RecordBadge, Is.Not.Null);
             var catalog = AssetDatabase.LoadAssetAtPath<SfxCatalog>("Assets/_Project/Config/SfxCatalog.asset");
             Assert.That(catalog.Find(SoundCue.RecordWhoosh), Is.Not.Null);
             Assert.That(catalog.Find(SoundCue.RecordSlam), Is.Not.Null);
@@ -96,7 +96,10 @@ namespace SqueakyLane.Tests.EditMode
             buttons.SetParent(card, false);
             var summary = card.gameObject.AddComponent<ComboSummary>();
             Set(summary, "card", card);
+            var screen = Make<RectTransform>("screen");
+            screen.anchoredPosition = new Vector2(0, 12);
             Set(summary, "buttons", buttons);
+            Set(summary, "shakeRoot", screen);
             summary.Configure(theme, feel);
             int whoosh = 0, slam = 0;
             summary.Whoosh += () => whoosh++;
@@ -105,7 +108,7 @@ namespace SqueakyLane.Tests.EditMode
             summary.Show(2, 5, false);
             for (int i = 0; i < 60; i++) { summary.Advance(.05f); }
             Assert.That(summary.RecordText, Does.Contain("5"));
-            Assert.That(summary.BannerShown, Is.False);
+            Assert.That(summary.BadgeShown, Is.False);
             Assert.That(whoosh + slam, Is.Zero);
             float extra = theme.SummaryComboHeight + theme.SummaryLineHeight;
             Assert.That(card.sizeDelta.y, Is.EqualTo(900 + extra).Within(.01f));
@@ -114,12 +117,19 @@ namespace SqueakyLane.Tests.EditMode
             Assert.That(row.GetComponent<UnityEngine.UI.LayoutElement>().preferredHeight, Is.EqualTo(extra).Within(.01f));
 
             summary.Show(6, 5, true);
-            for (int i = 0; i < 60; i++) { summary.Advance(.05f); }
-            Assert.That(summary.BannerShown, Is.True);
+            float shaken = 0;
+            for (int i = 0; i < 60; i++)
+            {
+                summary.Advance(.05f);
+                shaken = Mathf.Max(shaken, Vector2.Distance(screen.anchoredPosition, new Vector2(0, 12)));
+            }
+
+            Assert.That(shaken, Is.GreaterThan(5), "đóng huy hiệu thì giao diện rung");
+            Assert.That(summary.BadgeShown, Is.True);
             Assert.That(summary.RecordText, Is.Empty);
             Assert.That(whoosh, Is.EqualTo(1));
             Assert.That(slam, Is.EqualTo(1));
-            Assert.That(card.anchoredPosition, Is.EqualTo(Vector2.zero), "hết rung thì thẻ về chỗ cũ");
+            Assert.That(screen.anchoredPosition, Is.EqualTo(new Vector2(0, 12)), "hết rung thì về chỗ cũ");
 
             summary.Show(0, 0, false);
             Assert.That(summary.Visible, Is.False);

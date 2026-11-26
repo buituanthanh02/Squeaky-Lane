@@ -6,7 +6,7 @@ using SqueakyLane.Game;
 namespace SqueakyLane.Presentation
 {
     // Khối combo trong bảng Thắng / Hết giờ. Chưa phá kỷ lục: số combo + dòng "Kỷ lục".
-    // Phá kỷ lục: số combo, rồi dải "KỶ LỤC MỚI!" lao vào (whoosh), đập xuống (vòng xung, sao bắn, rung thẻ) và nhấp nháy.
+    // Phá kỷ lục: số combo, rồi huy hiệu rơi từ cao (whoosh), đóng "cộp" xuống (rung giao diện, vòng xung, sao bắn) và lấp lánh.
     // Thẻ hộp thoại tự cao thêm đúng phần khối này chiếm; không có gì để khoe thì giữ nguyên cỡ.
     public sealed class ComboSummary : MonoBehaviour
     {
@@ -14,15 +14,18 @@ namespace SqueakyLane.Presentation
         [SerializeField, Tooltip("Thẻ hộp thoại sẽ cao thêm.")] private RectTransform card = null;
         [SerializeField, Tooltip("Cụm nút; khối combo được chèn ngay trên nó trong cùng cha.")] private RectTransform buttons = null;
         [SerializeField, Tooltip("Mẫu chữ cho dòng kỷ lục (font và material).")] private TMP_Text textTemplate = null;
+        [SerializeField, Tooltip("Cả vùng giao diện rung khi đóng huy hiệu; trống thì chỉ rung thẻ.")] private RectTransform shakeRoot = null;
         private UiTheme theme;
         private FeelConfig feel;
         private Vector2 cardSize, cardAt;
         private LayoutElement slot;
         private bool captured;
-        private RectTransform area, bannerRoot;
+        private RectTransform area, badgeRoot;
         private ComboLabel label;
         private TextMeshProUGUI recordLine;
-        private Image banner, streak, ring;
+        private Image badge, glow, ring;
+        private Vector2 shakeAt;
+        private bool shaking;
         private readonly Image[] sparks = new Image[Sparks];
         private float age;
         private bool playing, whooshed, slammed;
@@ -32,7 +35,7 @@ namespace SqueakyLane.Presentation
         public int Record { get; private set; }
         public bool Visible => area != null && area.gameObject.activeSelf;
         public string RecordText => recordLine != null && recordLine.gameObject.activeSelf ? recordLine.text : "";
-        public bool BannerShown => bannerRoot != null && bannerRoot.gameObject.activeSelf;
+        public bool BadgeShown => badgeRoot != null && badgeRoot.gameObject.activeSelf;
         public event System.Action Whoosh, Slam;
 
         public void Configure(UiTheme art, FeelConfig config)
@@ -51,13 +54,14 @@ namespace SqueakyLane.Presentation
             Build();
             bool hasCombo = combo >= ProgressStore.MinCombo;
             bool any = hasCombo || Record >= ProgressStore.MinCombo;
-            float height = !any ? 0 : (hasCombo ? theme.SummaryComboHeight : 0) + (newRecord ? theme.SummaryBannerHeight : theme.SummaryLineHeight);
+            float height = !any ? 0 : (hasCombo ? theme.SummaryComboHeight : 0) + (newRecord ? theme.SummaryBadgeHeight : theme.SummaryLineHeight);
+            StopShake();
             area.gameObject.SetActive(any);
             Layout(height);
             label.Root.gameObject.SetActive(hasCombo);
             recordLine.gameObject.SetActive(any && !newRecord);
-            bannerRoot.gameObject.SetActive(false);
-            streak.enabled = ring.enabled = false;
+            badgeRoot.gameObject.SetActive(false);
+            ring.enabled = false;
             foreach (var spark in sparks) { spark.enabled = false; }
             if (!any) { playing = false; return; }
             float top = height * .5f;
@@ -68,10 +72,10 @@ namespace SqueakyLane.Presentation
                 label.Root.localScale = Vector3.zero;
             }
 
-            float lineY = -top + (newRecord ? theme.SummaryBannerHeight : theme.SummaryLineHeight) * .5f;
+            float lineY = -top + (newRecord ? theme.SummaryBadgeHeight : theme.SummaryLineHeight) * .5f;
             recordLine.rectTransform.anchoredPosition = new Vector2(0, lineY);
             recordLine.text = "Kỷ lục: Combo " + Record;
-            bannerRoot.anchoredPosition = new Vector2(0, lineY);
+            badgeRoot.anchoredPosition = new Vector2(0, lineY);
             age = 0;
             playing = true;
             whooshed = slammed = false;
@@ -80,6 +84,7 @@ namespace SqueakyLane.Presentation
         public void Hide()
         {
             playing = false;
+            StopShake();
             if (area != null) { area.gameObject.SetActive(false); }
             if (captured) { Layout(0); }
         }
@@ -125,17 +130,18 @@ namespace SqueakyLane.Presentation
             recordLine.alignment = TextAlignmentOptions.Center;
             recordLine.color = theme.SummaryLineColor;
             recordLine.raycastTarget = false;
-            bannerRoot = ComboLabel.Create("Kỷ lục mới", area);
-            streak = ComboLabel.Picture("Vệt lao", bannerRoot, theme.ComboStreak);
-            ring = ComboLabel.Picture("Vòng đập", bannerRoot, theme.ComboRing);
-            banner = ComboLabel.Picture("Dải chữ", bannerRoot, theme.RecordBanner);
-            if (theme.RecordBanner != null)
+            badgeRoot = ComboLabel.Create("Kỷ lục mới", area);
+            glow = ComboLabel.Picture("Quầng", badgeRoot, theme.ComboBurst);
+            glow.rectTransform.sizeDelta = Vector2.one * theme.SummaryBadgeHeight * 1.5f;
+            ring = ComboLabel.Picture("Vòng đập", badgeRoot, theme.ComboRing);
+            badge = ComboLabel.Picture("Huy hiệu", badgeRoot, theme.RecordBadge);
+            if (theme.RecordBadge != null)
             {
-                float height = theme.SummaryBannerHeight;
-                banner.rectTransform.sizeDelta = new Vector2(height * theme.RecordBanner.rect.width / theme.RecordBanner.rect.height, height);
+                float height = theme.SummaryBadgeHeight;
+                badge.rectTransform.sizeDelta = new Vector2(height * theme.RecordBadge.rect.width / theme.RecordBadge.rect.height, height);
             }
 
-            for (int i = 0; i < sparks.Length; i++) { sparks[i] = ComboLabel.Picture("Sao " + i, bannerRoot, theme.ComboSpark); }
+            for (int i = 0; i < sparks.Length; i++) { sparks[i] = ComboLabel.Picture("Sao " + i, badgeRoot, theme.ComboSpark); }
         }
 
         private void Update() { Advance(Time.unscaledDeltaTime); }
@@ -154,59 +160,85 @@ namespace SqueakyLane.Presentation
             }
 
             if (!IsNewRecord || age < intro) { return; }
-            bannerRoot.gameObject.SetActive(true);
+            badgeRoot.gameObject.SetActive(true);
             if (!whooshed)
             {
                 whooshed = true;
                 Whoosh?.Invoke();
             }
 
-            float fly = Mathf.Clamp01((age - intro) / feel.RecordWhooshSeconds);
-            if (fly < 1)
+            var stamp = badge.rectTransform;
+            float drop = Mathf.Clamp01((age - intro) / feel.RecordWhooshSeconds);
+            if (drop < 1)
             {
-                float ease = fly * fly;
-                banner.rectTransform.anchoredPosition = new Vector2(Mathf.Lerp(-feel.RecordFlyDistance, 0, ease), 0);
-                banner.rectTransform.localScale = Vector3.one * Mathf.Lerp(feel.RecordSlamScale, 1, ease);
-                banner.color = new Color(1, 1, 1, Mathf.Clamp01(fly * 2));
-                streak.enabled = true;
-                streak.rectTransform.sizeDelta = new Vector2(feel.RecordFlyDistance, theme.SummaryBannerHeight * .7f);
-                streak.rectTransform.anchoredPosition = banner.rectTransform.anchoredPosition - new Vector2(feel.RecordFlyDistance * .5f, 0);
-                streak.color = new Color(1, 1, 1, 1 - fly * .4f);
+                // Rơi nhanh dần từ cao, to → đúng cỡ, xoay dần về độ nghiêng cuối: cảm giác đóng dấu.
+                float ease = drop * drop * drop;
+                stamp.anchoredPosition = new Vector2(0, Mathf.Lerp(feel.RecordDropDistance, 0, ease));
+                stamp.localScale = Vector3.one * Mathf.Lerp(feel.RecordSlamScale, 1, ease);
+                stamp.localRotation = Quaternion.Euler(0, 0, Mathf.Lerp(feel.RecordTiltDegrees * 3, feel.RecordTiltDegrees, ease));
+                badge.color = new Color(1, 1, 1, Mathf.Clamp01(drop * 2.5f));
+                glow.enabled = false;
                 return;
             }
 
             if (!slammed)
             {
                 slammed = true;
+                StartShake();
                 Slam?.Invoke();
             }
 
             float after = age - intro - feel.RecordWhooshSeconds;
             float hit = Mathf.Clamp01(after / feel.RecordImpactSeconds);
-            streak.enabled = false;
+            if (shaking)
+            {
+                float power = feel.RecordShakeDistance * (1 - hit) * (1 - hit);
+                Shaken.anchoredPosition = shakeAt + new Vector2(Mathf.Sin(after * 83) * .6f, Mathf.Cos(after * 61)) * power;
+                if (hit >= 1) { StopShake(); }
+            }
+
             ring.enabled = hit < 1;
-            ring.rectTransform.sizeDelta = Vector2.one * theme.SummaryBannerHeight * Mathf.Lerp(.8f, 4.5f, 1 - (1 - hit) * (1 - hit));
+            ring.rectTransform.sizeDelta = Vector2.one * theme.SummaryBadgeHeight * Mathf.Lerp(.7f, 2.6f, 1 - (1 - hit) * (1 - hit));
             ring.color = new Color(1, 1, 1, 1 - hit);
-            // Sau cú đập: thẻ rung tắt dần, dải chữ phập phồng và chớp sáng vàng, sao lấp lánh quanh chữ.
-            if (card != null) { card.anchoredPosition = cardAt + new Vector2(0, Mathf.Sin(after * 70) * feel.RecordShakeDistance * (1 - hit)); }
+            // Sau cú đóng: huy hiệu lún rồi nảy, phập phồng và chớp sáng; quầng xoay phía sau, sao lấp lánh quanh.
             float wave = .5f + .5f * Mathf.Sin(after / feel.RecordPulseSeconds * Mathf.PI * 2);
-            float squash = hit < .35f ? Mathf.Sin(hit / .35f * Mathf.PI) * .18f : 0;
-            banner.rectTransform.anchoredPosition = Vector2.zero;
-            banner.rectTransform.localScale = new Vector3(1 + squash, 1 - squash, 1) * (1 + feel.RecordPulseScale * wave);
-            banner.color = Color.Lerp(Color.white, theme.RecordFlashColor, wave);
-            float halfWidth = banner.rectTransform.sizeDelta.x * .5f;
+            float squash = hit < .35f ? Mathf.Sin(hit / .35f * Mathf.PI) * .16f : 0;
+            stamp.anchoredPosition = Vector2.zero;
+            stamp.localRotation = Quaternion.Euler(0, 0, feel.RecordTiltDegrees);
+            stamp.localScale = new Vector3(1 + squash, 1 - squash, 1) * (1 + feel.RecordPulseScale * wave);
+            badge.color = Color.Lerp(Color.white, theme.RecordFlashColor, wave * .6f);
+            glow.enabled = true;
+            glow.rectTransform.localRotation = Quaternion.Euler(0, 0, -after * feel.ComboBurstDegrees);
+            var tint = theme.ComboBurstColor;
+            tint.a *= hit * (.6f + .4f * wave);
+            glow.color = tint;
             for (int i = 0; i < sparks.Length; i++)
             {
                 float angle = (i + .5f) / sparks.Length * Mathf.PI * 2;
-                float reach = Mathf.Lerp(.35f, 1.08f, 1 - (1 - hit) * (1 - hit));
+                float reach = Mathf.Lerp(.3f, 1, 1 - (1 - hit) * (1 - hit));
                 float twinkle = Mathf.Abs(Mathf.Sin(after * 4 + i * 1.7f));
                 sparks[i].enabled = true;
-                sparks[i].rectTransform.anchoredPosition = new Vector2(Mathf.Cos(angle) * halfWidth * reach,
-                    Mathf.Sin(angle) * theme.SummaryBannerHeight * .62f * reach);
-                sparks[i].rectTransform.sizeDelta = Vector2.one * theme.SummaryBannerHeight * (.14f + .2f * twinkle);
+                sparks[i].rectTransform.anchoredPosition = new Vector2(Mathf.Cos(angle) * theme.SummaryBadgeHeight * .75f * reach,
+                    Mathf.Sin(angle) * theme.SummaryBadgeHeight * .5f * reach);
+                sparks[i].rectTransform.sizeDelta = Vector2.one * theme.SummaryBadgeHeight * (.07f + .11f * twinkle);
                 sparks[i].color = new Color(1, 1, 1, .35f + .65f * twinkle);
             }
         }
+
+        private RectTransform Shaken => shakeRoot != null ? shakeRoot : card;
+        private void StartShake()
+        {
+            if (Shaken == null) { return; }
+            shaking = true;
+            shakeAt = Shaken.anchoredPosition;
+        }
+        private void StopShake()
+        {
+            if (!shaking) { return; }
+            shaking = false;
+            Shaken.anchoredPosition = shakeAt;
+        }
+        private void OnDisable() { StopShake(); }
 
         // 0 → vọt quá cỡ → về 1.
         public static float Overshoot(float t, float peak)

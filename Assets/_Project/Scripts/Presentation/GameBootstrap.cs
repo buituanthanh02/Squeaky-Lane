@@ -99,7 +99,7 @@ namespace SqueakyLane.Presentation
             }
             if (comboFeedback != null)
             {
-                comboFeedback.Initialize(animator, feelConfig, feedback);
+                comboFeedback.Initialize(animator, feelConfig, feedback, feelEffects);
             }
 
             navigationView.Navigate += Navigate;

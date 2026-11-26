@@ -97,13 +97,14 @@ namespace SqueakyLane.Presentation
         [Header("018 · Combo và kỷ lục (hình Codex vẽ ở Art/UI/Combo; menu 018 UI/Build Combo gán)")]
         [SerializeField] private Sprite comboWord = null;
         [SerializeField, Tooltip("Đúng 10 hình, theo thứ tự 0–9, cùng chiều cao.")] private Sprite[] comboDigits = new Sprite[0];
-        [SerializeField] private Sprite recordBanner = null, comboBurst = null, comboSpark = null, comboStreak = null, comboRing = null;
+        [SerializeField] private Sprite recordBadge = null, comboBurst = null, comboSpark = null, comboRing = null;
         [SerializeField] private Color comboBurstColor = new Color(1, .9f, .45f, .85f), recordFlashColor = new Color(1, .93f, .55f, 1);
         [SerializeField, Range(0, 40), Tooltip("Hai chữ số chồng mép nhau bao nhiêu pixel của hình gốc (hình có đệm hai bên).")] private float comboDigitOverlap = 16;
         [SerializeField, Range(-40, 40), Tooltip("Hạ chữ Combo bao nhiêu pixel hình gốc để chân chữ ngang chân số.")] private float comboWordDrop = 5;
         [SerializeField, Range(1, 4), Tooltip("Cỡ quầng sáng theo chiều cao chữ số.")] private float comboBurstScale = 1.9f;
         [SerializeField, Range(60, 400)] private float popupDigitHeight = 175;
-        [SerializeField, Range(60, 300)] private float summaryDigitHeight = 150, summaryComboHeight = 150, summaryBannerHeight = 190;
+        [SerializeField, Range(60, 300)] private float summaryDigitHeight = 150, summaryComboHeight = 150;
+        [SerializeField, Range(150, 500), Tooltip("Cao huy hiệu kỷ lục trong bảng kết quả.")] private float summaryBadgeHeight = 430;
         [SerializeField, Range(40, 200)] private float summaryLineHeight = 80;
         [SerializeField, Range(20, 90)] private float summaryLineFontSize = 52;
         [SerializeField] private Color summaryLineColor = Color.white;
@@ -237,10 +238,9 @@ namespace SqueakyLane.Presentation
         public float StuckAlphaMax => stuckAlphaMax;
         public Sprite ComboWord => comboWord;
         public Sprite ComboDigit(int value) => comboDigits != null && value >= 0 && value < comboDigits.Length ? comboDigits[value] : null;
-        public Sprite RecordBanner => recordBanner;
+        public Sprite RecordBadge => recordBadge;
         public Sprite ComboBurst => comboBurst;
         public Sprite ComboSpark => comboSpark;
-        public Sprite ComboStreak => comboStreak;
         public Sprite ComboRing => comboRing;
         public Color ComboBurstColor => comboBurstColor;
         public Color RecordFlashColor => recordFlashColor;
@@ -250,7 +250,7 @@ namespace SqueakyLane.Presentation
         public float PopupDigitHeight => popupDigitHeight;
         public float SummaryDigitHeight => summaryDigitHeight;
         public float SummaryComboHeight => summaryComboHeight;
-        public float SummaryBannerHeight => summaryBannerHeight;
+        public float SummaryBadgeHeight => summaryBadgeHeight;
         public float SummaryLineHeight => summaryLineHeight;
         public float SummaryLineFontSize => summaryLineFontSize;
         public Color SummaryLineColor => summaryLineColor;

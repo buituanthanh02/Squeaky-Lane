@@ -6,7 +6,7 @@ Liên quan: 017 (nhánh `018-combo` mở từ `017-cleanup`)
 Người chơi thấy ngay mình đang nối combo, cuối lượt biết combo cao nhất và kỷ lục; phá kỷ lục thì được ăn mừng rõ.
 
 ## Phạm vi
-Làm: hình "Combo N"; kỷ lục theo màn; khối combo ở bảng Thắng/Hết giờ; hiệu ứng kỷ lục mới (whoosh, đập, rung thẻ, sao, chớp) và hai tiếng mới. Không làm: đổi luật, sao, Core.
+Làm: hình "Combo N"; kỷ lục theo màn; khối combo ở bảng Thắng/Hết giờ; hiệu ứng kỷ lục mới (huy hiệu rơi và đóng xuống, rung giao diện + camera, vòng xung, sao, chớp) và hai tiếng mới. Không làm: đổi luật, sao, Core.
 Người làm chốt: kỷ lục riêng từng màn; cửa sổ combo 1,6 → 3 giây; chưa phá kỷ lục thì hiện combo + dòng kỷ lục.
 
 ## Đã làm
@@ -17,6 +17,12 @@ Người làm chốt: kỷ lục riêng từng màn; cửa sổ combo 1,6 → 3 
 ## Test và kết quả
 - EditMode **573 · 572 · 0 · 1** (thêm 4 ca `Combo018Tests`).
 - Play Simulator màn 20: popup, thắng lần đầu (kỷ lục mới), thắng lại (dòng kỷ lục), hết giờ; Console không lỗi. Kỷ lục thử đã xóa khỏi PlayerPrefs.
+
+## Chỉnh theo người làm (26/11)
+- Dải chữ "KỶ LỤC MỚI!" thay bằng huy hiệu hoa thị (018-b); bỏ `record_new.png`, `fx_streak.png`. `UiTheme.summaryBadgeHeight` 430.
+- `FeelConfig`: recordDropDistance 260, recordSlamScale 3,2, recordTiltDegrees −10, recordShakeDistance 34 (rung `SafeArea`, trước là thẻ), recordCameraShake 2,6, recordPulseScale 0,04.
+- Scene: `ComboSummary.shakeRoot` của Won và Lost · trống → `UIRoot/SafeArea`.
+- EditMode 573 · 572 · 0 · 1; Play Simulator màn 20: thắng phá kỷ lục, chụp lúc rơi, lúc đóng (giao diện lệch rồi về chỗ cũ) và đứng yên.
 
 ## Chưa kiểm
 - Mới xem ảnh từng khung, chưa nghe hai tiếng mới và chưa xem chuyển động liền mạch; chưa thử trên máy thật.
@@ -29,3 +35,4 @@ Người làm chốt: kỷ lục riêng từng màn; cửa sổ combo 1,6 → 3 
 
 ## Trao đổi
 2026-11-26 16:29 · Claude → Người làm · [BÁO]: xong trên `018-combo`, chờ chơi thử.
+2026-11-26 16:36 · Claude → Người làm · [BÁO]: đã đổi sang huy hiệu đóng xuống, chờ chơi thử.

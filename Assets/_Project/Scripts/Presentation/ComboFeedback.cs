@@ -14,6 +14,7 @@ namespace SqueakyLane.Presentation
         private ActionAnimator animator;
         private FeelConfig feel;
         private FeedbackRouter feedback;
+        private FeelEffects effects;
         private ComboLabel popup;
         private CanvasGroup popupGroup;
         private float age, hold;
@@ -23,12 +24,13 @@ namespace SqueakyLane.Presentation
         public int Best { get; private set; }
         public int Showing => popupGroup != null && popupGroup.alpha > 0 ? popup.Value : 0;
 
-        public void Initialize(ActionAnimator animation, FeelConfig config, FeedbackRouter router)
+        public void Initialize(ActionAnimator animation, FeelConfig config, FeedbackRouter router, FeelEffects world = null)
         {
             Disconnect();
             animator = animation;
             feel = config;
             feedback = router;
+            effects = world;
             if (animator != null)
             {
                 animator.CarEventStarted += OnCarEvent;
@@ -132,7 +134,12 @@ namespace SqueakyLane.Presentation
         }
 
         private void PlayWhoosh() { feedback?.Play(SoundCue.RecordWhoosh); }
-        private void PlaySlam() { feedback?.Impact(SoundCue.RecordSlam); }
+        // Đóng huy hiệu: tiếng + rung máy, và rung camera bãi phía sau hộp thoại cùng nhịp với giao diện.
+        private void PlaySlam()
+        {
+            feedback?.Impact(SoundCue.RecordSlam);
+            if (effects != null) { effects.Shake(feel.RecordCameraShake); }
+        }
         private void OnDestroy() { Disconnect(); }
     }
 }
