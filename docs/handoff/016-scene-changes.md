@@ -47,3 +47,14 @@ NavigationView · menuSettingsCloseButtons · → 2 phần tử
 NavigationView · levelCurrentSprite · null → Btn_square_orange_v1
 NavigationView · soundToggles · → 3 phần tử
 NavigationView · hapticsToggles · → 3 phần tử
+
+## 016 · Căn lại hộp Cài đặt Trang chủ
+
+Gốc bên dưới là `Canvas/UIRoot/SafeArea/016 MainMenu/016 MenuSettings/016 Panel`. Áp `LayoutSettings` qua Unity MCP lên object sẵn có.
+
+- MenuSettings/Dim (cùng cấp Panel) · Image · `raycastTarget` tắt → bật để nút đóng khi chạm lớp nền nhận được sự kiện.
+- Panel · Image · `pixelsPerUnitMultiplier` 1 → 1,388889 để viền 9-slice mảnh hơn · `raycastTarget` tắt → bật để chạm trong khung không đóng hộp.
+- Panel/Header · RectTransform · neo giữa mép trên, vị trí (0, −40) → (0, −88), kích thước 600×100 → 500×88 · TMP · cỡ chữ 72 → 64.
+- Panel/Close · RectTransform · pivot góc phải trên → tâm, vị trí (−30, −30) → (−65, −65), kích thước 110×110 → 94×94 · Image · Sliced → Simple, giữ tỉ lệ ảnh.
+- Panel/SoundToggle và HapticsToggle (tên object có tiền tố `016 `) · RectTransform · tâm (±150, −40) → (±155, −55), kích thước 0×0 → 240×184. Background chuyển từ mép trái sang giữa đầu cột, 144×144 → 132×132.
+- Hai `013 Caption` · RectTransform · nhãn dàn ngang → giữa dưới icon (240×52) · TMP · CardText → HudOutline, cỡ tự động → 44 cố định.

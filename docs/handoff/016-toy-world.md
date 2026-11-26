@@ -45,6 +45,22 @@ Props phố phụ → ảnh IP (dùng nền tĩnh có sẵn) → vẽ lại cơ 
 - Hầm rửa cạnh trái/phải: thảm đè ngang phố dọc, xe chạy trên phố đó có thể xuyên qua thảm.
 - Tồn tại từ trước: nút "XOAY" che xe trên bàn xoay.
 
+## Đã làm · Nút bàn xoay và khung Cài đặt
+
+- `TableButtons` dùng sprite mũi tên nổi `icon_turntable.png` thay nhãn XOAY. Huy hiệu chuyển sang nửa bàn đối diện xe theo hướng hiện tại và có khoảng hở với hình chiếu collider. Khi bàn trống, vùng chạm tắt. Vùng chạm giữ 9 mm và tiếp tục ưu tiên qua GraphicRaycaster.
+- `UiTheme` thêm sprite và thông số `tableBadgeRatio` 0,49, `tableBadgeLaneOffset` 0,65 ô, `tableBadgeCarGap` 0,04 đường kính vùng chạm. Bố cục hộp Cài đặt cũng lấy từ `UiTheme`; thay đổi từng object trong [016-scene-changes.md](016-scene-changes.md). `MainMenuTools` dùng cùng bố cục khi dựng lại menu.
+- **V2:** Unity MCP biên dịch sạch. EditMode Run All **585 tổng · 584 qua · 0 lỗi · 1 bỏ qua** (bài Profiler chạy tay có sẵn). Play Console 0 lỗi, 0 cảnh báo. Màn 8: chạm mép vùng nút xoay đủ bốn lượt, kể cả một điểm cũng trúng collider xe. Tâm xe vẫn nhận raycast 3D, hình nút tách khỏi collider ở cả bốn hướng và bàn trống không chặn chạm. Cài đặt mở được, hai công tắc đổi trạng thái rồi được trả về giá trị ban đầu. Nút X và chạm lớp nền đều đóng hộp, chạm khoảng trống trong hộp giữ nguyên.
+- **V3:** iPhone 12 Pro Max Simulator, 1284×2778. Ảnh trong `Logs/016-shots/`: `21-settings-fixed.png`, `22-turntable-horizontal.png`, `23-turntable-vertical.png`, `25-turntable-opposite.png`.
+
+### Chưa kiểm
+
+- Cảm giác chạm bằng ngón tay và kích thước vật lý trên máy thật. Play đã kiểm cả bốn hướng ở màn 8.
+
+### Bạn cần hiểu
+
+- Nút có sprite nhỏ và một Image trong suốt lớn hơn để nhận chạm. `InputController` hỏi EventSystem trước raycast 3D, nên điểm nằm trong cả hai vùng được giao cho nút xoay.
+- Viền popup dùng cùng sprite, với hệ số 9-slice riêng để phần viền giữ độ dày phù hợp với khung. Công tắc vẫn dùng kết nối gốc trong `NavigationView`.
+
 ## Bàn giao cho Codex (Claude sắp hết token)
 **Chỗ cần sửa còn biết:** bãi nhỏ đi vì camera chừa phố (`UiTheme.streetVisible/streetInner/streetWidth`, `BoardView.FitCamera`) · hầm rửa cạnh trái/phải đè lên phố dọc · nhà phố chủ yếu thấy mái, bị HUD che (`SceneThemeView.SpawnTown`, `ToyTownTools`) · nút "XOAY" che xe (`TableButtons`) · chưa xem trong Play: đèn, trụ, portal, bùn mới, hộp Cài đặt, xe lùi ra cổng cua phố · chưa APK, chưa chốt 25 màn.
 **Bẫy:** (1) ghi `.asset` qua MCP xong phải `Resources.UnloadAsset` + `AssetDatabase.ImportAsset(ForceUpdate)`, kiểm `IsDirty=false` và `git diff`. (2) Thoát Play trước khi sửa C#. (3) `execute_code` chỉ C# 6; ngay sau khi vào Play lệnh đầu hay lỗi, gọi lại. (4) Test Runner làm bẩn `Play.unity`: mở scene trống, `git checkout -- Assets/_Project/Scenes/Play.unity`, mở lại. (5) Bố cục menu/chọn màn sửa trong `MainMenuTools` rồi chạy menu `016 UI → Build Main Menu`, không sửa tay. (6) Chụp ảnh: focus cửa sổ Simulator trước, hẹn giờ `ScreenCapture` bằng `EditorApplication.update`. (7) Shader Toy Lit dùng chung: `_TopTint` mặc định 1, chỉ material xe bật. (8) Không commit file S4 chưa theo dõi trong `Art/UI/City` và `Prefabs/Environment/*` (props 0 đỉnh).
@@ -53,3 +69,4 @@ Props phố phụ → ảnh IP (dùng nền tĩnh có sẵn) → vẽ lại cơ 
 2026-11-26 10:08 · Claude → Người làm, Codex · [BÁO]: mở nhánh `016-toy-world` từ `015-toy-look`; giao Codex 016-a…d chạy song song (vùng file tách riêng).
 2026-11-26 10:30 · Claude → Người làm · [BÁO]: 016 đã chạy trong game, chờ chơi thử.
 2026-11-26 10:39 · Claude → Codex · [BÀN GIAO]: nhánh `016-toy-world`, code ở 6478360, Run All 585/584/0/1, Console sạch. Còn việc ở mục 'Bàn giao cho Codex'.
+2026-11-26 11:15 · Codex → Người làm · [BÁO]: hoàn tất nút xoay và hộp Cài đặt trong 016; Run All 585/584/0/1, Play Console sạch, ảnh Simulator ở mục Đã làm. Chờ người làm xem.

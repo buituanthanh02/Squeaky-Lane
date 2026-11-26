@@ -72,18 +72,16 @@ namespace SqueakyLane.EditorTools
             var settingsRoot = Node(menu, "016 MenuSettings");
             Stretch(settingsRoot, 0, 0);
             var settingsGroup = settingsRoot.gameObject.AddComponent<CanvasGroup>();
-            var dim = Img(settingsRoot, "016 Dim", null, new Color(.06f, .03f, .16f, .6f));
+            var dim = Img(settingsRoot, "016 Dim", null, new Color(.06f, .03f, .16f, theme.DimAlpha));
             Stretch(dim.rectTransform, 0, 0);
+            dim.raycastTarget = true;
             var dimButton = dim.gameObject.AddComponent<Button>(); dimButton.transition = Selectable.Transition.None;
             var panel = Img(settingsRoot, "016 Panel", Load(Pack + "bg_popup_purple.png"), Color.white);
-            panel.type = Image.Type.Sliced;
-            Place(panel.rectTransform, new Vector2(.5f, .5f), Vector2.zero, new Vector2(760, 520));
-            var header = MakeText(panel.transform, "016 Header", "Cài đặt", theme, 72, Color.white);
-            Place(header.rectTransform, new Vector2(.5f, 1), new Vector2(0, -40), new Vector2(600, 100));
-            var close = MakeButton(panel.transform, "016 Close", Load(Pack + "ic_close.png"), new Vector2(1, 1), new Vector2(-30, -30), new Vector2(110, 110));
-            close.GetComponent<RectTransform>().pivot = new Vector2(1, 1);
-            var sound = CloneToggle(levelSelect.transform, "SoundToggle", panel.transform, new Vector2(-150, -40));
-            var haptics = CloneToggle(levelSelect.transform, "HapticsToggle", panel.transform, new Vector2(150, -40));
+            var header = MakeText(panel.transform, "016 Header", "Cài đặt", theme, theme.TitleFontSize, Color.white);
+            var close = MakeButton(panel.transform, "016 Close", Load(Pack + "ic_close.png"), new Vector2(1, 1), Vector2.zero, Vector2.one);
+            var sound = CloneToggle(levelSelect.transform, "SoundToggle", panel.transform);
+            var haptics = CloneToggle(levelSelect.transform, "HapticsToggle", panel.transform);
+            LayoutSettings(panel, header, close, sound, haptics, theme);
 
             // Nút "về menu" ở góc trên trái màn Chọn màn.
             var homeButton = MakeButton(levelSelect.transform, "016 HomeButton", Load(Pack + "btn_round_green.png"), new Vector2(0, 1), new Vector2(70, -70), new Vector2(130, 130));
@@ -288,7 +286,53 @@ namespace SqueakyLane.EditorTools
             Place(caption.rectTransform, new Vector2(.5f, .5f), new Vector2(0, active ? -70 : -65), new Vector2(300, 60));
             return tab;
         }
-        private static Toggle CloneToggle(Transform levelSelect, string name, Transform parent, Vector2 position)
+        private static void LayoutSettings(Image panel, TMP_Text header, Button close, Toggle sound, Toggle haptics, UiTheme theme)
+        {
+            var center = new Vector2(.5f, .5f);
+            panel.type = Image.Type.Sliced;
+            panel.pixelsPerUnitMultiplier = 1f / (theme.FrameScale * theme.HudUnit);
+            panel.raycastTarget = true;
+            Place(panel.rectTransform, center, Vector2.zero, theme.MenuSettingsSize);
+
+            header.fontSize = theme.TitleFontSize;
+            var headerSize = new Vector2(theme.MenuSettingsSize.x - 4 * theme.MenuSettingsCloseInset.x, theme.MenuSettingsHeaderInset);
+            Place(header.rectTransform, new Vector2(.5f, 1), Vector2.down * theme.MenuSettingsHeaderInset, headerSize);
+            close.image.type = Image.Type.Simple;
+            close.image.preserveAspect = true;
+            var closeInset = theme.MenuSettingsCloseInset;
+            Place((RectTransform)close.transform, Vector2.one, new Vector2(-closeInset.x, -closeInset.y), Vector2.one * theme.MenuSettingsCloseSize);
+
+            var togglePosition = theme.MenuSettingsTogglePosition;
+            LayoutSettingsToggle(sound, new Vector2(-togglePosition.x, togglePosition.y), theme);
+            LayoutSettingsToggle(haptics, togglePosition, theme);
+        }
+
+        private static void LayoutSettingsToggle(Toggle toggle, Vector2 position, UiTheme theme)
+        {
+            if (toggle == null) { return; }
+            var rect = (RectTransform)toggle.transform;
+            var size = theme.MenuSettingsToggleSize;
+            Place(rect, new Vector2(.5f, .5f), position, size);
+
+            var frame = (RectTransform)toggle.targetGraphic.transform;
+            float iconSize = theme.MenuSettingsToggleIconSize;
+            Place(frame, new Vector2(.5f, 1), Vector2.down * (iconSize * .5f), Vector2.one * iconSize);
+
+            // Công tắc gốc nằm trước nhãn theo hàng ngang. Trong popup, đặt nhãn riêng bên dưới icon.
+            var captionNode = rect.Find("013 Caption");
+            if (captionNode == null) { return; }
+            var caption = captionNode.GetComponent<TMP_Text>();
+            caption.font = theme.TitleFont;
+            caption.fontSharedMaterial = theme.HudOutline;
+            caption.color = Color.white;
+            caption.alignment = TextAlignmentOptions.Center;
+            caption.enableAutoSizing = false;
+            caption.fontSize = theme.MenuSettingsToggleFontSize;
+            float captionHeight = size.y - iconSize;
+            Place(caption.rectTransform, new Vector2(.5f, 0), Vector2.up * (captionHeight * .5f), new Vector2(size.x, captionHeight));
+        }
+
+        private static Toggle CloneToggle(Transform levelSelect, string name, Transform parent)
         {
             Toggle source = null;
             foreach (var toggle in levelSelect.GetComponentsInChildren<Toggle>(true)) { if (toggle.name == name) { source = toggle; break; } }
@@ -296,9 +340,6 @@ namespace SqueakyLane.EditorTools
             var copy = UnityEngine.Object.Instantiate(source.gameObject, parent, false);
             copy.name = "016 " + name;
             copy.GetComponent<Toggle>().onValueChanged.RemoveAllListeners();
-            var rect = (RectTransform)copy.transform;
-            rect.anchorMin = rect.anchorMax = new Vector2(.5f, .5f); rect.pivot = new Vector2(.5f, .5f);
-            rect.anchoredPosition = position;
             var layout = copy.GetComponent<LayoutElement>();
             if (layout != null) { layout.ignoreLayout = true; }
             report.AppendLine(PathOf(copy.transform) + " · Toggle · nhân bản từ LevelSelect/" + name);

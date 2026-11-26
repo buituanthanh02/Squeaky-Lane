@@ -51,6 +51,7 @@ namespace SqueakyLane.Presentation
             foreach (var station in washGates.Values) { if (station != null) { station.Cancel(); } }
         }
         public LevelDef Level => level;
+        internal UiTheme Theme => sceneTheme;
         // 016: khoảng từ mép bãi tới tim phố (ô); âm khi không có phố (theme tắt/thiếu material) để xe ra cổng như cũ.
         public float StreetCenterOffset => sceneTheme != null && sceneTheme.StreetsEnabled && environmentView != null
             ? sceneTheme.StreetInner + sceneTheme.StreetWidth * .5f : -1;

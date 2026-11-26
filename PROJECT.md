@@ -132,7 +132,7 @@ Người làm đã tạo project 3D trống và sẽ bổ sung thông tin sau. *
 | **Bùn bám** (mud 1) | **Giữ** `[CHỐT]` | Xe còn bùn không qua được cổng màu. **Hình `[CHỐT 26/11]`:** "vẩy bùn" (3 kiểu, nhiều đốm rời + 1–2 giọt chảy trên mui, thay cục bùn đơn bị người làm chê), giọt bùn rơi khi xe chạy, vệt bánh đổi nâu khi xe dính bùn; **không** phủ/đổi màu cả thân (màu xe phải đọc được để chọn cổng). **Ô vòi xịt `[CHỐT 26/11]`:** trạm rửa kiểu kẹo (chổi lăn sọc, nền bong bóng, phun bọt); xe dính bùn **bò chậm** 0,7 s qua ô, lắc theo chổi, bùn trôi giữa chừng, ra ô thì bứt tốc lại. Phiếu 014. |
 | **Vòi phun / cổng nước** (xịt sạch rồi đẩy ngược vào bãi) | **Giữ** `[CHỐT]` | Làm sạch bùn trước cổng màu. Nếu sau này bỏ ô vòi xịt trong bãi thì đây là nơi duy nhất làm sạch → màn có bùn phải có cổng nước. |
 | **Vũng bùn** | **Giữ** `[CHỐT]` | Nguồn tạo bùn bám. |
-| **Bàn xoay** (2×2) | **Giữ** `[CHỐT]` | Xoay 90° bằng **nút ở trung tâm**, xem mục 6.3. |
+| **Bàn xoay** (2×2) | **Giữ** `[CHỐT]` | Xoay 90° bằng nút mũi tên trên bàn, xem mục 6.3. |
 | **Cọc** | **Giữ** `[CHỐT]` | |
 | **Đèn giao thông** (đổi sau mỗi lượt) | **Giữ** `[CHỐT]` | |
 | **Cổng tường (portal)** | **Giữ** `[CHỐT — nói từ vòng trước]` | Xe trồi nguyên thân ở cổng B vuông góc mặt tường B; tối đa 1 lần chui mỗi lượt. |
@@ -164,9 +164,9 @@ Camera cố định. Hoàn tác, chơi lại luôn có.
 ### 6.2. Kỹ thuật cho chạm nửa xe `[ĐỀ XUẤT]`
 Raycast vào xe → lấy điểm trúng → chiếu lên **trục thân xe trong không gian bàn chơi** → so với tâm xe để biết nửa đầu hay nửa đuôi. Vuốt: bắt đầu trên xe, lấy hướng vuốt chiếu lên trục thân xe, vượt ngưỡng (vài chục pixel) mới tính. Chạm nhẹ (không vuốt) = chạm nửa xe.
 
-### 6.3. Bàn xoay: nút ở trung tâm `[CHỐT]` + chi tiết `[ĐỀ XUẤT]`
-- Một **nút đủ to ở tâm bàn xoay** để chạm xoay 90°.
-- Xe dài 2 đứng trên bàn 2×2 che hơn nửa bàn, tâm bàn nằm sát mép thân xe → dễ bấm nhầm thành "cho xe chạy". Do đó: nút vẽ **trên lớp UI/world-space phía trên xe**, vùng chạm **ưu tiên nút hơn xe**, vùng chạm lớn hơn icon (≥ ~9 mm trên màn hình thật). Phải thử trên điện thoại thật.
+### 6.3. Bàn xoay `[CHỐT]`
+- Khi có xe dài 2 nằm trọn trên bàn, huy hiệu mũi tên theo chiều kim đồng hồ hiện ở phía đối diện xe. `TableButtons` dùng hình chiếu collider để đẩy huy hiệu ra khỏi thân xe ở góc camera hiện tại.
+- `GameConfig.tableTouchMillimeters` giữ vùng chạm 9 mm theo DPI Unity báo, với cách ước lượng cũ khi thiếu DPI. GraphicRaycaster cho vùng này ưu tiên hơn thao tác chạm xe. Kích thước huy hiệu, độ lệch theo ô và khoảng hở với xe chỉnh trong `UiTheme`. Chưa xác nhận cảm giác chạm trên máy thật.
 - Trụ xoay (cơ chế tường) thì chạm thẳng vào trụ, không có xung đột.
 
 ### 6.4. Thời gian và sao `[CHỐT]` + số liệu `[ĐỀ XUẤT]`

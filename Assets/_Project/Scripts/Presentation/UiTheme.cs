@@ -6,6 +6,10 @@ namespace SqueakyLane.Presentation
     [CreateAssetMenu(menuName = "Squeaky Lane/UI Theme")]
     public sealed class UiTheme : ScriptableObject
     {
+        internal const float DefaultTableBadgeRatio = .49f;
+        internal const float DefaultTableBadgeLaneOffset = .65f;
+        internal const float DefaultTableBadgeCarGap = .04f;
+
         [Header("013 · Sprite và font tạo sẵn bằng menu Editor")]
         [SerializeField] private Sprite primaryButton = null, regularButton = null, dangerButton = null, panel = null, clockTrack = null, clockFill = null, toggleBox = null, toggleCheck = null;
         [SerializeField] private TMP_FontAsset titleFont = null, bodyFont = null;
@@ -88,6 +92,20 @@ namespace SqueakyLane.Presentation
         [SerializeField, Tooltip("Cỡ lớn nhất của cây nhỏ/lớn; số khởi điểm chờ vòng ảnh S4.")] private Vector2 treeSizes = new Vector2(1.1f, 1.5f);
         [SerializeField, Range(.5f, 3)] private float sceneryLightSize = 1.2f;
         [SerializeField, Range(2, 6)] private float sceneryRoadSize = 3.8f;
+        [Header("016 · Nút bàn xoay")]
+        [SerializeField] private Sprite tableRotateBadge = null;
+        [SerializeField, Range(.2f, .8f), Tooltip("Đường kính huy hiệu theo đường kính vùng chạm của bàn xoay.")] private float tableBadgeRatio = DefaultTableBadgeRatio;
+        [SerializeField, Range(.5f, .9f), Tooltip("Khoảng từ tâm bàn đến huy hiệu, tính theo ô và hướng về làn đối diện xe.")] private float tableBadgeLaneOffset = DefaultTableBadgeLaneOffset;
+        [SerializeField, Range(0, .2f), Tooltip("Khoảng hở tối thiểu giữa huy hiệu và hình chiếu của xe, theo đường kính vùng chạm.")] private float tableBadgeCarGap = DefaultTableBadgeCarGap;
+        [Header("016 · Hộp Cài đặt trên Trang chủ (đơn vị Canvas)")]
+        [SerializeField] private Vector2 menuSettingsSize = new Vector2(760, 520);
+        [SerializeField, Min(0)] private float menuSettingsHeaderInset = 88;
+        [SerializeField] private Vector2 menuSettingsCloseInset = new Vector2(65, 65);
+        [SerializeField, Min(1)] private float menuSettingsCloseSize = 94;
+        [SerializeField] private Vector2 menuSettingsTogglePosition = new Vector2(155, -55);
+        [SerializeField] private Vector2 menuSettingsToggleSize = new Vector2(240, 184);
+        [SerializeField, Min(1)] private float menuSettingsToggleIconSize = 132;
+        [SerializeField, Min(1)] private float menuSettingsToggleFontSize = 44;
 
         public Sprite PrimaryButton => primaryButton;
         public Sprite RegularButton => regularButton;
@@ -195,6 +213,18 @@ namespace SqueakyLane.Presentation
         public Vector2 TreeSizes => treeSizes;
         public float SceneryLightSize => sceneryLightSize;
         public float SceneryRoadSize => sceneryRoadSize;
+        public Sprite TableRotateBadge => tableRotateBadge;
+        public float TableBadgeRatio => tableBadgeRatio;
+        public float TableBadgeLaneOffset => tableBadgeLaneOffset;
+        public float TableBadgeCarGap => tableBadgeCarGap;
+        public Vector2 MenuSettingsSize => menuSettingsSize;
+        public float MenuSettingsHeaderInset => menuSettingsHeaderInset;
+        public Vector2 MenuSettingsCloseInset => menuSettingsCloseInset;
+        public float MenuSettingsCloseSize => menuSettingsCloseSize;
+        public Vector2 MenuSettingsTogglePosition => menuSettingsTogglePosition;
+        public Vector2 MenuSettingsToggleSize => menuSettingsToggleSize;
+        public float MenuSettingsToggleIconSize => menuSettingsToggleIconSize;
+        public float MenuSettingsToggleFontSize => menuSettingsToggleFontSize;
         public string Stars(int count)
         {
             count = Mathf.Clamp(count, 0, 3);
@@ -255,6 +285,9 @@ namespace SqueakyLane.Presentation
             treeSizes.y = Clean(treeSizes.y, .5f, 3, 1.5f);
             sceneryLightSize = Clean(sceneryLightSize, .5f, 3, 1.2f);
             sceneryRoadSize = Clean(sceneryRoadSize, 2, 6, 3.8f);
+            tableBadgeRatio = Clean(tableBadgeRatio, .2f, .8f, DefaultTableBadgeRatio);
+            tableBadgeLaneOffset = Clean(tableBadgeLaneOffset, .5f, .9f, DefaultTableBadgeLaneOffset);
+            tableBadgeCarGap = Clean(tableBadgeCarGap, 0, .2f, DefaultTableBadgeCarGap);
             dialogInset.x = Clean(dialogInset.x, 0, .2f, .04f);
             dialogInset.y = Clean(dialogInset.y, 0, .2f, .08f);
             levelCellSize.x = Clean(levelCellSize.x, 160, 400, 280);
