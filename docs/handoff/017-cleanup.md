@@ -24,7 +24,7 @@ Người làm chọn: giữ tool đang dùng để chỉnh hình; gỡ cả Debu
 
 ## Chưa kiểm / phát hiện ngoài phạm vi
 - Chưa chạy trên máy thật; chưa chạy Toy Look Assets, Main Menu, Stuck Edge sau khi gộp helper (mới kiểm bằng biên dịch).
-- Khoảng 25 MB asset không còn được game dùng (phần lớn `Art/Mechanics/Kenney`, `Art/UI/Library`) và file rác chưa theo dõi ở `Art/UI/City`, `Prefabs/Environment`: không vào APK qua scene, chờ người làm duyệt xóa.
+- Khoảng 25 MB asset không còn được game dùng (phần lớn `Art/Mechanics/Kenney`, `Art/UI/Library`) và file rác chưa theo dõi ở `Art/UI/City`, `Prefabs/Environment`: không vào APK qua scene, người làm quyết **để nguyên** (26/11).
 
 ## Bạn cần hiểu
 - Code trong `Editor/` không vào APK; xóa tool chỉ làm dự án gọn, không làm APK nhỏ hơn.
@@ -33,3 +33,4 @@ Người làm chọn: giữ tool đang dùng để chỉnh hình; gỡ cả Debu
 
 ## Trao đổi
 2026-11-26 15:45 · Claude → Người làm · [BÁO]: dọn xong trên `017-cleanup`; chờ chơi thử.
+2026-11-26 15:46 · Claude · [BÁO]: người làm quyết giữ asset không dùng và file rác, không xóa.
