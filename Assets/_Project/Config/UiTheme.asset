@@ -60,7 +60,7 @@ MonoBehaviour:
   skyBottom: {r: 0.89411765, g: 0.9647059, b: 1, a: 1}
   cameraBackground: {r: 0.7490196, g: 0.9019608, b: 0.9843137, a: 1}
   grass: {r: 0.36078432, g: 0.6117647, b: 0.3372549, a: 1}
-  pavement: {r: 0.6039216, g: 0.6392157, b: 0.68235296, a: 1}
+  pavement: {r: 0.7647059, g: 0.8, b: 0.84705883, a: 1}
   grassFar: {r: 0.5254902, g: 0.78431374, b: 0.4627451, a: 1}
   vignette: {r: 0.039215688, g: 0.11764706, b: 0.26666668, a: 0.38}
   vignetteInnerRadius: 0.55
@@ -76,16 +76,47 @@ MonoBehaviour:
   levelSpacing: {x: 24, y: 24}
   levelColumns: 3
   environmentPrefab: {fileID: 2635141955557544813, guid: f9d72b55512525b498dd1ce3fb53d975, type: 3}
-  groundMaterial: {fileID: 2100000, guid: 7077a61cb83fe76478a7cafe2ea98806, type: 2}
-  propPrefabs: []
+  groundMaterial: {fileID: 2100000, guid: 054a920b457295448bc21e96c195656d, type: 2}
+  propPrefabs:
+  - {fileID: 4014479271759531055, guid: 751080659bf9dcf489da8fc0504283e0, type: 3}
+  - {fileID: 4131813526128855297, guid: 95c81ddc1efaa134d8c391be1c66f83a, type: 3}
+  - {fileID: 5765072345904988319, guid: bd0ddb06fd8ee684ab8a147981fce0bc, type: 3}
+  - {fileID: 6249094307295102263, guid: 073d91f1f698140429b1b69806cf6fe5, type: 3}
+  - {fileID: 4014479271759531055, guid: 751080659bf9dcf489da8fc0504283e0, type: 3}
+  - {fileID: 4131813526128855297, guid: 95c81ddc1efaa134d8c391be1c66f83a, type: 3}
   groundMargin: 5
   pavementWidth: 0.7
   propGap: 1.5
-  propCount: 0
+  propCount: 6
   propSpacing: 2.8
   hideCarNumbers: 0
   gateStrips: 0
   gateStripDepth: 0.3
-  lightIntensity: 1.1
+  lightIntensity: 1
   lightAngles: {x: 50, y: -30, z: 0}
-  ambient: {r: 0.2901961, g: 0.33333334, b: 0.40784314, a: 1}
+  ambient: {r: 0.6039216, g: 0.6627451, b: 0.7607843, a: 1}
+  contactShadowPrefab: {fileID: 4484793668476376425, guid: b15c91e3bfabc8b438cf0d8114c91543, type: 3}
+  parkedCarPrefab: {fileID: 0}
+  southPropPrefabs:
+  - {fileID: 6386957982826751431, guid: ee2476195b1a2b24c8468c9d6557988c, type: 3}
+  - {fileID: 6249094307295102263, guid: 073d91f1f698140429b1b69806cf6fe5, type: 3}
+  - {fileID: 6164274035222947761, guid: 908850fbf6985b9468064cf6cb3a9cb1, type: 3}
+  - {fileID: 4131813526128855297, guid: 95c81ddc1efaa134d8c391be1c66f83a, type: 3}
+  trayEnabled: 1
+  southPropsEnabled: 1
+  contactShadowAlpha: 0.28
+  contactShadowFalloff: 0.8
+  contactShadowLift: 0.008
+  contactShadowOffset: {x: -0.12, y: 0.1}
+  carShadowWidth: 0.9
+  carShadowLengthRatio: 0.95
+  trayThickness: 0.25
+  pavementSide: {r: 0.49411765, g: 0.54509807, b: 0.6039216, a: 1}
+  pavementHighlight: {r: 1, g: 1, b: 1, a: 0.6}
+  pavementHighlightWidth: 0.035
+  groundShadowSpread: 1
+  southPropHeight: 0.45
+  buildingSizes: {x: 2.8, y: 2}
+  treeSizes: {x: 1.1, y: 1.5}
+  sceneryLightSize: 1.2
+  sceneryRoadSize: 3.8

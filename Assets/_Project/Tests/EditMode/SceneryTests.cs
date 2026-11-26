@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Reflection;
 using NUnit.Framework;
 using UnityEditor.SceneManagement;
@@ -80,6 +80,7 @@ namespace SqueakyLane.Tests.EditMode
         {
             Set(theme, "trayEnabled", true);
             Set(theme, "gateStrips", false);
+            Set(theme, "trayCornerRadius", 0f); // khay vuông kiểu 013; khay bo góc 015 có test riêng
             var mesh = Own(SceneThemeView.BuildGround(new LevelDefBuilder(4, 6).Build(), theme));
             Assert.That(mesh.subMeshCount, Is.EqualTo(1));
             Assert.That(mesh.vertexCount, Is.EqualTo(40)); // cỏ, mặt khay, 4 mặt bên, 4 vạch sáng.
@@ -88,6 +89,66 @@ namespace SqueakyLane.Tests.EditMode
             Assert.That(mesh.normals[8].z, Is.LessThan(-.99f));
             Assert.That(mesh.uv[8].x, Is.EqualTo(9.5f / SceneThemeView.GroundColorCount).Within(.0001f));
             Assert.That(mesh.vertices[0].y, Is.EqualTo(SceneThemeView.GroundY(theme)));
+        }
+
+        // 015: khay bo góc vẫn một mesh/một submesh, mặt khay giữ cao độ, thành bên đủ dày, góc ngoài bị cắt tròn.
+        [Test]
+        public void RoundedTrayKeepsOneSubmeshHeightAndCutsCorners()
+        {
+            Set(theme, "trayEnabled", true);
+            Set(theme, "gateStrips", false);
+            Set(theme, "trayCornerRadius", .45f);
+            var level = new LevelDefBuilder(4, 6).Build();
+            var mesh = Own(SceneThemeView.BuildGround(level, theme));
+            Assert.That(mesh.subMeshCount, Is.EqualTo(1));
+            float halfX = 2 + theme.PavementWidth, halfZ = 3 + theme.PavementWidth, top = LotSurfaceView.Top - .02f;
+            float minY = float.MaxValue, maxY = float.MinValue, cornerDistance = float.MaxValue;
+            var vertices = mesh.vertices;
+            for (int i = 4; i < vertices.Length; i++) // bỏ quad cỏ (4 đỉnh đầu)
+            {
+                var v = vertices[i];
+                Assert.That(Mathf.Abs(v.x), Is.LessThanOrEqualTo(halfX + .0001f));
+                Assert.That(Mathf.Abs(v.z), Is.LessThanOrEqualTo(halfZ + .0001f));
+                minY = Mathf.Min(minY, v.y); maxY = Mathf.Max(maxY, v.y);
+                cornerDistance = Mathf.Min(cornerDistance, Vector2.Distance(new Vector2(Mathf.Abs(v.x), Mathf.Abs(v.z)), new Vector2(halfX, halfZ)));
+            }
+            Assert.That(maxY, Is.EqualTo(top + .001f).Within(.0001f), "Viền sáng nằm ngay trên mặt khay");
+            Assert.That(maxY - minY, Is.EqualTo(theme.TrayThickness + .001f).Within(.0001f), "Thành bên đủ dày khay");
+            float expected = .45f * (Mathf.Sqrt(2) - 1);
+            Assert.That(cornerDistance, Is.EqualTo(expected).Within(.01f), "Góc ngoài cắt tròn theo bán kính");
+            Assert.That(vertices[0].y, Is.EqualTo(SceneThemeView.GroundY(theme)));
+        }
+
+        // 015: thảm hầm rửa ở cổng nước kéo ra ~2 ô ngoài bãi; props không được mọc đè lên thảm.
+        [Test]
+        public void PropsSkipWashGatePads()
+        {
+            Set(theme, "trayEnabled", true);
+            Set(theme, "southPropsEnabled", true);
+            Set(theme, "gateStrips", false);
+            var north = BoxTemplate("North", new Vector3(.6f, .8f, .6f));
+            var south = BoxTemplate("South", new Vector3(.6f, .3f, .6f));
+            Set(theme, "propPrefabs", new[] { north, north, north, north, north, north });
+            Set(theme, "southPropPrefabs", new[] { south, south, south });
+            Set(theme, "propCount", 6);
+            var builder = new LevelDefBuilder(4, 6);
+            builder.Gates.Add(new GateDef(GateEdge.Top, 1, TileColor.Water));
+            builder.Gates.Add(new GateDef(GateEdge.Bottom, 2, TileColor.Water));
+            var level = builder.Build();
+            var root = Own(new GameObject("environment", typeof(SceneThemeView)));
+            root.GetComponent<SceneThemeView>().Configure(level, theme);
+            var topPad = Rect.MinMaxRect(-.5f - .65f, 3, -.5f + .65f, 5.2f);
+            var bottomPad = Rect.MinMaxRect(.5f - .65f, -5.2f, .5f + .65f, -3);
+            int props = 0;
+            foreach (Transform child in root.transform)
+            {
+                if (child.name.Contains("Tray Shadow")) { continue; }
+                props++;
+                var b = SceneThemeView.LocalBounds(child.gameObject); b.center += child.localPosition;
+                var footprint = Rect.MinMaxRect(b.min.x, b.min.z, b.max.x, b.max.z);
+                Assert.That(footprint.Overlaps(topPad) || footprint.Overlaps(bottomPad), Is.False, child.name + " đè lên thảm hầm rửa");
+            }
+            Assert.That(props, Is.GreaterThan(0).And.LessThan(9), "Bỏ props đè thảm, vẫn giữ phần còn lại");
         }
 
         [Test]

@@ -1215,7 +1215,24 @@ Mục "S2 ·" và "S2b ·" cũ đã bỏ vì mô tả các object không còn. M
 
 **Asset:** thêm `Sprites/Pack` (38 PNG), `Library` (72 PNG), `Pack-Source.txt` (+`.meta` do Unity tạo); xóa 5 PNG S2 cũ (`softShadow`, `blueButton`, `blueSquare`, `yellowSquare`, `blueRound`) và 16 PNG `ck_*` (hết tham chiếu). `UiTheme.asset`: bỏ field `chunky*`, `pill*`, thông số nướng; thêm `clockNormal/Low`, `hintOn/Off`, `badgeOn/Off`, `dimAlpha`, `frameScale`, `cardWidth`; `pillOutline` → `#24104F`; `levelCellSize` → (256,180). `Fonts/HudOutline|HudSmall|CardText.mat`: viền indigo `#24104F`, `CardText` mặt chữ `#2A1760` (màu `[HDR]` truyền dạng linear); `_FaceDilate` HudOutline 0 → .25, HudSmall 0 → .10, `_OutlineWidth` HudOutline .30 → .20; `UiTheme`: thêm `hudOutlineDilate`, `hudSmallDilate`, `hudOutlineWidth` .30 → .20. `UiSprites.spriteatlas`: gồm `Sprites/Pack`.
 
-## S4 · Asset Lab (scenery chưa áp)
+## S4 · ánh sáng/bóng giả/khay/props · 2026-11-26 09:30
+
+Assets/_Project/Config/UiTheme.asset · UiTheme · lightIntensity · 1.1 → 1
+Assets/_Project/Config/UiTheme.asset · UiTheme · ambient · #4A5568FF → #9AA9C2FF
+Assets/_Project/Config/UiTheme.asset · UiTheme · pavement · #9AA3AEFF → #C3CCD8FF
+Assets/_Project/Config/UiTheme.asset · UiTheme · trayEnabled · False → True
+Assets/_Project/Config/UiTheme.asset · UiTheme · southPropsEnabled · False → True
+Assets/_Project/Config/UiTheme.asset · UiTheme · contactShadowPrefab · null → Assets/_Project/Prefabs/Environment/ContactShadow.prefab
+Assets/_Project/Config/UiTheme.asset · UiTheme · propPrefabs ·  → Assets/_Project/Prefabs/Environment/pitsGarage.prefab, Assets/_Project/Prefabs/Environment/pitsOffice.prefab, Assets/_Project/Prefabs/Environment/treeSmall.prefab, Assets/_Project/Prefabs/Environment/treeLarge.prefab, Assets/_Project/Prefabs/Environment/treeSmall.prefab, Assets/_Project/Prefabs/Environment/light-square.prefab
+Assets/_Project/Config/UiTheme.asset · UiTheme · propCount · 0 → 6
+Assets/_Project/Config/UiTheme.asset · UiTheme · southPropPrefabs ·  → Assets/_Project/Prefabs/Environment/road-straight.prefab, Assets/_Project/Prefabs/Environment/construction-cone.prefab, Assets/_Project/Prefabs/Environment/fenceStraight.prefab
+Assets/_Project/Config/UiTheme.asset · UiTheme · parkedCarPrefab · null → Assets/_Project/Prefabs/Environment/ParkedCar.prefab
+Assets/_Project/Art/UI/City/GroundColors.png · TextureImporter · npotScale · ToNearest → None (giữ đúng11 cột màu)
+Directional Light · Light · shadows · Soft → None
+Directional Light · Transform · eulerAngles · (50.00, 330.00, 0.00) → (50.00, -30.00, 0.00)
+Play/RenderSettings · RenderSettings · ambientMode · Skybox → Flat
+Play/RenderSettings · RenderSettings · ambientLight · RGBA(0.212, 0.227, 0.259, 1.000) → RGBA(0.604, 0.663, 0.761, 1.000)
+Runtime (sinh theo kích thước màn) · BoardView/SceneThemeView · trang trí · cũ → bóng trực tiếp root xe/vật, khay1mesh/1material, ≤12 props, không collider/material instance/Update bóng. Không thay tọa độ ô/luật/012.
 
 ### Asset Lab
 
@@ -1229,3 +1246,5 @@ Preview Camera · Transform · rotation/position · không → Euler(70,0,0)/−
 AssetLab/RenderSettings · RenderSettings · ambientMode/ambientLight · scene mặc định → Flat/RGBA(0.604, 0.663, 0.761, 1.000)
 Assets/_Project/Config/AssetLabConfig.asset · AssetLabConfig · samples/shadowPrefab/groundMaterial · không → 36 mẫu/Assets/_Project/Prefabs/Environment/ContactShadow.prefab/AssetLabFloor.mat
 Object preview · GameObject · lưu vào scene/build · không → vẫn không (DontSaveInEditor/Build), chỉ hiển thị Editor và hủy khi đổi mẫu.
+
+> 015 (26/11): S4 trên đã áp lại vào Play.unity bằng Claude. Phần props Kenney (pitsGarage…fenceStraight, ParkedCar) ra 0 đỉnh vì FBX không bật Read/Write, nên không dùng: `UiTheme.propPrefabs/southPropPrefabs` đổi sang props đồ chơi `Prefabs/Environment/Toy`, `parkedCarPrefab` → null, `groundMaterial` → `M_ToyGround`. Scene chỉ giữ 3 thay đổi: ambient Flat #9AA9C2, Light Shadows None.

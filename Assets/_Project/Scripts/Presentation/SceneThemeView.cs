@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using SqueakyLane.Core.Model;
 using SqueakyLane.Game;
@@ -65,6 +65,7 @@ namespace SqueakyLane.Presentation
                 }
                 root.transform.localPosition = new Vector3(x - bounds.center.x, GroundY(theme) - bounds.min.y,
                     level.Rows * .5f + theme.PropGap + frontRowDepth - bounds.min.z);
+                if (OnWashGatePad(level, root)) { Release(root); continue; }
                 props.Add(root);
                 used++;
             }
@@ -80,6 +81,7 @@ namespace SqueakyLane.Presentation
                 float x = i == 0 ? 0 : (i % 2 == 0 ? 1 : -1) * level.Cols * .3f;
                 float z = -level.Rows * .5f - theme.PropGap - bounds.max.z;
                 root.transform.localPosition = new Vector3(x - bounds.center.x, GroundY(theme) - bounds.min.y, z);
+                if (OnWashGatePad(level, root)) { Release(root); continue; }
                 if (i == 0) { roadZ = z; roadHeight = bounds.size.y; }
                 props.Add(root);
                 used++;
@@ -122,6 +124,28 @@ namespace SqueakyLane.Presentation
             }
             return bounds;
         }
+        // 015: hầm rửa ở cổng nước có thảm dài ~2 ô ra ngoài bãi (WashGate_0); props không được mọc đè lên đó.
+        private const float WashGateReach = 2.2f, WashGateHalfWidth = .65f;
+        private bool OnWashGatePad(LevelDef level, GameObject prop)
+        {
+            var b = LocalBounds(prop); b.center += prop.transform.localPosition;
+            float x = level.Cols * .5f, z = level.Rows * .5f;
+            foreach (var gate in level.Gates)
+            {
+                if (gate.Color != TileColor.Water) { continue; }
+                Rect pad;
+                float along = gate.Edge == GateEdge.Top || gate.Edge == GateEdge.Bottom ? gate.Index - (level.Cols - 1) * .5f : (level.Rows - 1) * .5f - gate.Index;
+                switch (gate.Edge)
+                {
+                    case GateEdge.Top: pad = Rect.MinMaxRect(along - WashGateHalfWidth, z, along + WashGateHalfWidth, z + WashGateReach); break;
+                    case GateEdge.Bottom: pad = Rect.MinMaxRect(along - WashGateHalfWidth, -z - WashGateReach, along + WashGateHalfWidth, -z); break;
+                    case GateEdge.Left: pad = Rect.MinMaxRect(-x - WashGateReach, along - WashGateHalfWidth, -x, along + WashGateHalfWidth); break;
+                    default: pad = Rect.MinMaxRect(x, along - WashGateHalfWidth, x + WashGateReach, along + WashGateHalfWidth); break;
+                }
+                if (pad.Overlaps(Rect.MinMaxRect(b.min.x, b.min.z, b.max.x, b.max.z))) { return true; }
+            }
+            return false;
+        }
         public static float GroundY(UiTheme theme) => LotSurfaceView.Top - (theme.TrayEnabled ? theme.TrayThickness + .02f : .04f);
 
         // Chỉ chạy sau FitCamera/đổi safe area, không mỗi frame. Chỉ nới quad cỏ, không nới vỉa hè/cổng.
@@ -155,9 +179,16 @@ namespace SqueakyLane.Presentation
             int columns = theme.TrayEnabled ? GroundColorCount : 9;
             Quad(vertices, indices, uv, -x - theme.GroundMargin, -z - theme.GroundMargin,
                 x + theme.GroundMargin, z + theme.GroundMargin, GroundY(theme), 0, columns);
-            Quad(vertices, indices, uv, -x - theme.PavementWidth, -z - theme.PavementWidth,
-                x + theme.PavementWidth, z + theme.PavementWidth, LotSurfaceView.Top - .02f, 1, columns);
-            if (theme.TrayEnabled)
+            if (theme.TrayEnabled && theme.TrayCornerRadius > 0)
+            {
+                RoundedTray(vertices, indices, uv, x + theme.PavementWidth, z + theme.PavementWidth, theme);
+            }
+            else
+            {
+                Quad(vertices, indices, uv, -x - theme.PavementWidth, -z - theme.PavementWidth,
+                    x + theme.PavementWidth, z + theme.PavementWidth, LotSurfaceView.Top - .02f, 1, columns);
+            }
+            if (theme.TrayEnabled && theme.TrayCornerRadius <= 0)
             {
                 float left = -x - theme.PavementWidth, right = x + theme.PavementWidth;
                 float back = -z - theme.PavementWidth, front = z + theme.PavementWidth;
@@ -202,6 +233,53 @@ namespace SqueakyLane.Presentation
             mesh.RecalculateNormals(); mesh.RecalculateBounds();
             return mesh;
         }
+        // 015: khay bo góc: mặt trên (quạt tam giác, màu vỉa hè 1), thành bên theo chu vi (màu 9), viền sáng chạy theo góc (màu 10).
+        // Vẫn chung một mesh/material với cỏ nên không thêm draw call. Chu vi đi theo chiều kim đồng hồ nhìn từ trên xuống.
+        private const int CornerSegments = 6;
+        private static void RoundedTray(List<Vector3> v, List<int> t, List<Vector2> uv, float halfX, float halfZ, UiTheme theme)
+        {
+            float top = LotSurfaceView.Top - .02f, bottom = top - theme.TrayThickness;
+            float radius = Mathf.Min(theme.TrayCornerRadius, halfX, halfZ);
+            float inset = Mathf.Min(theme.PavementHighlightWidth, radius * .9f);
+            var outer = Perimeter(halfX, halfZ, radius);
+            var inner = Perimeter(halfX - inset, halfZ - inset, radius - inset);
+            int n = outer.Count;
+            // Mặt trên: quạt từ tâm, dùng phần bên trong viền sáng.
+            int center = v.Count;
+            v.Add(new Vector3(0, top, 0)); uv.Add(Palette(1));
+            for (int i = 0; i < n; i++) { v.Add(new Vector3(inner[i].x, top, inner[i].y)); uv.Add(Palette(1)); }
+            for (int i = 0; i < n; i++) { t.Add(center); t.Add(center + 1 + i); t.Add(center + 1 + (i + 1) % n); }
+            for (int i = 0; i < n; i++)
+            {
+                var a = outer[i]; var b = outer[(i + 1) % n]; var qa = inner[i]; var qb = inner[(i + 1) % n];
+                // Viền sáng: dải giữa chu vi ngoài và chu vi trong, cao hơn mặt khay một chút.
+                int first = v.Count;
+                v.Add(new Vector3(a.x, top + .001f, a.y)); v.Add(new Vector3(b.x, top + .001f, b.y));
+                v.Add(new Vector3(qb.x, top + .001f, qb.y)); v.Add(new Vector3(qa.x, top + .001f, qa.y));
+                for (int k = 0; k < 4; k++) { uv.Add(Palette(10)); }
+                t.Add(first); t.Add(first + 1); t.Add(first + 2); t.Add(first + 2); t.Add(first + 3); t.Add(first);
+                // Thành bên hướng ra ngoài.
+                Face(v, t, uv, new Vector3(b.x, bottom, b.y), new Vector3(b.x, top, b.y), new Vector3(a.x, top, a.y), new Vector3(a.x, bottom, a.y), 9);
+            }
+        }
+        private static List<Vector2> Perimeter(float halfX, float halfZ, float radius)
+        {
+            var points = new List<Vector2>(4 * (CornerSegments + 1));
+            radius = Mathf.Max(0, radius);
+            var centers = new[] { new Vector2(-halfX + radius, halfZ - radius), new Vector2(halfX - radius, halfZ - radius),
+                new Vector2(halfX - radius, -halfZ + radius), new Vector2(-halfX + radius, -halfZ + radius) };
+            for (int corner = 0; corner < 4; corner++)
+            {
+                float start = 180 - corner * 90;
+                for (int s = 0; s <= CornerSegments; s++)
+                {
+                    float angle = (start - 90f * s / CornerSegments) * Mathf.Deg2Rad;
+                    points.Add(centers[corner] + radius * new Vector2(Mathf.Cos(angle), Mathf.Sin(angle)));
+                }
+            }
+            return points;
+        }
+        private static Vector2 Palette(int color) => new Vector2((color + .5f) / GroundColorCount, .5f);
         private static void Quad(List<Vector3> v, List<int> t, List<Vector2> uv, float left, float back, float right, float front, float y, int color, int columns = GroundColorCount)
         {
             int first = v.Count;

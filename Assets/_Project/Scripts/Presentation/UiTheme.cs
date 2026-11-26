@@ -1,4 +1,4 @@
-using TMPro;
+﻿using TMPro;
 using UnityEngine;
 
 namespace SqueakyLane.Presentation
@@ -74,6 +74,7 @@ namespace SqueakyLane.Presentation
         [SerializeField, Range(.05f, .6f)] private float trayThickness = .25f;
         [SerializeField] private Color pavementSide = Hex("7E8B9A"), pavementHighlight = new Color(1, 1, 1, .6f);
         [SerializeField, Range(.01f, .12f)] private float pavementHighlightWidth = .035f;
+        [SerializeField, Range(0, 1.2f), Tooltip("015: bán kính bo góc khay bãi, ô (0 = góc vuông như 013).")] private float trayCornerRadius = .45f;
         [SerializeField, Range(.2f, 2)] private float groundShadowSpread = 1;
         [SerializeField, Range(.1f, .5f), Tooltip("Độ cao tối đa props dải dưới; S4 giữ ≤0,5 ô.")] private float southPropHeight = .45f;
         [SerializeField, Tooltip("Cỡ lớn nhất của Garage/Office; số khởi điểm chờ vòng ảnh S4.")] private Vector2 buildingSizes = new Vector2(2.8f, 2);
@@ -174,6 +175,7 @@ namespace SqueakyLane.Presentation
         public Color PavementSide => pavementSide;
         public Color PavementHighlight => pavementHighlight;
         public float PavementHighlightWidth => pavementHighlightWidth;
+        public float TrayCornerRadius => trayCornerRadius;
         public float GroundShadowSpread => groundShadowSpread;
         public float SouthPropHeight => southPropHeight;
         public Vector2 BuildingSizes => buildingSizes;
@@ -231,6 +233,7 @@ namespace SqueakyLane.Presentation
             carShadowLengthRatio = Clean(carShadowLengthRatio, .5f, 1.2f, .95f);
             trayThickness = Clean(trayThickness, .05f, .6f, .25f);
             pavementHighlightWidth = Clean(pavementHighlightWidth, .01f, .12f, .035f);
+            trayCornerRadius = Clean(trayCornerRadius, 0, 1.2f, .45f);
             groundShadowSpread = Clean(groundShadowSpread, .2f, 2, 1);
             southPropHeight = Clean(southPropHeight, .1f, .5f, .45f);
             buildingSizes.x = Clean(buildingSizes.x, 1, 5, 2.8f);
