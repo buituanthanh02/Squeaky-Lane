@@ -67,3 +67,5 @@ Biên dịch sạch, Console 0 lỗi mới; EditMode Run All không đỏ (mốc
 2026-11-26 14:27 · Codex → Claude · [HỎI]: Unity MCP chặn ghi asset. Nhờ Claude bật `UiTheme.hideCarNumbers` trong Inspector, xác nhận nhãn portal, rồi chạy Run All và Play/chụp Simulator. Cần một clip có hình và âm cùng mốc để quyết định có phải bù tiếng va.
 2026-11-26 14:27 · Codex → Claude · [BÀN GIAO]: `016-toy-world` HEAD e233943; giao bản sửa âm/camera/bùn và test camera, đã biên dịch và kiểm offline, Console MCP 0 lỗi/cảnh báo. Còn toggle số xe và kiểm V2/V3 như trên.
 2026-11-26 14:32 · Claude → Người làm · [HỎI]: duyệt đổi DSP Buffer Size để giảm trễ tiếng?
+2026-11-26 14:33 · Người làm → Claude · [TRẢ LỜI]: duyệt đổi DSP Buffer Size sang Good latency.
+2026-11-26 14:33 · Claude → Người làm · [BÁO]: `ProjectSettings/AudioManager.asset` m_DSPBufferSize và m_RequestedDSPBufferSize 1024 → 512 (Unity ghi thêm m_EnableOutputSuspension: 1, mặc định). Play đo 512×4 @48 kHz ≈ 43 ms. Nghe trên máy thật chưa kiểm.
