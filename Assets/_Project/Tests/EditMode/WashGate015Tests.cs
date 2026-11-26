@@ -1,4 +1,4 @@
-using System.Reflection;
+﻿using System.Reflection;
 using NUnit.Framework;
 using UnityEngine;
 using SqueakyLane.Core.Model;
@@ -74,7 +74,6 @@ namespace SqueakyLane.Tests.EditMode
             Set(feel, "washGateExtraCells", .3f);
             Set(feel, "washGateCrawlSeconds", 1f);
             Set(feel, "washGatePauseSeconds", .1f);
-            Set(feel, "washGateBackSeconds", .4f);
             var session = Bind();
             var car = board.Car(0);
             float edge = board.Cell(0, 3.5f).x;
@@ -96,6 +95,43 @@ namespace SqueakyLane.Tests.EditMode
                 "Kết thúc đúng chỗ Core trả về (lùi về cột 0)");
             Assert.That(session.State.CarAt(0).Mud, Is.Zero);
             Assert.That(car.HasMud, Is.False);
+        }
+
+        // Lỗi người làm quay video 26/11: lùi khỏi thảm chậm rồi các ô lùi sau nhảy lên tốc độ tối đa.
+        // Từ lúc bắt đầu lùi tới khi dừng, tốc độ chỉ tăng dần (bứt tốc) rồi giữ trần 1/StepSeconds.
+        [Test]
+        public void BackingOutAcceleratesSmoothlyWithoutSpeedJump()
+        {
+            Set(feel, "washGatePauseSeconds", .1f);
+            var builder = new LevelDefBuilder(6, 1);
+            builder.Cars.Add(new CarDef(Axis.Horizontal, 0, 4, TileColor.Pink, mud: 1));
+            builder.Gates.Add(new GateDef(GateEdge.Right, 0, TileColor.Water));
+            var session = new GameSession(builder.Build());
+            board.Build(session.Level, session.State, palette, null, catalog);
+            animator.Initialize(board, feel, session.State);
+            var command = new SolverMove(SolverMoveKind.MoveCar, 0, 1);
+            animator.Enqueue(command, session.State, session.Apply(command));
+            const float dt = .01f;
+            float max = 1 / feel.StepSeconds, previousX = board.Car(0).transform.localPosition.x, previousSpeed = 0;
+            bool backing = false;
+            int frames = 0;
+            while (animator.IsBusy && frames++ < 2000)
+            {
+                animator.Advance(dt);
+                float x = board.Car(0).transform.localPosition.x;
+                float speed = (previousX - x) / dt; // dương khi lùi sang trái
+                if (speed > .01f) { backing = true; }
+                // Chỉ xét đoạn lùi tới ô cuối; cú va tường (Stop) sau đó có nhịp riêng.
+                if (backing && speed > .01f && x > board.Cell(0, .5f).x + .01f)
+                {
+                    Assert.That(speed, Is.LessThanOrEqualTo(max * 1.02f), "Không vượt tốc độ tối đa khi lùi");
+                    Assert.That(speed, Is.GreaterThanOrEqualTo(previousSpeed - max * .02f), "Đang lùi thì không được chậm lại rồi vọt lên (tốc độ chỉ tăng dần)");
+                    Assert.That(speed - previousSpeed, Is.LessThan(max * .12f), "Không nhảy tốc giữa hai khung (video 26/11: 5 → 10 ô/s)");
+                    previousSpeed = speed;
+                }
+                previousX = x;
+            }
+            Assert.That(backing, Is.True);
         }
 
         [Test]

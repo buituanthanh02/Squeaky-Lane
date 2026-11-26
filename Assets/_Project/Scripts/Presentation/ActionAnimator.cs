@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using SqueakyLane.Core.Model;
 using SqueakyLane.Core.Solver;
@@ -66,6 +66,7 @@ namespace SqueakyLane.Presentation
             int selected = command.Index; float cursor = 0;
             int slid = 0; // số ô xe đã trượt trước sự kiện hiện tại; Stop dùng để biết va nhẹ hay mạnh
             int accelStep = 0; // chỉ số ô tính từ lúc (re)lăn bánh: về 0 sau khi bò qua trạm rửa để bứt tốc lại
+            float accelBase = 0; // 015: số ô đã đi trên đường cong bứt tốc trước ô accelStep = 0 (lùi khỏi thảm cổng rửa)
             var events = result.Events;
             for (int e = 0; e < events.Count; e++)
             {
@@ -78,10 +79,11 @@ namespace SqueakyLane.Presentation
                         // 014: bứt tốc: ô đầu chậm, nhanh dần tới tốc độ tối đa sau AccelCells ô (FeelConfig.TimeToCell).
                         // Ô kế tiếp có Spray (xe còn bùn vào ô vòi xịt) thì bò chậm WashCrawlSeconds để chổi/bọt kịp rửa.
                         bool crawl = feel.WashCrawlSeconds > 0 && e + 1 < events.Count && events[e + 1].Kind == MoveEventKind.Spray;
-                        float step = crawl ? feel.WashCrawlSeconds : feel.StepDuration(accelStep);
+                        float step = crawl ? feel.WashCrawlSeconds : feel.SpanDuration(accelBase + accelStep, accelBase + accelStep + 1);
                         to.Position = Position(ev.R, ev.C, pose.Yaw, selected);
-                        Add(selected, cursor, step, to, true); cursor += step; slid++;
+                        Add(selected, cursor, step, to, true); if (!crawl) { Curve(accelBase + accelStep, accelBase + accelStep + 1); } cursor += step; slid++;
                         accelStep = crawl ? 0 : accelStep + 1;
+                        if (crawl) { accelBase = 0; }
                         if (crawl) { var washClip = draft[draft.Count - 1]; washClip.Crawl = true; draft[draft.Count - 1] = washClip; }
                         break;
                     }
@@ -94,9 +96,18 @@ namespace SqueakyLane.Presentation
                         var gateClip = draft[draft.Count - 1]; gateClip.Crawl = true; gateClip.WashGate = true; draft[draft.Count - 1] = gateClip;
                         cursor += feel.WashGateCrawlSeconds;
                         if (feel.WashGatePauseSeconds > 0) { Add(selected, cursor, feel.WashGatePauseSeconds, to); cursor += feel.WashGatePauseSeconds; }
-                        pose.Mud = 0; Add(selected, cursor, feel.WashGateBackSeconds, pose, true); cursor += feel.WashGateBackSeconds;
-                        // Đang lùi đủ đà: các ô lùi tiếp theo chạy tốc độ tối đa, không bứt tốc lại từ đầu.
-                        accelStep = int.MaxValue / 2;
+                        // Lùi từ thảm là bứt tốc từ chỗ đứng yên: chia theo từng ô trên đường cong gia tốc (mỗi ô tuyến tính
+                        // như Step thường), rồi các ô lùi tiếp theo nối tiếp đường cong đó (accelBase) để không nhảy tốc.
+                        float back = board.Car(selected).Length + feel.WashGateExtraCells, done = 0;
+                        var backFrom = to; pose.Mud = 0;
+                        while (done < back - .0001f)
+                        {
+                            float next = Mathf.Min(back, Mathf.Floor(done) + 1);
+                            var mid = pose; mid.Position = Vector3.Lerp(backFrom.Position, pose.Position, next / back);
+                            float span = feel.SpanDuration(done, next);
+                            Add(selected, cursor, span, mid, true); Curve(done, next); cursor += span; done = next;
+                        }
+                        accelStep = 0; accelBase = back;
                         break;
                     }
                     case MoveEventKind.Water:
@@ -125,11 +136,11 @@ namespace SqueakyLane.Presentation
                     case MoveEventKind.Push:
                     {
                         // Hàng bị đẩy đi cùng nhịp với bước kế tiếp của xe tải (cùng chỉ số slid).
-                        float pushStep = feel.StepDuration(accelStep);
+                        float pushStep = feel.SpanDuration(accelBase + accelStep, accelBase + accelStep + 1);
                         for (int k = 0; k < ev.PushedCars.Count; k++)
                         {
                             var push = ev.PushedCars[k]; var pushed = poses[push.Car];
-                            pushed.Position = Position(push.R, push.C, pushed.Yaw, push.Car); Add(push.Car, cursor, pushStep, pushed, true);
+                            pushed.Position = Position(push.R, push.C, pushed.Yaw, push.Car); Add(push.Car, cursor, pushStep, pushed, true); Curve(accelBase + accelStep, accelBase + accelStep + 1);
                             for (int fx = 0; fx < push.Effects.Count; fx++) Effect(push.Car, push.Effects[fx], cursor + pushStep);
                         }
                     }
@@ -210,6 +221,11 @@ namespace SqueakyLane.Presentation
                 RollDistance = rolling ? Vector3.Dot(to.Position - from.Position, Direction(from.Yaw)) : 0 });
             poses[car] = to; affected[car] = true;
         }
+        // Đánh dấu đoạn vừa thêm là phần [from, to] ô của đường cong bứt tốc (xem FeelConfig.CellsAtTime).
+        private void Curve(float from, float to)
+        {
+            var clip = draft[draft.Count - 1]; clip.CurveFrom = from; clip.CurveTo = to; draft[draft.Count - 1] = clip;
+        }
         private Rect Bounds(Pose pose, int car)
         {
             bool horizontal = Mathf.Abs(Mathf.Cos(pose.Yaw * Mathf.Deg2Rad)) > .5f;
@@ -274,6 +290,12 @@ namespace SqueakyLane.Presentation
                     var from = clip.From; var to = clip.To;
                     // Ra cổng: vị trí theo t² (nhanh dần), cỡ chỉ đổi ở phần đuôi; các đoạn khác tuyến tính như cũ.
                     float travel = clip.Accelerate ? t * t : t;
+                    // 015: đoạn nằm trên đường cong bứt tốc: vị trí theo CellsAtTime để tốc độ tăng liên tục qua ranh giới ô.
+                    if (clip.CurveTo > clip.CurveFrom && clip.Duration > 0)
+                    {
+                        float cells = feel.CellsAtTime(feel.TimeToCell(clip.CurveFrom) + t * clip.Duration);
+                        travel = Mathf.Clamp01((cells - clip.CurveFrom) / (clip.CurveTo - clip.CurveFrom));
+                    }
                     float shrink = clip.ShrinkStart > 0 ? Mathf.Clamp01((t - clip.ShrinkStart) / Mathf.Max(.0001f, 1 - clip.ShrinkStart)) : t;
                     board.Car(i).Show(Vector3.Lerp(from.Position, to.Position, travel), Mathf.LerpAngle(from.Yaw, to.Yaw, t),
                         t >= 1 ? to.Color : from.Color, t >= 1 ? to.Mud : from.Mud, t >= 1 ? to.Alive : from.Alive, Mathf.Lerp(from.Scale, to.Scale, shrink));
@@ -320,7 +342,7 @@ namespace SqueakyLane.Presentation
         }
         private sealed class Lane { public readonly List<Clip> Clips = new List<Clip>(64); public int Head; public float End; }
         private struct Pose { public Vector3 Position; public float Yaw, Scale; public TileColor Color; public int Mud; public bool Alive; }
-        private struct Clip { public int Car, ConsumedMud, StartSign, Slide; public bool Accelerate; public float ShrinkStart; public float Start, Duration, RollDistance, RollProgress; public float End => Start + Duration; public Pose From, To; public Rect Swept; public bool Started, HasEvent, StartsMove, Crawl, WashGate; public MoveEventKind EventKind; public StopReason? Reason; public MoveEvent EventData; }
+        private struct Clip { public int Car, ConsumedMud, StartSign, Slide; public bool Accelerate; public float ShrinkStart, CurveFrom, CurveTo; public float Start, Duration, RollDistance, RollProgress; public float End => Start + Duration; public Pose From, To; public Rect Swept; public bool Started, HasEvent, StartsMove, Crawl, WashGate; public MoveEventKind EventKind; public StopReason? Reason; public MoveEvent EventData; }
         private struct PylonClip { public int Index; public float Start, End, From, To; public bool Started; }
     }
 }
