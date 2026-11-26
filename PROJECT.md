@@ -136,7 +136,7 @@ Người làm đã tạo project 3D trống và sẽ bổ sung thông tin sau. *
 | **Bàn xoay** (2×2) | **Giữ** `[CHỐT]` | Xoay 90° bằng nút mũi tên trên bàn, xem mục 6.3. |
 | **Cọc** | **Giữ** `[CHỐT]` | |
 | **Đèn giao thông** (đổi sau mỗi lượt) | **Giữ** `[CHỐT]` | |
-| **Cổng tường (portal)** | **Giữ** `[CHỐT — nói từ vòng trước]` | Xe trồi nguyên thân ở cổng B vuông góc mặt tường B; tối đa 1 lần chui mỗi lượt. |
+| **Cổng tường (portal)** | **Giữ** `[CHỐT — nói từ vòng trước]` | Xe trồi nguyên thân ở cổng B vuông góc mặt tường B; tối đa 1 lần chui mỗi lượt. Hình `[26/11: bỏ chữ theo người làm; cách phối màu chờ duyệt]`: hai miệng nối nhau cùng màu (`MechanicCatalog.portalColors`: xanh ngọc, xanh chanh, trắng), thẻ màu ngoài mép bãi không mờ theo cổng; trụ xoay chia hai nửa màu, vòng thấp 0,3 ô. |
 | **Xe tải đẩy** | **Giữ** `[CHỐT — từ vòng trước]` | Đẩy cả hàng phía trước đúng 1 ô nếu có chỗ. |
 | **Xoay 90°** | **Giữ** `[CHỐT]` | Gồm trụ xoay (chạm = xoay thêm 90° một chiều, 4 chạm về chỗ cũ) và bàn xoay. Nếu người làm muốn chỉ một trong hai thì báo lại. |
 | Bùn dày "?" (che màu) | **Bỏ khỏi 25 màn** `[CHỐT — lead muốn ít blocker]` | Khó đọc trong 3D. Người làm xác nhận lại 22/11: bỏ. Trong luật, bùn dày chỉ là dữ liệu `mud: 2` (luật chỉ xét `mud > 0`; "che màu" là việc của hiển thị), nên bỏ khỏi màn không tốn gì ở Core. |

@@ -84,6 +84,8 @@ namespace SqueakyLane.Tests.EditMode
             arm.SetParent(pylon.transform, false);
             pylon.Configure(MechanicKind.Pylon, arm);
             Template(MechanicKind.Portal);
+            Template(MechanicKind.Portal);
+            entries[entries.Count - 1].variant = 1; // 016: miệng B của trụ dùng màu cổng thứ hai
             SetEntries();
             var builder = new LevelDefBuilder(5, 5);
             builder.Lights.Add(new LightDef(0, 0));
@@ -152,6 +154,8 @@ namespace SqueakyLane.Tests.EditMode
             moving.SetParent(template.transform, false);
             template.Configure(MechanicKind.Pylon, moving);
             Template(MechanicKind.Portal);
+            Template(MechanicKind.Portal);
+            entries[entries.Count - 1].variant = 1; // 016: miệng B của trụ dùng màu cổng thứ hai
             SetEntries();
             var builder = new LevelDefBuilder(5, 5);
             var pylon = new PylonDef(2, 2, turns, new[] { new PortalFace(0, 1, Side.N), new PortalFace(4, 3, Side.S) });
@@ -167,6 +171,50 @@ namespace SqueakyLane.Tests.EditMode
             actualA.y = actualB.y = 0;
             Assert.That(Vector3.Dot(actualA.normalized, (board.Cell(a.R, a.C, 0) - center).normalized), Is.GreaterThan(.9999f));
             Assert.That(Vector3.Dot(actualB.normalized, (board.Cell(b.R, b.C, 0) - center).normalized), Is.GreaterThan(.9999f));
+        }
+
+        [Test]
+        public void ToyPylonUsesOneColorPerMouthAndMatchingWallPortalsWithoutText()
+        {
+            var surface = Template(MechanicKind.Surface);
+            surface.gameObject.AddComponent<LotSurfaceView>();
+            surface.GetComponent<Renderer>().sharedMaterials = new[] { material, material, material };
+            var template = Template(MechanicKind.Pylon);
+            var moving = new GameObject("Moving").transform;
+            moving.SetParent(template.transform, false);
+            foreach (var name in new[] { "Face A", "Face B" })
+            {
+                var face = new GameObject(name, typeof(MeshRenderer));
+                face.transform.SetParent(moving, false);
+                face.GetComponent<Renderer>().sharedMaterial = material;
+            }
+            template.Configure(MechanicKind.Pylon, moving);
+            for (int variant = 0; variant < 3; variant++)
+            {
+                var portal = Template(MechanicKind.Portal);
+                portal.name = "Portal màu " + variant;
+                var entry = entries[entries.Count - 1];
+                entry.variant = variant;
+                entries[entries.Count - 1] = entry;
+            }
+            SetEntries();
+            var builder = new LevelDefBuilder(5, 5);
+            builder.Pylons.Add(new PylonDef(2, 2, 0, new[] { new PortalFace(0, 1, Side.N), new PortalFace(4, 3, Side.S) }));
+            var level = builder.Build();
+            board.Build(level, GameState.Initial(level), palette, null, catalog);
+
+            Assert.That(root.GetComponentsInChildren<TextMesh>(true).Where(label => label.text.StartsWith("1")), Is.Empty, "Không còn chữ 1A/1B");
+            var view = root.GetComponentsInChildren<MechanicView>().Single(v => v.Kind == MechanicKind.Pylon);
+            var block = new MaterialPropertyBlock();
+            var colors = catalog.Settings.portalColors;
+            view.MovingPart.Find("Face A").GetComponent<Renderer>().GetPropertyBlock(block);
+            Assert.That((Vector4)block.GetColor("_Color"), Is.EqualTo((Vector4)colors[0]));
+            view.MovingPart.Find("Face B").GetComponent<Renderer>().GetPropertyBlock(block);
+            Assert.That((Vector4)block.GetColor("_Color"), Is.EqualTo((Vector4)colors[1]));
+            var portals = root.GetComponentsInChildren<MechanicView>().Where(v => v.Kind == MechanicKind.Portal).ToArray();
+            Assert.That(portals.Length, Is.EqualTo(2));
+            Assert.That(portals.Single(v => v.name.StartsWith("Portal màu 0")).transform.localPosition.z, Is.GreaterThan(0), "Cổng nối miệng A ở mép Bắc");
+            Assert.That(portals.Single(v => v.name.StartsWith("Portal màu 1")).transform.localPosition.z, Is.LessThan(0), "Cổng nối miệng B ở mép Nam");
         }
 
         [Test]

@@ -151,12 +151,15 @@ namespace SqueakyLane.Presentation
                 }
                 pylons[i] = turning;
                 // Turns=0: mặt A hướng Bắc, mặt B hướng Nam; xoay âm quanh Y là N→W như Core.
+                // 016: mỗi miệng một màu riêng, trùng màu cổng tường nó nối tới; chữ chỉ còn ở khối dự phòng.
                 string link = (level.Portals.Count + 1 + i).ToString();
+                int colorA = level.Portals.Count + i * 2, colorB = colorA + 1;
+                Face(p.To[0], link + "A", colorA); Face(p.To[1], link + "B", colorB);
+                if (visual != null && TintFace(turning, "Face A", colorA) && TintFace(turning, "Face B", colorB)) { continue; }
                 float labelY = visual != null ? Mathf.Max(mechanicCatalog.Settings.pylonLabelHeight,
                     mechanicCatalog.Settings.pylonDiscHeight + mechanicCatalog.Settings.pylonDoorHeight + mechanicCatalog.Settings.overlayLift) : .85f;
                 float labelZ = visual != null ? mechanicCatalog.Settings.pylonEntryOffset : .55f;
                 Label(link + "A", new Vector3(0, labelY, labelZ), turning); Label(link + "B", new Vector3(0, labelY, -labelZ), turning);
-                Face(p.To[0], link + "A", level.Portals.Count + i); Face(p.To[1], link + "B", level.Portals.Count + i);
             }
             cars = new CarView[state.CarCount];
             for (int i = 0; i < cars.Length; i++)
@@ -243,19 +246,24 @@ namespace SqueakyLane.Presentation
             }
             return 0;
         }
-        private void Face(PortalFace p, string link, int pair)
+        private bool TintFace(Transform pylon, string child, int colorIndex)
+        {
+            var face = pylon.Find(child);
+            var renderer = face != null ? face.GetComponent<Renderer>() : null;
+            var colors = mechanicCatalog.Settings.portalColors;
+            if (renderer == null || colors == null || colors.Length == 0) { return false; }
+            Colorize(renderer, colors[colorIndex % colors.Length]);
+            return true;
+        }
+        private void Face(PortalFace p, string link, int colorIndex)
         {
             var offset = p.Side == Side.N ? new Vector3(0, 0, .45f) : p.Side == Side.S ? new Vector3(0, 0, -.45f) : p.Side == Side.W ? Vector3.left * .45f : Vector3.right * .45f;
             bool horizontal = p.Side == Side.N || p.Side == Side.S;
             var pos = Cell(p.R, p.C, .18f) + offset;
             int count = mechanicCatalog != null && mechanicCatalog.Settings.portalColors != null ? Mathf.Max(1, mechanicCatalog.Settings.portalColors.Length) : 1;
             var visual = SpawnMechanic(MechanicKind.Portal, Cell(p.R, p.C, LotSurfaceView.Top) + offset,
-                pair % count, horizontal ? 0 : 90);
-            if (visual != null)
-            {
-                Label(link, visual.transform.localPosition + Vector3.up * (mechanicCatalog.Settings.portalHeight + mechanicCatalog.Settings.overlayLift));
-                return;
-            }
+                colorIndex % count, p.Side == Side.N ? 0 : p.Side == Side.S ? 180 : p.Side == Side.E ? 90 : -90); // +Z của cổng hướng ra ngoài mặt
+            if (visual != null) { return; } // màu của prefab đã nói cổng nào nối với cổng nào
             Box("Portal " + link, pos, horizontal ? new Vector3(.82f, .3f, .12f) : new Vector3(.12f, .3f, .82f), palette.Portal); Label(link, pos + Vector3.up * .23f);
         }
         private MechanicView SpawnMechanic(MechanicKind kind, Vector3 position, int variant = 0, float yaw = 0)

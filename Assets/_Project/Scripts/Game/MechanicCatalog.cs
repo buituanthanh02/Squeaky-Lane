@@ -55,13 +55,13 @@ namespace SqueakyLane.Game
             [HideInInspector] public float pylonHeight = .45f, pylonDiameter = .2f, armLength = .9f, armWidth = .12f;
             [HideInInspector] public int armStripes = 5;
             [Min(.01f)] public float portalWidth = .84f, portalHeight = .9f, portalRim = .055f;
-            public Color[] portalColors = { Color.white, new Color32(198, 255, 0, 255), new Color32(0, 229, 255, 255) };
+            public Color[] portalColors = { new Color32(0, 229, 255, 255), new Color32(198, 255, 0, 255), Color.white };
             [Header("Sửa visual theo ảnh29/30: miệng trụ xoay và chống che xe")]
             [Min(.01f)] public float pylonRingDiameter = .9f, pylonDiscHeight = .035f, pylonRingWidth = .055f;
             [Min(.01f)] public float pylonEntryWidth = .9f, pylonEntryHeight = .3f, pylonEntryOffset = .5f;
             [Min(.01f)] public float pylonArrowLength = .18f, pylonArrowWidth = .2f, pylonLabelHeight = .34f;
             [Min(.1f), Tooltip("Vòng cửa tele dựng đứng; cả hai mặt A/B quay cùng nhau.")]
-            public float pylonDoorHeight = .84f;
+            public float pylonDoorHeight = .3f;
             [Min(.01f), Tooltip("Độ dày khung tele, vẫn thấy hình khi cửa quay ngang camera.")]
             public float pylonDoorDepth = .14f;
             public bool fadeOccluders = true;

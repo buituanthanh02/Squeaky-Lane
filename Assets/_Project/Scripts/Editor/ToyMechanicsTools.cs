@@ -32,7 +32,7 @@ namespace SqueakyLane.EditorTools
             Portal0, Portal1, Portal2, PortalDeep0, PortalDeep1, PortalDeep2
         }
 
-        private enum Finish { Plastic, Signal, Halo }
+        private enum Finish { Plastic, Signal, Halo, Tint }
 
         private readonly MechanicCatalog.Design design;
         private readonly Material[] finishes;
@@ -78,7 +78,9 @@ namespace SqueakyLane.EditorTools
             {
                 SaveMaterial("M_MechanicPlastic", "SqueakyLane/Toy Lit", atlas),
                 SaveMaterial("M_MechanicSignal", "Unlit/Texture", atlas),
-                SaveMaterial("M_MechanicHalo", "Unlit/Transparent", glowAtlas)
+                SaveMaterial("M_MechanicHalo", "Unlit/Transparent", glowAtlas),
+                // Một màu phẳng, BoardView tô riêng từng miệng trụ bằng property block (_Color).
+                SaveMaterial("M_MechanicTint", "Unlit/Color", null)
             };
             // Toy Lit là shader đục. Standard ở chế độ Fade đọc cùng atlas và đổi alpha theo catalog.
             faded = SaveMaterial("M_MechanicOccluded", "Standard", atlas, design.occludedAlpha);
@@ -99,7 +101,12 @@ namespace SqueakyLane.EditorTools
             {
                 Ink glow = Ink.Portal0 + i;
                 Ink deep = Ink.PortalDeep0 + i;
-                BuildPrefab(MechanicKind.Portal, i, root => AddOcclusion(root, Attach(root.transform, Portal(glow, deep))));
+                BuildPrefab(MechanicKind.Portal, i, root =>
+                {
+                    AddOcclusion(root, Attach(root.transform, Portal(glow, deep)));
+                    // Thẻ màu nằm ngoài bãi, không mờ theo cổng: xe đậu đè lên cổng vẫn đọc được màu.
+                    Attach(Child(root.transform, "Outer Pad"), PortalPad(glow));
+                });
             }
             BuildPrefab(MechanicKind.Mud, 0, root => Attach(root.transform, Mud()));
         }
@@ -277,11 +284,11 @@ namespace SqueakyLane.EditorTools
             var moving = Child(root.transform, "Moving Part");
             var ring = new Geometry();
             float outerHeight = Mathf.Min(design.pylonDoorHeight, HeightLimit - baseHeight);
-            const float tube = .067f;
+            const float tube = .045f;
             var center = Vector3.up * (baseHeight + outerHeight * .5f);
             var ellipse = new Vector2(design.pylonEntryWidth * .5f - tube, outerHeight * .5f - tube);
             var path = Arc(center, ellipse, 24, Tau);
-            ring.Tube(path, tube, .5f * design.pylonDoorDepth, 10, true, Ink.Amber, Finish.Plastic);
+            ring.Tube(path, tube, .5f * design.pylonDoorDepth, 10, true, Ink.Charcoal, Finish.Plastic);
             for (int side = -1; side <= 1; side += 2)
             {
                 var face = path.Select(p => p + Vector3.forward * (side * design.pylonDoorDepth * .46f)).ToArray();
@@ -289,15 +296,31 @@ namespace SqueakyLane.EditorTools
             }
             AddOcclusion(root, Attach(Child(moving, "Door"), ring));
 
+            // Hai nửa mặt trụ: miệng A (+Z) và miệng B (−Z), cùng màu với cổng tường mà miệng đó nối tới.
+            const int padSegments = 14;
+            for (int side = 0; side < 2; side++)
+            {
+                var pad = new Geometry();
+                var points = new Vector2[padSegments + 1];
+                for (int i = 0; i <= padSegments; i++)
+                {
+                    float angle = i * Mathf.PI / padSegments;
+                    points[i] = new Vector2(Mathf.Cos(angle), Mathf.Sin(angle)) * (radius * .93f);
+                }
+                pad.Polygon(Vector3.up * (baseHeight + design.overlayLift), Quaternion.Euler(0, side * 180, 0),
+                    Ink.White, Finish.Tint, points);
+                Attach(Child(moving, side == 0 ? "Face A" : "Face B"), pad);
+            }
+
             var arrows = new Geometry();
             for (int side = -1; side <= 1; side += 2)
             {
-                var arrow = Vector3.up * (baseHeight + design.overlayLift * 2);
+                var arrow = Vector3.up * (baseHeight + design.overlayLift * 3);
                 var rotation = Quaternion.Euler(0, side == 1 ? 0 : 180, 0);
                 float tip = design.pylonEntryOffset - design.pylonArrowLength;
                 float back = Mathf.Min(design.pylonEntryOffset, radius);
                 float w = design.pylonArrowWidth * .47f;
-                arrows.Polygon(arrow, rotation, Ink.White, Finish.Signal,
+                arrows.Polygon(arrow, rotation, Ink.Charcoal, Finish.Signal,
                     new Vector2(0, tip), new Vector2(w, back), new Vector2(-w, back));
             }
             Attach(Child(moving, "Entry Arrows"), arrows);
@@ -325,9 +348,39 @@ namespace SqueakyLane.EditorTools
                 var disk = path.Select(p => new Vector3(p.x * .94f, Mathf.Max(.021f, p.y), side * .014f)).ToArray();
                 mesh.Fan(disk, Vector3.up * spring + normal * .014f, normal, deep, Finish.Signal);
                 mesh.Spiral(new Vector3(0, height * .45f, side * .018f),
-                    new Vector2(halfSpan * .73f, height * .34f), normal, glow);
+                    new Vector2(halfSpan * .73f, height * .34f), normal, Ink.White);
             }
             return mesh;
+        }
+
+        // Thẻ bo góc trên mặt bó vỉa; +Z của prefab là phía ngoài bãi (BoardView xoay theo mặt cổng).
+        private Geometry PortalPad(Ink glow)
+        {
+            var mesh = new Geometry();
+            float height = design.curbHeight + .006f;
+            Plate(design.portalWidth * .5f, .06f, .42f, height, Ink.Charcoal);
+            Plate(design.portalWidth * .5f - .04f, .095f, .385f, height + .004f, glow);
+            return mesh;
+
+            void Plate(float halfWidth, float near, float far, float y, Ink ink)
+            {
+                const float corner = .09f;
+                var centers = new[]
+                {
+                    new Vector2(halfWidth - corner, far - corner), new Vector2(corner - halfWidth, far - corner),
+                    new Vector2(corner - halfWidth, near + corner), new Vector2(halfWidth - corner, near + corner)
+                };
+                var outline = new List<Vector3>();
+                for (int k = 0; k < 4; k++)
+                {
+                    for (int s = 0; s <= 4; s++)
+                    {
+                        float angle = (k + s / 4f) * Mathf.PI * .5f;
+                        outline.Add(new Vector3(centers[k].x + Mathf.Cos(angle) * corner, y, centers[k].y + Mathf.Sin(angle) * corner));
+                    }
+                }
+                mesh.Fan(outline, new Vector3(0, y, (near + far) * .5f), Vector3.up, ink, Finish.Signal);
+            }
         }
 
         private Geometry Mud()
@@ -436,7 +489,7 @@ namespace SqueakyLane.EditorTools
             for (int i = 0; i < 3; i++)
             {
                 inks[(int)Ink.Portal0 + i] = design.portalColors[i];
-                inks[(int)Ink.PortalDeep0 + i] = Color.Lerp(new Color32(24, 24, 53, 255), design.portalColors[i], .20f);
+                inks[(int)Ink.PortalDeep0 + i] = Color.Lerp(new Color32(24, 24, 53, 255), design.portalColors[i], .68f);
             }
             return inks;
         }
@@ -494,7 +547,8 @@ namespace SqueakyLane.EditorTools
         {
             var shader = Shader.Find(shaderName);
             if (shader == null) { throw new InvalidOperationException("Thiếu shader " + shaderName); }
-            var material = new Material(shader) { name = name, mainTexture = texture };
+            var material = new Material(shader) { name = name };
+            if (texture != null) { material.mainTexture = texture; }
             if (alpha.HasValue)
             {
                 material.color = new Color(1, 1, 1, alpha.Value);
@@ -743,7 +797,7 @@ namespace SqueakyLane.EditorTools
             private readonly List<Vector3> vertices = new List<Vector3>();
             private readonly List<Vector3> normals = new List<Vector3>();
             private readonly List<Vector2> uv = new List<Vector2>();
-            private readonly List<int>[] indices = { new List<int>(), new List<int>(), new List<int>() };
+            private readonly List<int>[] indices = { new List<int>(), new List<int>(), new List<int>(), new List<int>() };
 
             public IEnumerable<Finish> Finishes => Enumerable.Range(0, indices.Length)
                 .Where(i => indices[i].Count != 0).Select(i => (Finish)i);
