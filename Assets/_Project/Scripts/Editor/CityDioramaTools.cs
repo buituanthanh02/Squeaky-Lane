@@ -33,14 +33,16 @@ namespace SqueakyLane.EditorTools
             Grass, GrassShade, Tuft, Road, Dash, Line, Walk, WalkSeam, WalkShade, Sand,
             Teal, TealWall, TealDark, Coral, CoralWall, CoralDark, Yellow, YellowWall, YellowDark, White,
             Wood, WoodDark, Glass, Gray, GrayDark, Pot, Leaf, LeafLight, LeafDark, Pink, Flower, Soil,
-            GatePink, GateBlue, GateYellow, GateGreen, GateOrange, GatePurple
+            GatePink, GateBlue, GateYellow, GateGreen, GateOrange, GatePurple,
+            Lilac, LilacWall, Sky, SkyWall, Stone
         }
         private static readonly string[] Hex =
         {
             "A3C75F", "8DB04E", "7FA845", "737C92", "F6ECD6", "2E2F3A", "EDD9C8", "D6BCA8", "D9C2AF", "F4D398",
             "52C7C0", "8FDCD3", "3BAAA6", "FF8F6C", "FFB896", "E9754F", "FFCB55", "FFE08F", "EFAE35", "FFF8EC",
             "D98A4B", "A9622F", "A6DDF2", "C9C4CC", "8E8A99", "D9824F", "6FB83A", "93D14A", "4E9A33", "FF7FA4", "FFE066", "8A5A3C",
-            "E84A8C", "2F8CF0", "FFD23F", "35B45A", "FF8A26", "9B4FE0"
+            "E84A8C", "2F8CF0", "FFD23F", "35B45A", "FF8A26", "9B4FE0",
+            "B795E8", "D5C0F5", "6FB4F2", "B4D9FA", "CFC6BE"
         };
 
         // Bộ gom đỉnh: mọi tam giác dùng một ô màu của palette nên cả cụm chỉ cần một material.
@@ -76,11 +78,12 @@ namespace SqueakyLane.EditorTools
         private sealed class Cluster { public readonly Mb Solid = new Mb(), Flat = new Mb(); }
 
         private struct Rim { public Vector2 P, N; }
+        private static bool lowDetail; // canh nen xa: it dinh hon de giu ngan sach tam giac
 
         // Chu vi chữ nhật bo góc (thứ tự góc: trên-trái, trên-phải, dưới-phải, dưới-trái), theo chiều kim đồng hồ nhìn từ trên.
         private static Rim[] Shape(float cx, float cz, float w, float d, Vector4 radius, float inset)
         {
-            const int Seg = 6;
+            int Seg = lowDetail ? 2 : 6;
             var list = new Rim[4 * (Seg + 1)];
             float hx = Mathf.Max(.001f, w * .5f - inset), hz = Mathf.Max(.001f, d * .5f - inset);
             for (int corner = 0; corner < 4; corner++)
@@ -127,6 +130,15 @@ namespace SqueakyLane.EditorTools
         {
             bevel = Mathf.Min(bevel, (y1 - y0) * .9f, Mathf.Min(w, d) * .4f);
             var a = Shape(cx, cz, w, d, radius, 0);
+            if (lowDetail)
+            {
+                // Cảnh xa: một dải vát duy nhất là đủ đọc ra khối bo.
+                var inner = Shape(cx, cz, w, d, radius, bevel);
+                Band(mb, a, y0, 0, a, y1 - bevel, 0, side);
+                Band(mb, a, y1 - bevel, 0, inner, y1, 1, top);
+                Cap(mb, inner, y1, top);
+                return;
+            }
             var b = Shape(cx, cz, w, d, radius, bevel * .3f);
             var c = Shape(cx, cz, w, d, radius, bevel);
             Band(mb, a, y0, 0, a, y1 - bevel, 0, side);
@@ -143,6 +155,7 @@ namespace SqueakyLane.EditorTools
         }
         private static void Ball(Mb mb, Vector3 centre, Vector3 radii, C color, int lat = 7, int lon = 12)
         {
+            if (lowDetail) { lat = Mathf.Min(lat, 4); lon = Mathf.Min(lon, 6); }
             int first = mb.V.Count;
             for (int i = 0; i <= lat; i++)
             {
@@ -304,38 +317,291 @@ namespace SqueakyLane.EditorTools
             Planter(c, 1.5f, .14f, .5f, C.Pink, C.WalkShade);
             Bush(c.Solid, 2.95f, 0, .28f, .12f, C.LeafLight);
             Box(c.Solid, 2.95f, 0, .28f, .24f, .11f, .22f, C.Pot, .07f);
+            // Ba nhà cao thấp khác nhau cho ra khối: quán vừa, tiệm giữa thấp, nhà góc cao nhất.
+            for (int i = 0; i < c.Solid.V.Count; i++)
+            {
+                var vertex = c.Solid.V[i];
+                float tall = vertex.x < -.9f ? 1.3f : vertex.x > .9f ? 1.65f : 1.05f;
+                c.Solid.V[i] = new Vector3(vertex.x, vertex.y * tall, vertex.z);
+            }
             return c;
         }
 
         private static Cluster Park()
         {
             var c = new Cluster();
-            Slab(c.Flat, 0, -.78f, ParkWidth, 1.62f, .0085f, R(.7f), C.Walk, .035f);
-            Slab(c.Flat, 0, -.78f, ParkWidth - .22f, 1.4f, .0093f, R(.6f), C.Grass, .018f);
-            Walkway(c.Flat, new Vector2(-2.35f, -.95f), new Vector2(-.7f, -.55f), new Vector2(.4f, -1.65f), new Vector2(2.4f, -.85f), .27f);
-            for (int i = 0; i < 14; i++)
+            const float Top = .15f, Depth = 2.2f, Mid = -1.1f;
+            // Nền công viên nâng hẳn lên có bậc vỉa; mọi vật đặt trên mặt nền này.
+            Shadow(c.Flat, 0, Mid, ParkWidth, Depth, .85f, C.GrassShade);
+            Block(c.Solid, 0, Mid, ParkWidth, Depth, 0, Top - .01f, R(.85f), .05f, C.Walk, C.Walk);
+            Slab(c.Solid, 0, Mid, ParkWidth - .22f, Depth - .22f, Top, R(.74f), C.Grass, .022f);
+            var up = new Cluster();
+            Walkway(up.Flat, new Vector2(-2.4f, -1.25f), new Vector2(-1.4f, -.7f), new Vector2(-1f, -1.9f), new Vector2(-.45f, -1.2f), .24f);
+            Walkway(up.Flat, new Vector2(.45f, -1.2f), new Vector2(1f, -.55f), new Vector2(1.5f, -1.8f), new Vector2(2.4f, -1.05f), .24f);
+            Slab(up.Flat, 0, -1.15f, 1.3f, 1.1f, .0108f, R(.55f), C.Sand, .025f);
+            for (int i = 0; i < 18; i++)
+            { Slab(up.Flat, -2.2f + i * .26f, i % 2 == 0 ? -.32f - (i % 3) * .07f : -1.75f + (i % 4) * .05f, .09f, .04f, .0125f, R(.02f), C.Tuft); }
+            Fountain(up, 0, -1.15f);
+            // Bồn hoa hai tầng sát phố.
+            Shadow(up.Flat, 0, -.34f, 1.6f, .36f, .18f, C.GrassShade);
+            Block(up.Solid, 0, -.34f, 1.6f, .36f, 0, .11f, R(.18f), .035f, C.Walk, C.Walk);
+            Block(up.Solid, 0, -.3f, .85f, .24f, .11f, .23f, R(.12f), .03f, C.Stone, C.Stone);
+            for (int i = 0; i < 5; i++) { Bush(up.Solid, -.62f + i * .31f, i > 0 && i < 4 ? .2f : .09f, -.33f, .1f, i % 2 == 0 ? C.LeafLight : C.Leaf); }
+            for (int i = 0; i < 4; i++) { Blooms(up.Solid, -.46f + i * .31f, i == 1 || i == 2 ? .39f : .28f, -.42f, .02f, i % 2 == 0 ? C.White : C.Pink, 1); }
+            Mound(up, -.95f, -.58f, .42f, .17f);
+            Mound(up, 1.05f, -1.75f, .5f, .2f);
+            Blooms(up.Solid, -.95f, .17f, -.62f, .36f, C.Pink, 3);
+            Blooms(up.Solid, 1.05f, .2f, -1.8f, .4f, C.White, 3);
+            Tree(up, -1.82f, -.66f, 1.4f, C.GrassShade, 1f);
+            Tree(up, 1.86f, -.6f, 1.15f, C.GrassShade, .82f);
+            Pine(up, -2.12f, -1.55f, .8f);
+            Pine(up, -1.7f, -1.72f, .56f);
+            Pine(up, 2.18f, -1.5f, .92f);
+            Lamp(up, -.98f, -1.62f);
+            Lamp(up, 1.12f, -.4f);
+            foreach (float side in new[] { -1f, 1f })
             {
-                float x = -2.1f + i * .32f, z = i % 2 == 0 ? -.3f - (i % 3) * .06f : -1.3f + (i % 4) * .04f;
-                Slab(c.Flat, x, z, .09f, .04f, .0125f, R(.02f), C.Tuft);
+                var bench = new Cluster();
+                Bench(bench, 0, 0);
+                var at = Matrix4x4.TRS(new Vector3(side * 1f, 0, -1.2f), Quaternion.Euler(0, side * 65, 0), new Vector3(1.05f, 1.15f, 1.15f));
+                up.Solid.Append(bench.Solid, at); up.Flat.Append(bench.Flat, Matrix4x4.TRS(new Vector3(side * 1f, 0, -1.2f), Quaternion.Euler(0, side * 65, 0), Vector3.one));
             }
-            Shadow(c.Flat, 0, -.42f, 1.75f, .46f, .23f, C.GrassShade);
-            Block(c.Solid, 0, -.42f, 1.72f, .46f, 0, .09f, R(.23f), .035f, C.Walk, C.Walk);
-            Slab(c.Solid, 0, -.42f, 1.5f, .28f, .092f, R(.14f), C.LeafDark);
-            for (int i = 0; i < 4; i++)
+            for (int i = 0; i < 9; i++)
             {
-                float x = -.51f + i * .34f;
-                Bush(c.Solid, x, .06f, -.4f, .13f, i % 2 == 0 ? C.LeafLight : C.Leaf);
-                Blooms(c.Solid, x, .24f, -.5f, .02f, i % 2 == 1 ? C.White : C.Pink, 1);
+                float x = -1.28f + i * .32f;
+                Block(up.Solid, x, -1.96f, .29f, .15f, 0, .13f + (i % 2) * .04f, R(.07f), .05f, C.LeafDark, C.Leaf);
             }
-            Tree(c, -1.82f, -.64f, 1.58f, C.GrassShade, .9f);
-            Tree(c, 1.82f, -.64f, 1.58f, C.GrassShade, .9f);
-            var bench = new Cluster();
-            Bench(bench, 0, 0);
-            var seat = Matrix4x4.TRS(new Vector3(.68f, 0, -1.22f), Quaternion.identity, new Vector3(1.35f, 1.1f, 1.2f));
-            c.Solid.Append(bench.Solid, seat); c.Flat.Append(bench.Flat, Matrix4x4.TRS(new Vector3(.68f, 0, -1.22f), Quaternion.identity, new Vector3(1.35f, 1, 1.2f)));
-            Bush(c.Solid, -2.3f, 0, -1.1f, .13f, C.Leaf);
-            Bush(c.Solid, 2.3f, 0, -1.12f, .11f, C.LeafLight);
+            var lift = Matrix4x4.Translate(new Vector3(0, Top, 0));
+            c.Solid.Append(up.Solid, lift);
+            c.Flat.Append(up.Flat, lift);
             return c;
+        }
+        private static void Fountain(Cluster c, float x, float z)
+        {
+            Shadow(c.Flat, x, z, .92f, .8f, .4f, C.WalkShade);
+            Block(c.Solid, x, z, .92f, .82f, 0, .17f, R(.41f), .05f, C.Stone, C.White);
+            Slab(c.Solid, x, z, .72f, .62f, .172f, R(.31f), C.Glass, .02f);
+            Block(c.Solid, x, z, .15f, .15f, .17f, .44f, R(.075f), .02f, C.Stone, C.Stone);
+            Block(c.Solid, x, z, .46f, .42f, .42f, .52f, R(.21f), .04f, C.Stone, C.White);
+            Slab(c.Solid, x, z, .32f, .28f, .522f, R(.14f), C.Glass);
+            Block(c.Solid, x, z, .08f, .08f, .52f, .68f, R(.04f), .015f, C.Stone, C.Stone);
+            Ball(c.Solid, new Vector3(x, .74f, z), new Vector3(.09f, .12f, .09f), C.Glass);
+            for (int i = 0; i < 8; i++)
+            {
+                float angle = i * Mathf.PI / 4;
+                Ball(c.Solid, new Vector3(x + Mathf.Cos(angle) * .27f, .4f, z + Mathf.Sin(angle) * .25f), new Vector3(.035f, .065f, .035f), C.Glass, 5, 8);
+            }
+        }
+        private static void Mound(Cluster c, float x, float z, float radius, float height)
+        {
+            Ball(c.Solid, new Vector3(x, 0, z), new Vector3(radius, height, radius * .72f), C.LeafLight);
+            Bush(c.Solid, x + radius * .55f, 0, z + radius * .2f, .09f, C.Leaf);
+        }
+        private static void ConeShape(Mb mb, float x, float y, float z, float radius, float height, C color)
+        {
+            int sides = lowDetail ? 7 : 16, first = mb.V.Count;
+            for (int i = 0; i <= sides; i++)
+            {
+                float angle = Mathf.PI * 2 * i / sides;
+                var outward = new Vector3(Mathf.Cos(angle), 0, Mathf.Sin(angle));
+                var normal = outward * height + Vector3.up * radius;
+                mb.Add(new Vector3(x, y, z) + outward * radius, normal, color);
+                mb.Add(new Vector3(x, y + height, z), normal, color);
+            }
+            for (int i = 0; i < sides; i++) { int k = first + i * 2; mb.Quad(k, k + 1, k + 3, k + 2); }
+        }
+        private static void Pine(Cluster c, float x, float z, float height)
+        {
+            Shadow(c.Flat, x, z, height * .6f, height * .45f, height * .22f, C.GrassShade);
+            Block(c.Solid, x, z, height * .13f, height * .13f, 0, height * .25f, R(height * .065f), .015f, C.WoodDark, C.WoodDark);
+            ConeShape(c.Solid, x, height * .18f, z, height * .34f, height * .42f, C.LeafDark);
+            ConeShape(c.Solid, x, height * .42f, z, height * .27f, height * .37f, C.Leaf);
+            ConeShape(c.Solid, x, height * .66f, z, height * .19f, height * .34f, C.LeafLight);
+        }
+        private static void Lamp(Cluster c, float x, float z)
+        {
+            Shadow(c.Flat, x, z, .2f, .14f, .07f, C.GrassShade);
+            Block(c.Solid, x, z, .13f, .13f, 0, .07f, R(.065f), .02f, C.GrayDark, C.GrayDark);
+            Block(c.Solid, x, z, .05f, .05f, .07f, .68f, R(.025f), .008f, C.GrayDark, C.GrayDark);
+            Ball(c.Solid, new Vector3(x, .76f, z), Vector3.one * .1f, C.Flower);
+            Block(c.Solid, x, z, .22f, .22f, .83f, .88f, R(.11f), .025f, C.GrayDark, C.GrayDark);
+        }
+
+        // ---------- Cảnh nền lấp kín bốn phía (xa hơn khung của bãi nhỏ, máy bảng, máy dài) ----------
+        private const float FillHalfX = 8f, FillHalfZ = 15f;
+        private static readonly C[] Roofs = { C.Teal, C.Coral, C.Yellow, C.Lilac, C.Sky };
+        private static readonly C[] Walls = { C.TealWall, C.CoralWall, C.YellowWall, C.LilacWall, C.SkyWall };
+
+        private static Rect Footprint(Cluster cluster, Matrix4x4 matrix)
+        {
+            Vector2 min = new Vector2(1e5f, 1e5f), max = -min;
+            foreach (var list in new[] { cluster.Solid.V, cluster.Flat.V })
+            {
+                foreach (var vertex in list)
+                {
+                    var world = matrix.MultiplyPoint3x4(vertex);
+                    min = Vector2.Min(min, new Vector2(world.x, world.z)); max = Vector2.Max(max, new Vector2(world.x, world.z));
+                }
+            }
+            return Rect.MinMaxRect(min.x - .08f, min.y - .08f, max.x + .08f, max.y + .08f);
+        }
+        private static Cluster BuildFill(LevelDef level, List<Place> places, Dictionary<string, Cluster> clusters)
+        {
+            var reserved = new List<Rect>();
+            foreach (var place in places) { reserved.Add(Footprint(clusters[place.Name], place.Matrix)); }
+            float x = level.Cols * .5f, z = level.Rows * .5f;
+            foreach (var gate in level.Gates)
+            {
+                if (gate.Color != TileColor.Water) { continue; }
+                bool horizontal = gate.Edge == GateEdge.Top || gate.Edge == GateEdge.Bottom;
+                float along = horizontal ? gate.Index - (level.Cols - 1) * .5f : (level.Rows - 1) * .5f - gate.Index;
+                float sign = gate.Edge == GateEdge.Top || gate.Edge == GateEdge.Right ? 1 : -1;
+                float far = sign * ((horizontal ? z : x) + 2.35f), near = sign * (horizontal ? z : x);
+                reserved.Add(horizontal ? Rect.MinMaxRect(along - .75f, Mathf.Min(near, far), along + .75f, Mathf.Max(near, far))
+                    : Rect.MinMaxRect(Mathf.Min(near, far), along - .75f, Mathf.Max(near, far), along + .75f));
+            }
+            float ix = x + StreetInner, ox = ix + StreetWidth, iz = z + StreetInner, oz = iz + StreetWidth;
+            var spanX = new[] { new Vector2(-Far, -ox), new Vector2(-ix, ix), new Vector2(ox, Far) };
+            var spanZ = new[] { new Vector2(-Far, -oz), new Vector2(-iz, iz), new Vector2(oz, Far) };
+            var fill = new Cluster();
+            lowDetail = true;
+            try
+            {
+                for (int i = 0; i < 3; i++)
+                {
+                    for (int j = 0; j < 3; j++)
+                    {
+                        if (i == 1 && j == 1) { continue; }
+                        float x0 = Mathf.Max(spanX[i].x + .26f, -FillHalfX), x1 = Mathf.Min(spanX[i].y - .26f, FillHalfX);
+                        float z0 = Mathf.Max(spanZ[j].x + .26f, -FillHalfZ), z1 = Mathf.Min(spanZ[j].y - .26f, FillHalfZ);
+                        if (x1 - x0 < .6f || z1 - z0 < .6f) { continue; }
+                        if (i != 1 && x1 - x0 > 2f)
+                        {
+                            float inner = i == 0 ? x1 - 1f : x0;
+                            for (float at = z0; at + 1f <= z1; at += 1.15f)
+                            {
+                                var strip = new Rect(inner, at, 1f, 1.1f);
+                                if (Free(strip, reserved)) { Greenery(fill, strip, Mathf.Abs(Mathf.RoundToInt(at * 3 + i * 7 + j))); }
+                            }
+                            if (i == 0) { x1 -= 1.05f; } else { x0 += 1.05f; }
+                        }
+                        int nx = Mathf.Max(1, Mathf.FloorToInt((x1 - x0) / 2f)), nz = Mathf.Max(1, Mathf.FloorToInt((z1 - z0) / 1.9f));
+                        float w = (x1 - x0) / nx, d = (z1 - z0) / nz;
+                        for (int a = 0; a < nx; a++)
+                        {
+                            for (int b = 0; b < nz; b++)
+                            {
+                                // Đếm từ mép gần bãi ra xa để phần hay nhìn thấy được xếp ngay sát phố.
+                                int ca = i == 0 ? nx - 1 - a : a, cb = j == 0 ? nz - 1 - b : b;
+                                var cell = new Rect(x0 + ca * w, z0 + cb * d, w, d);
+                                int seed = (i * 5 + j * 11 + a * 3 + b * 7) % 97;
+                                if (Free(cell, reserved)) { Scene3D(fill, cell, seed, j == 0); continue; }
+                                for (int q = 0; q < 4; q++)
+                                {
+                                    var part = new Rect(cell.x + q % 2 * w * .5f, cell.y + q / 2 * d * .5f, w * .5f, d * .5f);
+                                    if (part.width >= .55f && part.height >= .55f && Free(part, reserved)) { Greenery(fill, part, seed + q); }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            finally { lowDetail = false; }
+            return fill;
+        }
+        private static bool Free(Rect area, List<Rect> reserved)
+        {
+            foreach (var other in reserved) { if (area.Overlaps(other)) { return false; } }
+            return true;
+        }
+        private static void Greenery(Cluster c, Rect area, int seed)
+        {
+            var at = area.center + new Vector2((seed % 5 - 2) * .06f, (seed % 7 - 3) * .045f);
+            float s = Mathf.Min(area.width, area.height) * (.85f + seed % 4 * .07f);
+            if (seed % 3 == 0) { Tree(c, at.x, at.y, Mathf.Min(.85f, s * .8f), C.GrassShade); }
+            else if (seed % 3 == 1) { Pine(c, at.x, at.y, Mathf.Min(.85f, s * .85f)); }
+            else
+            {
+                Shadow(c.Flat, at.x, at.y, s * .6f, s * .4f, s * .18f, C.GrassShade);
+                Bush(c.Solid, at.x, 0, at.y, s * .22f, C.Leaf);
+                Blooms(c.Solid, at.x, s * .3f, at.y - s * .18f, s * .3f, seed % 2 == 0 ? C.Pink : C.White, 2);
+            }
+        }
+        private static void Scene3D(Cluster target, Rect cell, int seed, bool south)
+        {
+            var item = new Cluster();
+            int kind = seed % 8;
+            if (kind <= 2) { House(item, seed, south ? 0 : kind); }
+            else if (kind == 3)
+            {
+                Tree(item, -.4f, .12f, 1.05f, C.GrassShade); Tree(item, .46f, -.28f, .7f, C.GrassShade); Pine(item, .5f, .38f, .75f);
+                Bush(item.Solid, -.55f, 0, -.45f, .13f, C.LeafLight);
+            }
+            else if (kind == 4)
+            {
+                Pine(item, -.45f, .2f, 1f); Pine(item, .08f, -.12f, .72f); Pine(item, .52f, .22f, .86f);
+                Bush(item.Solid, .4f, 0, -.45f, .12f, C.Leaf); Blooms(item.Solid, -.35f, .05f, -.45f, .4f, C.Pink, 3);
+            }
+            else if (kind == 5)
+            {
+                Slab(item.Flat, 0, 0, 1.5f, 1.1f, .0085f, R(.5f), C.Walk, .03f);
+                Fountain(item, 0, .05f);
+                Bush(item.Solid, -.68f, 0, .4f, .12f, C.LeafLight); Bush(item.Solid, .66f, 0, -.36f, .13f, C.Leaf);
+            }
+            else if (kind == 6)
+            {
+                Slab(item.Flat, 0, 0, 1.6f, 1.2f, .0085f, R(.25f), C.Walk, .03f);
+                Parasol(item, -.4f, .1f, Roofs[seed % Roofs.Length]); Parasol(item, .42f, -.14f, Roofs[(seed + 2) % Roofs.Length]);
+                Planter(item, .05f, .44f, .6f, C.Pink, C.WalkShade);
+            }
+            else
+            {
+                for (int row = 0; row < 2; row++)
+                {
+                    float z = -.3f + row * .56f;
+                    Block(item.Solid, 0, z, 1.35f, .28f, 0, .1f + row * .07f, R(.14f), .035f, C.Pot, C.Soil);
+                    for (int i = 0; i < 4; i++)
+                    {
+                        Bush(item.Solid, -.48f + i * .32f, .06f + row * .07f, z, .1f, C.LeafLight);
+                        Blooms(item.Solid, -.48f + i * .32f, .24f + row * .07f, z - .08f, .02f, (i + row) % 2 == 0 ? C.Pink : C.White, 1);
+                    }
+                }
+            }
+            float scale = Mathf.Min(1.12f, cell.width / 1.9f, cell.height / 1.75f);
+            var shift = new Vector3(cell.center.x + (seed % 5 - 2) * .04f, 0, cell.center.y + (seed % 3 - 1) * .05f);
+            // Dải phía nam nằm trước camera: ép thấp để không che phố và bãi.
+            var matrix = Matrix4x4.TRS(shift, Quaternion.identity, new Vector3(scale, south ? Mathf.Min(.85f, scale) : scale, scale));
+            target.Solid.Append(item.Solid, matrix);
+            target.Flat.Append(item.Flat, Matrix4x4.TRS(shift, Quaternion.identity, new Vector3(scale, 1, scale)));
+        }
+        private static void House(Cluster c, int seed, int storeys)
+        {
+            C roof = Roofs[seed % Roofs.Length], wall = Walls[seed % Walls.Length];
+            float h = .46f + storeys * .24f;
+            Slab(c.Flat, 0, -.05f, 1.66f, 1.36f, .0085f, R(.26f), C.Walk, .03f);
+            Shadow(c.Flat, 0, .08f, 1.42f, .96f, .18f, C.WalkShade);
+            Block(c.Solid, 0, .08f, 1.28f, .78f, 0, h, R(.1f), .04f, wall, wall);
+            Block(c.Solid, 0, .09f, 1.44f, .94f, h, h + .17f, R(.18f), .085f, roof, roof);
+            Slab(c.Solid, 0, .11f, 1.16f, .66f, h + .172f, R(.1f), wall);
+            if (seed % 2 == 0) { RoofKit(c.Solid, -.3f, h + .17f, .18f); }
+            else
+            {
+                Block(c.Solid, .1f, .12f, .8f, .5f, h + .17f, h + .34f, R(.2f), .15f, roof, roof);
+                Box(c.Solid, .38f, h + .2f, .22f, .14f, .26f, .14f, C.Stone, .04f);
+            }
+            Box(c.Solid, -.3f, 0, -.31f, .24f, .32f, .05f, C.WoodDark, .02f);
+            Window(c.Solid, .26f, -.31f, .38f, .11f, .2f);
+            if (storeys > 0) { Window(c.Solid, -.28f, -.31f, .26f, .46f, .16f); Window(c.Solid, .26f, -.31f, .26f, .46f, .16f); }
+            if (seed % 3 == 0) { Awning(c.Solid, .0f, .54f, -.3f, .43f, -.52f, .34f, roof, C.White, 3); }
+            Bush(c.Solid, -.68f, 0, -.48f, .11f, C.LeafLight);
+            Bush(c.Solid, .66f, 0, -.52f, .09f, C.Leaf);
+        }
+        private static void Parasol(Cluster c, float x, float z, C color)
+        {
+            Table(c, x, z);
+            Block(c.Solid, x, z, .045f, .045f, .25f, .6f, R(.022f), .008f, C.White, C.White);
+            ConeShape(c.Solid, x, .55f, z, .36f, .2f, color);
+            Ball(c.Solid, new Vector3(x, .76f, z), Vector3.one * .04f, C.White, 4, 8);
         }
         private static void Bench(Cluster c, float x, float z)
         {
@@ -509,8 +775,9 @@ namespace SqueakyLane.EditorTools
             report += GameShot("02-game-level16", "level_16", clusters, prefabs, flat, LotBlue, true);
             Variants(clusters, prefabs, flat);
             Angles(clusters, prefabs, flat);
+            Devices(clusters, prefabs, flat);
             SavePreviewScene(clusters, prefabs, flat);
-            Debug.Log("016-e City Diorama: ảnh ở " + Shots + " · tam giác khối " + solidTriangles + " · " + report + " · 9 draw (nền 1 + 4 cụm × 2)");
+            Debug.Log("016-e City Diorama: ảnh ở " + Shots + " · tam giác khối " + solidTriangles + " · " + report + " · 11 draw (nền 1 + 4 cụm × 2 + cảnh xa 2)");
         }
 
         private static readonly Color[] LotDark = null;
@@ -523,7 +790,7 @@ namespace SqueakyLane.EditorTools
             public BoardView Board;
             public Camera Camera;
             public LevelDef Level;
-            public int Longest, GroundTriangles;
+            public int Longest, GroundTriangles, FillTriangles;
             private readonly List<UnityEngine.Object> owned = new List<UnityEngine.Object>();
             public void Own(UnityEngine.Object value) { owned.Add(value); }
             public void Dispose()
@@ -566,15 +833,23 @@ namespace SqueakyLane.EditorTools
                 }
             }
             var ground = BuildGround(level);
-            foreach (var place in Layout(level))
+            var places = Layout(level);
+            var down = Matrix4x4.Translate(new Vector3(0, -Ground, 0));
+            var fill = BuildFill(level, places, clusters);
+            ground.Append(fill.Flat, Matrix4x4.identity);
+            var fillMesh = fill.Solid.ToMesh("CityFill");
+            stage.Own(fillMesh);
+            stage.FillTriangles = fill.Solid.T.Count / 3;
+            var fillObject = MakeRenderer("CityFill", fillMesh, prefabs["CityShops"].GetComponent<MeshRenderer>().sharedMaterial);
+            SceneManager.MoveGameObjectToScene(fillObject, stage.Scene);
+            fillObject.transform.position = Vector3.up * Ground;
+            foreach (var place in places)
             {
-                ground.Append(clusters[place.Name].Flat, place.Matrix);
+                ground.Append(clusters[place.Name].Flat, down * place.Matrix);
                 var item = (GameObject)PrefabUtility.InstantiatePrefab(prefabs[place.Name], stage.Scene);
                 item.transform.position = place.Matrix.GetColumn(3);
                 item.transform.localScale = place.Matrix.lossyScale;
             }
-            // Mesh nền xây quanh y = 0; riêng phần của cụm đã mang cao độ Ground nên trả về hệ trước khi dịch cả lớp.
-            for (int i = 0; i < ground.V.Count; i++) { if (ground.V[i].y < -.02f) { ground.V[i] -= Vector3.up * Ground; } }
             stage.GroundTriangles = ground.T.Count / 3;
             var groundMesh = ground.ToMesh("CityGround");
             stage.Own(groundMesh);
@@ -664,7 +939,7 @@ namespace SqueakyLane.EditorTools
                 var image = Render(stage, 856, 1852);
                 if (hud) { MarkHud(image); }
                 Save(image, name);
-                return level + " nền " + stage.GroundTriangles + " tam giác; ";
+                return level + " nền " + stage.GroundTriangles + " + cảnh xa " + stage.FillTriangles + " tam giác; ";
             }
         }
         private static void Variants(Dictionary<string, Cluster> clusters, Dictionary<string, GameObject> prefabs, Material flat)
@@ -707,11 +982,43 @@ namespace SqueakyLane.EditorTools
                 camera.fieldOfView = 24; camera.transform.rotation = Quaternion.Euler(42, 12, 0);
                 camera.transform.position = new Vector3(0, .25f, shopZ) - camera.transform.forward * 12.5f;
                 Save(Render(stage, 1600, 900), "05-shops");
-                camera.transform.rotation = Quaternion.Euler(45, -14, 0);
-                camera.transform.position = new Vector3(0, .2f, -shopZ - .1f) - camera.transform.forward * 11.5f;
+                camera.transform.rotation = Quaternion.Euler(29, -17, 0);
+                camera.transform.position = new Vector3(0, .35f, -shopZ - .25f) - camera.transform.forward * 12f;
                 Save(Render(stage, 1600, 900), "06-park");
             }
         }
+        // Cùng góc camera game trên bãi nhỏ/lớn và ba tỉ lệ máy để thấy bốn phía luôn có cảnh.
+        private static void Devices(Dictionary<string, Cluster> clusters, Dictionary<string, GameObject> prefabs, Material flat)
+        {
+            var shots = new[]
+            {
+                new KeyValuePair<string, float>("level_01", 1284f / 2778), new KeyValuePair<string, float>("level_01", 1080f / 1920),
+                new KeyValuePair<string, float>("level_01", 1536f / 2048), new KeyValuePair<string, float>("level_19", 1284f / 2778)
+            };
+            const int Height = 1200, Gap = 14;
+            int total = 0;
+            foreach (var shot in shots) { total += Mathf.RoundToInt(Height * shot.Value) + Gap; }
+            var sheet = new Texture2D(total - Gap, Height, TextureFormat.RGB24, false);
+            var white = new Color32[sheet.width * Height];
+            for (int i = 0; i < white.Length; i++) { white[i] = new Color32(255, 255, 255, 255); }
+            sheet.SetPixels32(white);
+            int left = 0;
+            foreach (var shot in shots)
+            {
+                int width = Mathf.RoundToInt(Height * shot.Value);
+                using (var stage = Open(shot.Key, clusters, prefabs, flat, LotBlue))
+                {
+                    FitGame(stage, shot.Value);
+                    var image = Render(stage, width, Height);
+                    sheet.SetPixels(left, 0, width, Height, image.GetPixels());
+                    UnityEngine.Object.DestroyImmediate(image);
+                }
+                left += width + Gap;
+            }
+            sheet.Apply();
+            Save(sheet, "08-devices");
+        }
+
         // Scene xem thử (không nằm trong Build Settings): mở ra xoay quanh trong Scene view; Game view dùng đúng góc camera game.
         private static void SavePreviewScene(Dictionary<string, Cluster> clusters, Dictionary<string, GameObject> prefabs, Material flat)
         {
@@ -805,7 +1112,11 @@ namespace SqueakyLane.EditorTools
         {
             var existing = AssetDatabase.LoadAssetAtPath<Mesh>(path);
             if (existing == null) { AssetDatabase.CreateAsset(mesh, path); return mesh; }
-            EditorUtility.CopySerialized(mesh, existing);
+            // Ghi qua API để Unity nạp lại cả vertex lẫn index lên GPU (CopySerialized để lại hình cũ trong bộ nhớ).
+            existing.Clear();
+            existing.indexFormat = mesh.indexFormat;
+            existing.vertices = mesh.vertices; existing.normals = mesh.normals; existing.uv = mesh.uv;
+            existing.triangles = mesh.triangles; existing.RecalculateBounds();
             UnityEngine.Object.DestroyImmediate(mesh);
             EditorUtility.SetDirty(existing);
             return existing;

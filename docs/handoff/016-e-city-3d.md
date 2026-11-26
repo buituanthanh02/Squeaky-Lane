@@ -30,6 +30,13 @@ Biên dịch sạch, Console không lỗi mới; menu chạy 2 lần GUID giữ 
 - Còn khác concept: cửa hàng thấp/nhỏ hơn; sọc mái hiên cùng tông mái nên kém rõ; cụm hai bên gần như bị cắt ở khung game; bàn ghế, ghế dài đơn giản hơn.
 - Khi nối vào game: thay `SceneThemeView` nền/phố/props bằng mesh sinh theo màn; kiểm màn 4 cột (cụm bị thu nhỏ), hầm rửa trên/dưới (cụm lùi 2,3 ô).
 
+## Vòng 2 (góp ý người làm: lấp kín 4 phía, công viên dựng từng vật cao thấp)
+- `BuildFill`: lưới nhà (5 màu, 1–2 tầng), cụm cây/thông, đài phun, bàn ô, luống hoa trên mọi ô phố còn trống (x ±8, z ±15), chừa 4 cụm chính và thảm hầm rửa; một mesh có viền.
+- Công viên dựng lại: nền nâng, đài phun 3 tầng, bồn hoa 2 tầng, gò cỏ, 2 cây tròn, 3 thông, 2 đèn, 2 ghế xoay vào giữa, hàng rào cây. Ba cửa hàng cao khác nhau.
+- Ảnh mới `08-devices` (màn 1 ở 9:19,5 · 9:16 · 3:4, màn 19). Menu chạy qua MCP, Console 0 lỗi. Chưa chạy Test, chưa nối game.
+- 11 draw theo thiết kế; tam giác ~39k cụm + ~65k cảnh xa + ~15k nền ≈ 120k (viền vẽ thêm một lượt): **nặng, phải đo trên máy**; cắt trước viền cảnh xa.
+
 ## Trao đổi
 2026-11-26 11:51 · Claude → Codex · [BÀN GIAO]: giao 016-e; Claude không lái Editor trong lúc bạn làm.
 2026-11-26 11:59 · Claude → Người làm · [HỎI]: duyệt ảnh `Logs/016-city`, chọn màu bãi (tối / xám xanh / tím) trước khi nối vào game.
+2026-11-26 12:06 · Claude → Người làm · [HỎI]: duyệt vòng 2 và cho nối vào game.
