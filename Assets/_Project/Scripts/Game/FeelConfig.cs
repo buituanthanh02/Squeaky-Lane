@@ -16,6 +16,7 @@ namespace SqueakyLane.Game
         [SerializeField, Min(0), Tooltip("Chờ thêm sau khi xe cuối ra hết và phát chúc mừng; 0 là mở bảng ngay khi hoạt hình xong.")] private float winDialogDelaySeconds = 0;
         [SerializeField, Range(0, 1), Tooltip("Âm lượng SFX chung.")] private float sfxVolume = .7f;
         [SerializeField, Range(1, 16), Tooltip("Số tiếng tối đa cùng lúc, cấp phát pool một lần.")] private int sfxVoices = 8;
+        [SerializeField, Range(0, .2f), Tooltip("Tắt dần tiếng cũ khi cùng loại phát lại hoặc hết kênh, giây (0 = cắt ngay).")] private float sfxFadeSeconds = .05f;
         [SerializeField, Min(.05f), Tooltip("Khoảng cách tối thiểu giữa hai nhịp rung.")] private float hapticGapSeconds = .12f;
         [SerializeField, Min(1), Tooltip("Độ dài rung va nhẹ, ms; số tạm cần thử máy thật.")] private int shortVibrationMs = 20;
         [SerializeField, Min(1), Tooltip("Độ dài rung thắng/thua, ms.")] private int resultVibrationMs = 90;
@@ -282,6 +283,7 @@ namespace SqueakyLane.Game
         public float WaterDipCells => waterDipCells; public float RotateMidScale => rotateMidScale;
         public float TransitionSeconds => transitionSeconds; public float SfxVolume => sfxVolume;
         public float WinDialogDelaySeconds => winDialogDelaySeconds;
+        public float SfxFadeSeconds => sfxFadeSeconds;
         public int SfxVoices => sfxVoices; public float HapticGapSeconds => hapticGapSeconds;
         public int ShortVibrationMs => shortVibrationMs; public int ResultVibrationMs => resultVibrationMs; public int VibrationAmplitude => vibrationAmplitude;
         private void OnValidate()
@@ -292,7 +294,7 @@ namespace SqueakyLane.Game
             waterDipCells = GameConfig.Clean(waterDipCells, 0, .6f); rotateMidScale = Mathf.Clamp(GameConfig.Clean(rotateMidScale, .1f, .65f), .1f, 1);
             transitionSeconds = GameConfig.Clean(transitionSeconds, 0, .2f); sfxVolume = Mathf.Clamp01(GameConfig.Clean(sfxVolume, 0, .7f));
             winDialogDelaySeconds = GameConfig.Clean(winDialogDelaySeconds, 0, 0);
-            sfxVoices = Mathf.Clamp(sfxVoices, 1, 16); hapticGapSeconds = GameConfig.Clean(hapticGapSeconds, .05f, .12f);
+            sfxVoices = Mathf.Clamp(sfxVoices, 1, 16); sfxFadeSeconds = Limit(sfxFadeSeconds, 0, .2f, .05f); hapticGapSeconds = GameConfig.Clean(hapticGapSeconds, .05f, .12f);
             shortVibrationMs = Mathf.Max(1, shortVibrationMs); resultVibrationMs = Mathf.Max(1, resultVibrationMs); vibrationAmplitude = Mathf.Clamp(vibrationAmplitude, 1, 255);
             launchPitch = Limit(launchPitch, -15, 0, -5);
             launchSeconds = Limit(launchSeconds, .01f, .5f, .08f);

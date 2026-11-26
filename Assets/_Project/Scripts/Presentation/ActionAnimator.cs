@@ -21,6 +21,10 @@ namespace SqueakyLane.Presentation
         public event System.Action CarStarted;
         public event System.Action<CarView, MoveEvent> CarEventStarted;
         public event System.Action Cancelled;
+        // 016: xe bắt đầu bò qua trạm rửa ở ô vòi xịt (tiếng rửa phát lúc này, không đợi tới khi rửa xong).
+        public event System.Action WashStarted;
+        // Đặt trước EventStarted: sự kiện Spray này đã được nghe từ lúc xe vào trạm.
+        public bool SprayAlreadyHeard { get; private set; }
         // Số ô xe vừa trượt trước khi dừng, đặt ngay trước khi bắn CarEventStarted/EventStarted của chính sự kiện đó.
         // Người nghe chỉ đọc trong callback; cách này giữ nguyên chữ ký sự kiện cũ.
         public int LastSlideCells { get; private set; }
@@ -162,7 +166,10 @@ namespace SqueakyLane.Presentation
                         Add(selected, cursor, feel.BumpSeconds * .5f, to); cursor += feel.BumpSeconds * .5f;
                         Add(selected, cursor, feel.BumpSeconds * .5f, pose); cursor += feel.BumpSeconds * .5f; break;
                     case MoveEventKind.Paint: case MoveEventKind.Mud: case MoveEventKind.Spray:
-                        Effect(selected, ev, cursor); break;
+                        Effect(selected, ev, cursor);
+                        if (ev.Kind == MoveEventKind.Spray && feel.WashCrawlSeconds > 0 && e > 0 && events[e - 1].Kind == MoveEventKind.Step)
+                        { var heard = draft[draft.Count - 1]; heard.Washed = true; draft[draft.Count - 1] = heard; }
+                        break;
                     case MoveEventKind.Splash:
                         if (ev.OtherCar >= 0) { var splash = poses[ev.OtherCar]; splash.Mud = 1; Add(ev.OtherCar, cursor, 0, splash); } break;
                     case MoveEventKind.Push:
@@ -304,6 +311,7 @@ namespace SqueakyLane.Presentation
                         {
                             // Xe bắt đầu bò qua trạm rửa: lắc theo chổi, bùn trôi giữa chừng, chổi quay + xịt bọt.
                             board.Car(i).BeginWash(clip.Duration);
+                            if (!clip.WashGate) { WashStarted?.Invoke(); }
                             var station = clip.WashGate ? board.WashGateAt(clip.EventData.Gate.Value) : board.WashStationAt(clip.EventData.R, clip.EventData.C);
                             if (station != null) { station.Begin(clip.Duration, feel.WashRollerSpinDegrees); }
                         }
@@ -321,6 +329,7 @@ namespace SqueakyLane.Presentation
                                 var direction = board.transform.TransformDirection(Direction(clip.From.Yaw) * clip.EventData.Sign);
                                 board.Car(clip.EventData.OtherCar).Hit(direction);
                             }
+                            SprayAlreadyHeard = clip.Washed;
                             CarEventStarted?.Invoke(board.Car(i), clip.EventData);
                             EventStarted?.Invoke(clip.EventKind, clip.Reason);
                         }
@@ -381,7 +390,7 @@ namespace SqueakyLane.Presentation
         }
         private sealed class Lane { public readonly List<Clip> Clips = new List<Clip>(64); public int Head; public float End; }
         private struct Pose { public Vector3 Position; public float Yaw, Scale; public TileColor Color; public int Mud; public bool Alive; }
-        private struct Clip { public int Car, ConsumedMud, StartSign, Slide; public bool Accelerate; public float ShrinkStart, CurveFrom, CurveTo; public float Start, Duration, RollDistance, RollProgress; public float End => Start + Duration; public Pose From, To; public Rect Swept; public bool Started, HasEvent, StartsMove, Crawl, WashGate; public MoveEventKind EventKind; public StopReason? Reason; public MoveEvent EventData; }
+        private struct Clip { public int Car, ConsumedMud, StartSign, Slide; public bool Accelerate; public float ShrinkStart, CurveFrom, CurveTo; public float Start, Duration, RollDistance, RollProgress; public float End => Start + Duration; public Pose From, To; public Rect Swept; public bool Started, HasEvent, StartsMove, Crawl, WashGate, Washed; public MoveEventKind EventKind; public StopReason? Reason; public MoveEvent EventData; }
         private struct PylonClip { public int Index; public float Start, End, From, To; public bool Started; }
     }
 }

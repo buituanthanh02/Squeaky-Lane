@@ -1,4 +1,4 @@
-using SqueakyLane.Core.Model;
+﻿using SqueakyLane.Core.Model;
 using SqueakyLane.Game;
 
 namespace SqueakyLane.Presentation
@@ -39,6 +39,7 @@ namespace SqueakyLane.Presentation
             input.CarSelected += SelectedCar;
             animator.EventStarted += VisualEvent;
             animator.CarStarted += CarStarted;
+            animator.WashStarted += Washing;
             if (navigation != null)
             {
                 navigation.ButtonClicked += UiClicked;
@@ -58,6 +59,7 @@ namespace SqueakyLane.Presentation
             {
                 animator.EventStarted -= VisualEvent;
                 animator.CarStarted -= CarStarted;
+                animator.WashStarted -= Washing;
             }
 
             if (navigation != null)
@@ -104,7 +106,8 @@ namespace SqueakyLane.Presentation
 
         private void VisualEvent(MoveEventKind kind, StopReason? reason)
         {
-            if (sfx != null)
+            bool heard = kind == MoveEventKind.Spray && animator != null && animator.SprayAlreadyHeard;
+            if (sfx != null && !heard)
             {
                 // Xe ra cổng liên tiếp: mỗi xe tiếng cao hơn một chút (bậc thang như bản HTML). Combo do animator đếm.
                 float pitch = kind == MoveEventKind.Exit && animator != null && feel != null ? feel.ComboPitch(animator.ExitCombo) : 1f;
@@ -119,6 +122,7 @@ namespace SqueakyLane.Presentation
 
         private void SelectedCar() => Play(SoundCue.SelectCar);
         private void CarStarted() => Play(SoundCue.Move);
+        private void Washing() => Play(SoundCue.Spray);
         private void UiClicked() => Play(SoundCue.Ui);
         private void SoundChanged(bool enabled)
         {
