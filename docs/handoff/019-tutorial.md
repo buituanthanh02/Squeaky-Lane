@@ -50,13 +50,13 @@ Người làm chốt (26/11):
 ## Test và kết quả
 - EditMode 590 chạy, 589 đạt, 0 lỗi, 1 bỏ qua (bài đo thủ công). Có 16 ca `Tutorial019Tests`: chạy thật từng bài trên bãi của nó, thế kẹt ở bài bùn lây, bãi đầu không có ngõ cụt, mọi cơ chế trong `level_order` đều có bài.
 - Play trong Editor (Simulator 1284×2778), điều khiển bằng gọi hàm qua MCP: xem ảnh cả 9 bãi; chạy trọn basics → màn 1 và splash → màn 4 (đồng hồ chạy); xoay bàn, xoay trụ, Bỏ qua, Xem lại, Gợi ý trên màn thật. Console không lỗi từ code game.
-- Ảnh: `Logs/019-plan/*.png` (không commit).
+- Sau commit đầu: chạy tự động trọn cả 9 bãi trong Play (mỗi bước gọi đúng lệnh), bài nào cũng kết thúc và vào màn thật; Console không lỗi.
+- Ảnh từng bước: `Logs/019-tutorial/sheet-*.jpg` (không commit).
 - Sao và kỷ lục không bị tool/test đổi. Kỷ lục combo 3 của màn 2 xuất hiện khi người làm tự chơi trong lúc kiểm; giữ nguyên. Cờ bài tập đã xóa sau khi kiểm.
 
 ## Chưa kiểm
 - Chạm/vuốt thật bằng ngón tay ở từng bước (kiểm bằng cách gọi lệnh và raycast).
 - Chuyển động liền mạch của bàn tay, viền sáng (mới xem ảnh từng khung).
-- Chạy trọn bài paint, light, truck, portal trong Play (test EditMode đã chạy trọn luật; Play chỉ xem bước đầu).
 - Điện thoại thật, tỉ lệ màn khác.
 
 ## Phát hiện ngoài phạm vi
