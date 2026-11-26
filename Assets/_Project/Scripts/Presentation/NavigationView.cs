@@ -42,6 +42,8 @@ namespace SqueakyLane.Presentation
         [SerializeField, Tooltip("019: nút Xem lại hướng dẫn trong Cài đặt của main menu. Menu '019 UI/Build Tutorial' dựng và gán.")] private Button replayTutorialButton = null;
         [SerializeField] private TMP_Text replayTutorialLabel = null;
         private string replayTutorialText;
+        // Lớp HUD lúc chơi: hiệu ứng chữ trên bãi vẽ ở đây, nằm dưới các hộp thoại.
+        public RectTransform EffectsLayer => playing != null ? (RectTransform)playing.transform : null;
         // 019: đang ở bãi tập thì ô tên màn ghi chữ này thay cho "Màn N".
         public string PracticeTitle { get; set; }
         public RectTransform PauseRect => pauseButton != null ? (RectTransform)pauseButton.transform : null;

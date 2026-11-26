@@ -214,3 +214,10 @@ MonoBehaviour:
   tutorialTapApproach: 36
   tutorialDragPeriod: 2
   tutorialHintSeconds: 5
+  praiseFontSize: 92
+  praiseTop: {r: 1, g: 1, b: 1, a: 1}
+  praiseBottom: {r: 1, g: 0.79, b: 0.16, a: 1}
+  praiseRise: 130
+  praiseTilt: 7
+  praiseSparkSize: 72
+  praiseSparkColor: {r: 1, g: 0.93, b: 0.45, a: 1}

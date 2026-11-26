@@ -103,9 +103,7 @@ MonoBehaviour:
   gatePassSeconds: 0.5
   gateTailRatio: 0.25
   popupTextEnabled: 1
-  popupTextSize: 0.08
-  popupSeconds: 1.1
-  popupRise: 0.6
+  popupSeconds: 1.35
   comboWindowSeconds: 3
   comboSemitones: 2
   comboMaxSteps: 5

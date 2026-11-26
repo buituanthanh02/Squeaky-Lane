@@ -72,10 +72,8 @@ namespace SqueakyLane.Game
         [Header("012 gói B — Ra cổng được rửa")]
         [SerializeField, Range(.1f, 1.5f), Tooltip("Thời gian xe lướt xuyên cổng, nhanh dần. Chỉ dùng cho sự kiện Exit; nhịp chui cổng nước vẫn theo Exit Seconds.")] private float gatePassSeconds = .5f;
         [SerializeField, Range(.05f, .6f), Tooltip("Phần cuối của lượt ra cổng dùng để thu nhỏ xe; trước đó xe giữ nguyên cỡ.")] private float gateTailRatio = .25f;
-        [SerializeField, Tooltip("Bật chữ nổi 'Sạch bóng!' khi xe ra cổng.")] private bool popupTextEnabled = true;
-        [SerializeField, Range(.02f, .2f), Tooltip("characterSize của chữ nổi; chữ phẳng trên mặt bãi như nhãn 1A/2B.")] private float popupTextSize = .06f;
-        [SerializeField, Range(.3f, 3), Tooltip("Thời gian chữ nổi tồn tại, giây.")] private float popupSeconds = 1.1f;
-        [SerializeField, Range(0, 2), Tooltip("Chữ nổi trôi lên (ngược hướng nhìn) bao nhiêu ô trong thời gian tồn tại.")] private float popupRise = .6f;
+        [SerializeField, Tooltip("Bật chữ khen khi xe ra cổng (hình dáng chỉnh ở UiTheme 020).")] private bool popupTextEnabled = true;
+        [SerializeField, Range(.3f, 3), Tooltip("Thời gian chữ khen tồn tại, giây.")] private float popupSeconds = 1.35f;
         [SerializeField, Range(.3f, 5), Tooltip("Hai xe ra cổng cách nhau không quá số giây này thì tính là chuỗi liên tiếp.")] private float comboWindowSeconds = 3;
         [SerializeField, Range(0, 4), Tooltip("Mỗi xe liên tiếp tiếng ra cổng cao thêm bấy nhiêu bán cung.")] private float comboSemitones = 2;
         [SerializeField, Range(1, 8), Tooltip("Chuỗi tối đa tính tới xe thứ mấy; từ đó tiếng không cao thêm.")] private int comboMaxSteps = 5;
@@ -198,9 +196,7 @@ namespace SqueakyLane.Game
         public float GatePassSeconds => gatePassSeconds;
         public float GateTailRatio => gateTailRatio;
         public bool PopupTextEnabled => popupTextEnabled;
-        public float PopupTextSize => popupTextSize;
         public float PopupSeconds => popupSeconds;
-        public float PopupRise => popupRise;
         public float ComboWindowSeconds => comboWindowSeconds;
         public float ComboPopSeconds => comboPopSeconds;
         public float ComboPunchScale => comboPunchScale;
@@ -370,9 +366,7 @@ namespace SqueakyLane.Game
             waterJetRatio = Limit(waterJetRatio, 0, 1, .7f);
             gatePassSeconds = Limit(gatePassSeconds, .1f, 1.5f, .5f);
             gateTailRatio = Limit(gateTailRatio, .05f, .6f, .25f);
-            popupTextSize = Limit(popupTextSize, .02f, .2f, .06f);
-            popupSeconds = Limit(popupSeconds, .3f, 3, 1.1f);
-            popupRise = Limit(popupRise, 0, 2, .6f);
+            popupSeconds = Limit(popupSeconds, .3f, 3, 1.35f);
             comboWindowSeconds = Limit(comboWindowSeconds, .3f, 5, 3);
             comboPopSeconds = Limit(comboPopSeconds, .05f, 1, .28f);
             comboPunchScale = Limit(comboPunchScale, 1, 2, 1.35f);

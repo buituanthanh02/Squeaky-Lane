@@ -101,6 +101,7 @@ namespace SqueakyLane.Presentation
             {
                 feelEffects.enabled = true;
                 feelEffects.Initialize(animator, board, boardCamera, feelConfig, palette);
+                feelEffects.SetTextLayer(navigationView.EffectsLayer);
             }
             if (comboFeedback != null)
             {

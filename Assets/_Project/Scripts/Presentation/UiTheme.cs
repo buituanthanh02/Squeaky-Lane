@@ -220,6 +220,20 @@ namespace SqueakyLane.Presentation
         public float TutorialTapApproach => tutorialTapApproach;
         public float TutorialDragPeriod => Mathf.Max(1, tutorialDragPeriod);
         public float TutorialHintSeconds => Mathf.Max(1, tutorialHintSeconds);
+        [Header("020 · Chữ khen khi xe sạch ra cổng (đơn vị Canvas)")]
+        [SerializeField, Range(40, 150)] private float praiseFontSize = 92;
+        [SerializeField, Tooltip("Màu chữ chuyển từ trên xuống dưới; viền lấy HudOutline.")] private Color praiseTop = Color.white, praiseBottom = new Color(1, .79f, .16f, 1);
+        [SerializeField, Range(0, 300), Tooltip("Chữ bay lên bao xa trong thời gian tồn tại.")] private float praiseRise = 130;
+        [SerializeField, Range(0, 20), Tooltip("Chữ nghiêng so le trái/phải.")] private float praiseTilt = 7;
+        [SerializeField, Range(0, 150)] private float praiseSparkSize = 72;
+        [SerializeField] private Color praiseSparkColor = new Color(1, .93f, .45f, 1);
+        public float PraiseFontSize => praiseFontSize;
+        public Color PraiseTop => praiseTop;
+        public Color PraiseBottom => praiseBottom;
+        public float PraiseRise => praiseRise;
+        public float PraiseTilt => praiseTilt;
+        public float PraiseSparkSize => praiseSparkSize;
+        public Color PraiseSparkColor => praiseSparkColor;
         public Color ClockColor => clockColor;
         public Color LowClock => lowClock;
         public Color Shade => shade;

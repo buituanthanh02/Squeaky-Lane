@@ -22,11 +22,9 @@ namespace SqueakyLane.Presentation
         private Vector3 appliedCameraPosition;
         private float shakeTime = float.MaxValue;
         private float shakeScale = 1;
-        // Chữ nổi "Sạch bóng!": pool nhỏ tạo một lần, tái dùng; không Instantiate theo sự kiện.
-        private const int PopupPool = 4;
         private static readonly string[] Praise = { "Sạch bóng!", "Bóng loáng!", "Thơm tho!" };
-        private Popup[] popups;
-        private Font popupFont;
+        private PraisePopups praise;
+        private RectTransform textLayer;
         private int praiseIndex;
         public int LiveCount
         {
@@ -133,104 +131,31 @@ namespace SqueakyLane.Presentation
             }
         }
 
-        // Chữ phẳng trên mặt bãi (cùng kiểu nhãn 1A/2B), đặt lùi vào trong bãi từ cổng và kẹp trong mép bãi.
+        // Lớp HUD để vẽ chữ khen; trống thì không hiện chữ.
+        public void SetTextLayer(RectTransform layer)
+        {
+            if (textLayer == layer) { return; }
+            if (praise != null) { praise.Dispose(); }
+            praise = null;
+            textLayer = layer;
+        }
+
+        // Đặt lùi vào trong bãi so với cổng vừa ra, rồi đổi sang tọa độ màn hình.
         private void ShowExitText(Vector3 exitDirection, Vector3 gatePoint)
         {
-            if (popups == null || board == null || board.Level == null) { return; }
+            if (textLayer == null || boardCamera == null || board == null || board.Level == null || board.Theme == null) { return; }
             Vector3 local = board.transform.InverseTransformPoint(gatePoint - exitDirection * .9f);
             float limitX = Mathf.Max(0, board.Level.Cols * .5f - 1.1f);
             float limitZ = Mathf.Max(0, board.Level.Rows * .5f - .6f);
             local.x = Mathf.Clamp(local.x, -limitX, limitX);
             local.z = Mathf.Clamp(local.z, -limitZ, limitZ);
             local.y = 1.1f;
-            Pop(Praise[praiseIndex], local, Color.white);
+            if (praise == null) { praise = new PraisePopups(textLayer, board.Theme); }
+            praise.Show(Praise[praiseIndex], boardCamera.WorldToScreenPoint(board.transform.TransformPoint(local)));
             praiseIndex = (praiseIndex + 1) % Praise.Length;
         }
 
-        private void Pop(string text, Vector3 localStart, Color color)
-        {
-            Popup chosen = null;
-            for (int i = 0; i < popups.Length; i++)
-            {
-                if (!popups[i].Active) { chosen = popups[i]; break; }
-                if (chosen == null || popups[i].Age > chosen.Age) { chosen = popups[i]; }
-            }
-            chosen.Active = true;
-            chosen.Age = 0;
-            chosen.Start = localStart;
-            chosen.Color = color;
-            chosen.Mesh.text = text;
-            chosen.Mesh.color = color;
-            chosen.Node.localPosition = localStart;
-            chosen.Node.gameObject.SetActive(true);
-        }
-
-        private void AdvancePopups(float seconds)
-        {
-            if (popups == null) { return; }
-            for (int i = 0; i < popups.Length; i++)
-            {
-                var popup = popups[i];
-                if (!popup.Active) { continue; }
-                popup.Age += seconds;
-                float t = popup.Age / feel.PopupSeconds;
-                if (t >= 1) { HidePopup(popup); continue; }
-                float rise = 1 - (1 - t) * (1 - t);
-                popup.Node.localPosition = popup.Start + new Vector3(0, 0, feel.PopupRise * rise);
-                var color = popup.Color;
-                color.a = t < .6f ? 1 : 1 - (t - .6f) / .4f;
-                popup.Mesh.color = color;
-            }
-        }
-
-        private static void HidePopup(Popup popup)
-        {
-            popup.Active = false;
-            popup.Node.gameObject.SetActive(false);
-        }
-
-        // Tạo pool một lần theo font động của bãi và nạp sẵn ký tự có dấu để lần ra cổng đầu tiên không bị khựng.
-        // Gọi mỗi lần nạp màn (qua Clear); sau lần đầu chỉ kiểm tra rồi thoát.
-        private void EnsureText()
-        {
-            if (board == null || board.LabelFont == null || feel == null) { return; }
-            var font = board.LabelFont;
-            if (popups != null && popupFont == font) { return; }
-            popupFont = font;
-            font.RequestCharactersInTexture("Sạch bóng! Bóng loáng! Thơm tho!", 36, FontStyle.Normal);
-            if (popups == null)
-            {
-                popups = new Popup[PopupPool];
-                for (int i = 0; i < popups.Length; i++)
-                {
-                    var node = new GameObject("Popup " + i);
-                    node.transform.SetParent(board.transform, false);
-                    node.transform.localRotation = Quaternion.Euler(90, 0, 0);
-                    var mesh = node.AddComponent<TextMesh>();
-                    mesh.fontSize = 36;
-                    mesh.anchor = TextAnchor.MiddleCenter;
-                    node.SetActive(false);
-                    popups[i] = new Popup { Node = node.transform, Mesh = mesh, Renderer = node.GetComponent<Renderer>() };
-                }
-            }
-            for (int i = 0; i < popups.Length; i++)
-            {
-                popups[i].Mesh.font = font;
-                popups[i].Mesh.characterSize = feel.PopupTextSize;
-                popups[i].Renderer.sharedMaterial = font.material;
-            }
-        }
-
-        private sealed class Popup
-        {
-            public Transform Node;
-            public TextMesh Mesh;
-            public Renderer Renderer;
-            public Vector3 Start;
-            public Color Color;
-            public float Age;
-            public bool Active;
-        }
+        public int PraiseCount => praise != null ? praise.ActiveCount : 0;
 
         private static bool IsImpact(StopReason? reason)
         {
@@ -298,7 +223,7 @@ namespace SqueakyLane.Presentation
             {
                 if (systems[i] != null && systems[i].particleCount > 0) { systems[i].Simulate(seconds, false, false, false); }
             }
-            AdvancePopups(seconds);
+            if (praise != null) { praise.Advance(seconds, feel); }
             shakeTime += seconds;
             if (boardCamera != null && feel.ShakeEnabled && shakeTime < feel.ShakeSeconds)
             {
@@ -325,8 +250,7 @@ namespace SqueakyLane.Presentation
             RestoreCamera();
             shakeTime = float.MaxValue;
             shakeScale = 1;
-            if (popups != null) { for (int i = 0; i < popups.Length; i++) { HidePopup(popups[i]); } }
-            EnsureText();
+            if (praise != null) { praise.Clear(); }
             if (systems == null) { return; }
             for (int i = 0; i < systems.Length; i++)
             {
@@ -349,5 +273,9 @@ namespace SqueakyLane.Presentation
             animator = null;
         }
         private void OnDisable() { Disconnect(); }
+        private void OnDestroy()
+        {
+            if (praise != null) { praise.Dispose(); }
+        }
     }
 }
