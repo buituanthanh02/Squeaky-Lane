@@ -111,7 +111,7 @@ Người làm đã tạo project 3D trống và sẽ bổ sung thông tin sau. *
 - **Góc nghiêng 60–70° được chấp nhận.** `[CHỐT]` `[ĐỀ XUẤT]` mặc định **65°, camera trực giao (orthographic)**, để chỉnh bằng một biến trong prefab camera.
 - Nguyên tắc chọn góc: nếu góc nghiêng làm che mất thông tin chơi (cơ chế) thì dùng nhìn thẳng từ trên xuống; còn nếu vẫn đọc được thì giữ nghiêng để thấy ngôn ngữ cơ thể của xe. `[CHỐT]`
 - `[ĐỀ XUẤT]` Quy tắc chống che: vật cao (trụ xoay, đèn giao thông, cổng/barie phía dưới) làm thấp còn ~60–70% so với thực tế; vật nào che xe thì tự mờ dần (fade).
-- **Giá trị đang dùng:** `CameraConfig.tiltDegrees = 70` (65 → 70 theo yêu cầu tăng 5° ngày 23/11). Camera vẽ/xóa nền toàn màn; vùng dành cho bãi chỉ dùng để tính kích thước và tâm nhìn, nhằm tránh vệt chữ HUD ngoài vùng camera cũ. Code đã biên dịch CLI; người làm xác nhận hết lỗi chữ sau khi chơi thử. `[FILE: Assets/_Project/Config/CameraConfig.asset, Scripts/Presentation/BoardView.cs; CHỐT 23/11]`
+- **Giá trị đang dùng:** `CameraConfig.tiltDegrees = 58` (65 → 70 ngày 23/11; 70 → 58 ngày 26/11 theo phiếu 015 bước 2, người làm duyệt; đã kiểm 846/846 điểm chạm nửa xe trúng đúng xe/nửa trên 25 màn, chưa thử máy thật). Camera vẽ/xóa nền toàn màn; vùng dành cho bãi chỉ dùng để tính kích thước và tâm nhìn, nhằm tránh vệt chữ HUD ngoài vùng camera cũ. Code đã biên dịch CLI; người làm xác nhận hết lỗi chữ sau khi chơi thử. `[FILE: Assets/_Project/Config/CameraConfig.asset, Scripts/Presentation/BoardView.cs; CHỐT 23/11]`
 - Cạm bẫy 3D: chạm "nửa xe" phải tính trên **trục thân xe trong không gian bàn chơi**, không phải theo nửa trên/dưới màn hình (xem mục 6.2).
 
 ---
