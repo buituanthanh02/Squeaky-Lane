@@ -61,6 +61,34 @@ Props phố phụ → ảnh IP (dùng nền tĩnh có sẵn) → vẽ lại cơ 
 - Nút có sprite nhỏ và một Image trong suốt lớn hơn để nhận chạm. `InputController` hỏi EventSystem trước raycast 3D, nên điểm nằm trong cả hai vùng được giao cho nút xoay.
 - Viền popup dùng cùng sprite, với hệ số 9-slice riêng để phần viền giữ độ dày phù hợp với khung. Công tắc vẫn dùng kết nối gốc trong `NavigationView`.
 
+## Đã làm · Vùng chơi rộng hơn và nền đô thị 2D
+
+- `UiTheme.streetVisible` 0,90 → 0,50; `CameraConfig.playingBottomInset` 0,17 → 0,12. Chừa đủ chỗ cho hầm rửa như trước. Màn 23 trên iPhone 12 Pro Max Simulator 1284×2778: ô lưới rộng 810 → 880 px (+8,7%), vùng chạm mỗi booster rộng 312 → 255 px (−18%).
+- `UiTheme.boosterSize` 66 → 54, `boosterPosition` (50, 44) → (46, 33), `boosterIconSize` 30 → 25. Áp qua menu `016 UI → Apply Booster Layout`, chi tiết scene ở [016-scene-changes.md](016-scene-changes.md).
+- `SceneThemeView` đặt dải cửa hàng và công viên ngoài hai phố ngang, dải vỉa hè dọc nhỏ ở hai góc. Dải 2D trong suốt dùng tối đa 4 SpriteRenderer, nằm cùng mặt phẳng đường và chừa thảm hầm. `UiTheme`: `cityBlockWidth` 0,82, `cityBlockDepth` (2,15; 1,55) ô, `citySideSize` (0,62; 1,95) ô, `cityStreetGap` 0,12 ô.
+- **V2:** EditMode Run All **585 tổng · 584 qua · 0 lỗi · 1 bỏ qua** (bài Profiler thủ công). Play Console 0 lỗi, 0 cảnh báo. Raycast 3D kiểm 846/846 điểm đúng xe và đúng nửa trên 25 màn, toàn bộ nằm trong camera. Màn 8: xoay 1 nước, Hoàn tác trả về 0, Gợi ý nhận click. Màn 3: hai hầm rửa và thảm nhìn rõ.
+- **V3:** `Logs/016-shots/32-city-after23.png` và `33-city-after03.png`. Chưa đo cảm giác chạm hay hiệu năng trên thiết bị thật.
+
+### Bạn cần hiểu
+
+- Thu booster nhường chiều cao cho vùng chơi. Giảm phần phố camera chừa ở mép mới là thay đổi giúp ô lưới rộng hơn trên máy màn dọc.
+- Art nền là các sprite phẳng, tự dời theo số hàng/cột. Đường, xe và cổng vẫn dùng hình học 3D, nên đường chạy của xe và raycast chơi không phụ thuộc ảnh nền.
+
+<details>
+<summary>Ảnh nguồn và prompt ImageGen tích hợp</summary>
+
+Ảnh gốc tạo bằng ImageGen tích hợp, dựa trên chất đô thị vui nhộn của Crowd Express. Nguồn RGBA trong `Assets/_Project/Art/Environment/Town/`: `City_Shops_2D.png`, `City_Park_2D.png`, `City_Sidewalk_2D.png`. Unity cắt lề trong suốt khi import, giới hạn cạnh dài 1024 px cho hai dải ngang và 512 px cho dải dọc. [Crowd Express](https://play.google.com/store/apps/details?id=com.feelcrafters.buspuzzle&hl=vi)
+
+Phần chung của ba prompt, đặt giữa câu mô tả asset và phần đặc tả riêng.
+
+> Create original 2D environment art for Squeaky Lane, a sunny casual mobile car-wash puzzle. Orthographic overhead street plan, almost straight down (nearly 90 degrees), world aligned horizontal and vertical, one consistent upper-left noon light. Cheerful toy-town graphic shapes with subtle painted volume, generous breathing room, simple softened outlines, muted turquoise, apricot, butter yellow, mint and warm ivory. Medium-low contrast because saturated interactive cars will appear nearby. High production quality, clean silhouette at tiny screen scale. This is only a decorative transparent strip to overlay on a live 3D ground, so actual transparent RGBA background (also clear outer edges), keep small natural soft shadows attached to props. No unrelated game asset copying, no cars, people, letters, text, numbers, logo, interface, landscape horizon, road surface, lane markings, or rectangular opaque backdrop.
+
+- **Cửa hàng ngang**. Use case: stylized-concept. Asset: horizontal north-side city block, landscape canvas about 3:1. Along one continuous horizontal warm ivory sidewalk plinth, build a small pastel teal flat-roof cafe with understated fabric awning, a smaller apricot corner shop, and a butter-yellow urban townhouse. Facing side along lower edge. Distinct top-down silhouettes. Restrained hints of life: two planters, one tiny cafe table and two umbrellas, street tree, patches of sidewalk between all buildings. Center the long shallow row and leave generous transparent padding all around. Shape should fill approximately 80% of width and 60% of height. This is level background art rendered as a flat decal.
+- **Công viên ngang**. Use case: stylized-concept. Asset: horizontal south-side neighborhood pocket park, landscape canvas about 3:1. Design a low, shallow ribbon, containing a mint green pocket park with a compact curved planting bed, two round clean-canopy trees spaced out, one peach bench, one neat blue bicycle rack and a short cream pedestrian path, ending in a small terracotta planter. Light tactile shapes, large quiet intervals, all details grouped in three clusters on a narrow horizontal sidewalk island. Center the long shallow design, with clear alpha margins all around. Streets and vehicles are rendered separately in Unity.
+- **Vỉa hè dọc**. Use case: stylized-concept. Asset: slender vertical side-street sidewalk, portrait canvas about 1:3. Draw a single loose vertical chain of three small separate details united by a very slim pale sidewalk strip: two top-view round shade trees and one little rounded apricot planter with a short mint bench beside it. Edges all transparent. Spacing is far greater than object diameter, a deliberately quiet street edge that reads even when only one edge is visible. Entire strip is strictly vertical, slender, with no buildings. Asset will decorate the outer edge of left and right roads.
+
+</details>
+
 ## Bàn giao cho Codex (Claude sắp hết token)
 **Chỗ cần sửa còn biết:** bãi nhỏ đi vì camera chừa phố (`UiTheme.streetVisible/streetInner/streetWidth`, `BoardView.FitCamera`) · hầm rửa cạnh trái/phải đè lên phố dọc · nhà phố chủ yếu thấy mái, bị HUD che (`SceneThemeView.SpawnTown`, `ToyTownTools`) · nút "XOAY" che xe (`TableButtons`) · chưa xem trong Play: đèn, trụ, portal, bùn mới, hộp Cài đặt, xe lùi ra cổng cua phố · chưa APK, chưa chốt 25 màn.
 **Bẫy:** (1) ghi `.asset` qua MCP xong phải `Resources.UnloadAsset` + `AssetDatabase.ImportAsset(ForceUpdate)`, kiểm `IsDirty=false` và `git diff`. (2) Thoát Play trước khi sửa C#. (3) `execute_code` chỉ C# 6; ngay sau khi vào Play lệnh đầu hay lỗi, gọi lại. (4) Test Runner làm bẩn `Play.unity`: mở scene trống, `git checkout -- Assets/_Project/Scenes/Play.unity`, mở lại. (5) Bố cục menu/chọn màn sửa trong `MainMenuTools` rồi chạy menu `016 UI → Build Main Menu`, không sửa tay. (6) Chụp ảnh: focus cửa sổ Simulator trước, hẹn giờ `ScreenCapture` bằng `EditorApplication.update`. (7) Shader Toy Lit dùng chung: `_TopTint` mặc định 1, chỉ material xe bật. (8) Không commit file S4 chưa theo dõi trong `Art/UI/City` và `Prefabs/Environment/*` (props 0 đỉnh).
@@ -70,3 +98,4 @@ Props phố phụ → ảnh IP (dùng nền tĩnh có sẵn) → vẽ lại cơ 
 2026-11-26 10:30 · Claude → Người làm · [BÁO]: 016 đã chạy trong game, chờ chơi thử.
 2026-11-26 10:39 · Claude → Codex · [BÀN GIAO]: nhánh `016-toy-world`, code ở 6478360, Run All 585/584/0/1, Console sạch. Còn việc ở mục 'Bàn giao cho Codex'.
 2026-11-26 11:15 · Codex → Người làm · [BÁO]: hoàn tất nút xoay và hộp Cài đặt trong 016; Run All 585/584/0/1, Play Console sạch, ảnh Simulator ở mục Đã làm. Chờ người làm xem.
+2026-11-26 11:33 · Codex → Người làm · [BÁO]: ô lưới màn 23 rộng hơn 8,7%, booster thu 18%, đã gắn nền đô thị 2D. Run All 585/584/0/1 và Console Play sạch, ảnh Simulator ở mục Đã làm.

@@ -39,7 +39,9 @@ MonoBehaviour:
   disabledTint: 0.78
   pressScale: 0.94
   hudUnit: 3.6
-  boosterSize: 66
+  boosterSize: 54
+  boosterPosition: {x: 46, y: 33}
+  boosterIconSize: 25
   messageHoldSeconds: 2
   messageFadeSeconds: 0.4
   hudOutlineWidth: 0.2
@@ -122,7 +124,7 @@ MonoBehaviour:
   streetsEnabled: 1
   streetInner: 0.8
   streetWidth: 0.95
-  streetVisible: 0.9
+  streetVisible: 0.5
   streetLength: 40
   roadMaterial: {fileID: 2100000, guid: baf92a2cbba20dc40a802e6a6806662d, type: 2}
   southPropHeight: 0.45
@@ -130,6 +132,13 @@ MonoBehaviour:
   treeSizes: {x: 1.1, y: 1.5}
   sceneryLightSize: 1.2
   sceneryRoadSize: 3.8
+  cityShops: {fileID: 3782148987126364143, guid: b05fbcb9bf55d074d9fc61aa511946ab, type: 3}
+  cityPark: {fileID: 4079165274446571429, guid: 8ed986107adcddd49b354c2c9992d0ca, type: 3}
+  citySidewalk: {fileID: 5102704032974385108, guid: 18975c046db8e4e429549826186add30, type: 3}
+  cityBlockWidth: 0.82
+  cityBlockDepth: {x: 2.15, y: 1.55}
+  citySideSize: {x: 0.62, y: 1.95}
+  cityStreetGap: 0.12
   tableRotateBadge: {fileID: 21300000, guid: a559d069c0d311b4abcd91a326ff98e1, type: 3}
   tableBadgeRatio: 0.49
   tableBadgeLaneOffset: 0.65

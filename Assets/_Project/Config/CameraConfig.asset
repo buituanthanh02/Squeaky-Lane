@@ -14,3 +14,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   tiltDegrees: 58
   padding: 0.1
+  playingBottomInset: 0.12

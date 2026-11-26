@@ -26,7 +26,7 @@ namespace SqueakyLane.EditorTools
         // Bố cục (pixel mockup rộng 300 px, nhân HudUnit khi áp). Màn dài như 12 Pro Max chỉ còn ~272 px bề ngang nên hàng trên phải gọn.
         private static readonly Vector2 LevelPillSize = new Vector2(62, 26), ClockPillSize = new Vector2(96, 32), MovesPillSize = new Vector2(58, 18), GearSize = new Vector2(26, 26);
         private static readonly Vector2 BubbleSize = new Vector2(200, 26), LabelPillSize = new Vector2(84, 22);
-        private const float GearIcon = 16, BoosterIcon = 30, DialogButtonHeight = 36, HeaderWidth = 170, ToggleFrame = 50, ToggleIcon = 26, ToggleCaption = 14;
+        private const float GearIcon = 16, DialogButtonHeight = 36, HeaderWidth = 170, ToggleFrame = 50, ToggleIcon = 26, ToggleCaption = 14;
         private const float PausedHeight = 252, WonHeight = 258, LostHeight = 132;
 
         private static StringBuilder report;
@@ -37,6 +37,28 @@ namespace SqueakyLane.EditorTools
         private static SerializedObject data;
         private static NavigationView nav;
         private static float Unit => theme.HudUnit;
+
+        [MenuItem("Tools/Squeaky Lane/016 UI/Apply Booster Layout")]
+        public static void ApplyBoosterLayout()
+        {
+            UiThemeAssets.RequireEditMode();
+            var scene = UnityEngine.SceneManagement.SceneManager.GetActiveScene();
+            if (PrefabStageUtility.GetCurrentPrefabStage() != null || scene.path != ScenePath || scene.isDirty)
+            {
+                throw new InvalidOperationException("Mở Play.unity ở Edit Mode và lưu phần đang sửa trước khi áp bố cục booster.");
+            }
+
+            theme = AssetDatabase.LoadAssetAtPath<UiTheme>(UiThemeAssets.ThemePath);
+            nav = UnityEngine.Object.FindObjectOfType<NavigationView>(true);
+            data = new SerializedObject(nav);
+            report = new StringBuilder();
+            changeOrder.Clear();
+            changes.Clear();
+            Booster(Ref<Button>(data, "undoButton"), false);
+            Booster(Ref<Button>(data, "hintButton"), true);
+            EditorSceneManager.MarkSceneDirty(scene);
+            EditorSceneManager.SaveScene(scene);
+        }
 
         [MenuItem("Tools/Squeaky Lane/013 Theme/S3 Apply UI Pack Skin")]
         public static void Apply()
@@ -363,8 +385,10 @@ namespace SqueakyLane.EditorTools
         private static void Booster(Button button, bool hint)
         {
             var bodySprite = hint ? theme.HintOn : Spr("btn_booster_green");
-            StyleHudButton(button, bodySprite, true, hint ? Spr("icon_hint") : Spr("ic_arrow"), BoosterIcon, Color.white,
-                new Vector2(.5f, 0), new Vector2(.5f, 0), new Vector2(hint ? 50 : -50, 44), Vector2.one * theme.BoosterSize);
+            var position = theme.BoosterPosition;
+            if (!hint) { position.x = -position.x; }
+            StyleHudButton(button, bodySprite, true, hint ? Spr("icon_hint") : Spr("ic_arrow"), theme.BoosterIconSize, Color.white,
+                new Vector2(.5f, 0), new Vector2(.5f, 0), position, Vector2.one * theme.BoosterSize);
             var visual = button.transform.Find("013 ButtonVisual");
             var label = FindLabel(button);
             var tag = Plate(visual, "013 LabelPill", Spr("bg_booster_timer_holder"), new Vector2(.5f, 0), new Vector2(.5f, 1), new Vector2(0, -9), LabelPillSize, true);

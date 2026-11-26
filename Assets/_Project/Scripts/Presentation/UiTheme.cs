@@ -26,6 +26,8 @@ namespace SqueakyLane.Presentation
         [SerializeField, Range(.8f, 1)] private float pressScale = .94f;
         [SerializeField, Tooltip("Đơn vị Canvas trên một pixel mockup; menu lấy referenceResolution.x / 300.")] private float hudUnit = 3.6f;
         [SerializeField, Range(48, 90), Tooltip("Cỡ nút booster theo mockup 300 px, được nhân HudUnit.")] private float boosterSize = 66;
+        [SerializeField, Tooltip("Vị trí hai booster: X cách tâm, Y cách đáy safe area, theo mockup 300 px.")] private Vector2 boosterPosition = new Vector2(50, 44);
+        [SerializeField, Range(20, 40), Tooltip("Cỡ icon trong booster theo mockup 300 px.")] private float boosterIconSize = 30;
         [SerializeField, Range(1, 6), Tooltip("Giữ thông báo rồi mờ bằng unscaled time.")] private float messageHoldSeconds = 2;
         [SerializeField, Range(.1f, 2), Tooltip("Thời gian mờ dần của thông báo.")] private float messageFadeSeconds = .4f;
         [SerializeField, Range(0, .5f), Tooltip("Độ dày viền chữ HudOutline (tiêu đề, nút, giờ) và HudSmall (nhãn nhỏ).")] private float hudOutlineWidth = .2f, hudSmallOutlineWidth = .12f;
@@ -92,6 +94,12 @@ namespace SqueakyLane.Presentation
         [SerializeField, Tooltip("Cỡ lớn nhất của cây nhỏ/lớn; số khởi điểm chờ vòng ảnh S4.")] private Vector2 treeSizes = new Vector2(1.1f, 1.5f);
         [SerializeField, Range(.5f, 3)] private float sceneryLightSize = 1.2f;
         [SerializeField, Range(2, 6)] private float sceneryRoadSize = 3.8f;
+        [Header("016 · Dải nền đô thị 2D đặt ngoài đường")]
+        [SerializeField] private Sprite cityShops = null, cityPark = null, citySidewalk = null;
+        [SerializeField, Range(.5f, .9f), Tooltip("Phần bề ngang giữa hai phố dọc dành cho dải cửa hàng và công viên.")] private float cityBlockWidth = .82f;
+        [SerializeField, Tooltip("Độ sâu tối đa của dải cửa hàng và công viên, theo ô.")] private Vector2 cityBlockDepth = new Vector2(2.15f, 1.55f);
+        [SerializeField, Tooltip("Bề rộng và độ sâu tối đa của dải vỉa hè dọc, theo ô.")] private Vector2 citySideSize = new Vector2(.62f, 1.95f);
+        [SerializeField, Range(0, .5f), Tooltip("Khoảng hở giữa dải nền 2D và phố, theo ô.")] private float cityStreetGap = .12f;
         [Header("016 · Nút bàn xoay")]
         [SerializeField] private Sprite tableRotateBadge = null;
         [SerializeField, Range(.2f, .8f), Tooltip("Đường kính huy hiệu theo đường kính vùng chạm của bàn xoay.")] private float tableBadgeRatio = DefaultTableBadgeRatio;
@@ -135,6 +143,8 @@ namespace SqueakyLane.Presentation
         public float PressScale => pressScale;
         public float HudUnit => hudUnit;
         public float BoosterSize => boosterSize;
+        public Vector2 BoosterPosition => boosterPosition;
+        public float BoosterIconSize => boosterIconSize;
         public float MessageHoldSeconds => messageHoldSeconds;
         public float MessageFadeSeconds => messageFadeSeconds;
         public float HudOutlineWidth => hudOutlineWidth;
@@ -213,6 +223,13 @@ namespace SqueakyLane.Presentation
         public Vector2 TreeSizes => treeSizes;
         public float SceneryLightSize => sceneryLightSize;
         public float SceneryRoadSize => sceneryRoadSize;
+        public Sprite CityShops => cityShops;
+        public Sprite CityPark => cityPark;
+        public Sprite CitySidewalk => citySidewalk;
+        public float CityBlockWidth => cityBlockWidth;
+        public Vector2 CityBlockDepth => cityBlockDepth;
+        public Vector2 CitySideSize => citySideSize;
+        public float CityStreetGap => cityStreetGap;
         public Sprite TableRotateBadge => tableRotateBadge;
         public float TableBadgeRatio => tableBadgeRatio;
         public float TableBadgeLaneOffset => tableBadgeLaneOffset;
@@ -247,6 +264,9 @@ namespace SqueakyLane.Presentation
             pressScale = Clean(pressScale, .8f, 1, .94f);
             hudUnit = Clean(hudUnit, .1f, 12, 3.6f);
             boosterSize = Clean(boosterSize, 48, 90, 66);
+            boosterPosition.x = Clean(boosterPosition.x, 30, 75, 50);
+            boosterPosition.y = Clean(boosterPosition.y, 25, 60, 44);
+            boosterIconSize = Clean(boosterIconSize, 20, 40, 30);
             disabledTint = Clean(disabledTint, .5f, 1, .78f);
             dimAlpha = Clean(dimAlpha, 0, 1, .6f);
             frameScale = Clean(frameScale, .1f, .5f, .2f);
@@ -285,6 +305,12 @@ namespace SqueakyLane.Presentation
             treeSizes.y = Clean(treeSizes.y, .5f, 3, 1.5f);
             sceneryLightSize = Clean(sceneryLightSize, .5f, 3, 1.2f);
             sceneryRoadSize = Clean(sceneryRoadSize, 2, 6, 3.8f);
+            cityBlockWidth = Clean(cityBlockWidth, .5f, .9f, .82f);
+            cityBlockDepth.x = Clean(cityBlockDepth.x, .5f, 4, 2.15f);
+            cityBlockDepth.y = Clean(cityBlockDepth.y, .5f, 4, 1.55f);
+            citySideSize.x = Clean(citySideSize.x, .3f, 1.5f, .62f);
+            citySideSize.y = Clean(citySideSize.y, .6f, 4, 1.95f);
+            cityStreetGap = Clean(cityStreetGap, 0, .5f, .12f);
             tableBadgeRatio = Clean(tableBadgeRatio, .2f, .8f, DefaultTableBadgeRatio);
             tableBadgeLaneOffset = Clean(tableBadgeLaneOffset, .5f, .9f, DefaultTableBadgeLaneOffset);
             tableBadgeCarGap = Clean(tableBadgeCarGap, 0, .2f, DefaultTableBadgeCarGap);

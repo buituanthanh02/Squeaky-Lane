@@ -58,3 +58,9 @@ Gốc bên dưới là `Canvas/UIRoot/SafeArea/016 MainMenu/016 MenuSettings/016
 - Panel/Close · RectTransform · pivot góc phải trên → tâm, vị trí (−30, −30) → (−65, −65), kích thước 110×110 → 94×94 · Image · Sliced → Simple, giữ tỉ lệ ảnh.
 - Panel/SoundToggle và HapticsToggle (tên object có tiền tố `016 `) · RectTransform · tâm (±150, −40) → (±155, −55), kích thước 0×0 → 240×184. Background chuyển từ mép trái sang giữa đầu cột, 144×144 → 132×132.
 - Hai `013 Caption` · RectTransform · nhãn dàn ngang → giữa dưới icon (240×52) · TMP · CardText → HudOutline, cỡ tự động → 44 cố định.
+
+## 016 · Thu gọn booster trong màn chơi
+
+- `Canvas/UIRoot/SafeArea/Playing/UndoButton` và `HintButton` · RectTransform · `anchoredPosition` (±180, 158,4) → (±165,6, 118,8) · `sizeDelta` 237,6×237,6 → 194,4×194,4, đơn vị Canvas.
+- Các con `013 ButtonVisual/013 Body` · Image · hệ số 9-slice 1,0059 → 1,2294 để thu thân nút đồng đều.
+- Các con `013 ButtonVisual/013 Icon` · RectTransform · icon 30 → 25 theo mockup, bù lề trong suốt theo sprite. Không đổi nhãn, badge, liên kết hay thứ tự nút.

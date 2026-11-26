@@ -50,10 +50,12 @@ namespace SqueakyLane.Presentation
             }
         }
 
-        public Rect BoardViewport()
+        public Rect BoardViewport(float bottomInset = .17f)
         {
             var area = Screen.safeArea;
-            return new Rect(area.x / Screen.width, (area.y + area.height * .17f) / Screen.height, area.width / Screen.width, area.height * .69f / Screen.height);
+            const float topEdge = .86f;
+            return new Rect(area.x / Screen.width, (area.y + area.height * bottomInset) / Screen.height,
+                area.width / Screen.width, area.height * (topEdge - bottomInset) / Screen.height);
         }
 
         public bool RefreshSafeArea()

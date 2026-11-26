@@ -199,7 +199,7 @@ namespace SqueakyLane.Presentation
             animator.Initialize(board, feelConfig, session.State);
             input.Initialize(boardCamera, board, gameConfig);
             tableButtons.Bind(session, board, boardCamera, gameConfig);
-            board.FitCamera(boardCamera, cameraConfig, hud.BoardViewport());
+            FitBoardCamera();
             SetMessage("Chạm nửa xe để chạy");
             mechanicsDirty = false;
             PeakSearchMilliseconds = 0;
@@ -319,7 +319,7 @@ namespace SqueakyLane.Presentation
             {
                 if (navigationView.RefreshSafeArea() && session != null)
                 {
-                    board.FitCamera(boardCamera, cameraConfig, hud.BoardViewport());
+                    FitBoardCamera();
                 }
                 if (Input.GetKeyDown(KeyCode.Escape))
                 {
@@ -418,7 +418,7 @@ namespace SqueakyLane.Presentation
             }
             if (hud.RefreshSafeArea())
             {
-                board.FitCamera(boardCamera, cameraConfig, hud.BoardViewport());
+                FitBoardCamera();
             }
 
             ApplyPlayGate();
@@ -438,6 +438,12 @@ namespace SqueakyLane.Presentation
             {
                 navigationView.ShowMessage(value);
             }
+        }
+
+        private void FitBoardCamera()
+        {
+            var viewport = navigationView != null ? hud.BoardViewport(cameraConfig.PlayingBottomInset) : hud.BoardViewport();
+            board.FitCamera(boardCamera, cameraConfig, viewport);
         }
 
         private void RefreshHud()
