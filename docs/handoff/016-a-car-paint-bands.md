@@ -1,5 +1,5 @@
-# 016-a · Xe có mảng màu đậm nhạt (phiếu nhỏ cho Codex)     Cỡ: S–M     Trạng thái: Đang làm
-Đang cầm: Codex        AI tham gia: Claude (giao, áp, review), Codex (shader)
+# 016-a · Xe có mảng màu đậm nhạt (phiếu nhỏ cho Codex)     Cỡ: S–M     Trạng thái: Xong (Claude review)
+Đang cầm: Claude        AI tham gia: Claude (giao, áp, review), Codex (shader)
 Liên quan: 015-b (`Art/Shaders/ToyLit.shader`, `ToyLitOutline.shader`, `ToyLookTools.cs`). Nhánh `016-toy-world`.
 
 ## Mục tiêu (người chơi)
@@ -24,7 +24,36 @@ Xe hiện đã có 2 tông sáng/tối + viền tối nhưng **thân một màu 
 Nhuộm cả kính/lốp · mảng loang gradient · tối quá làm xanh dương/tím lẫn nhau · normal object-space (xe xoay 90° thì mảng sai) · khai báo trùng biến built-in.
 **Cắt nếu trễ:** dải thấp tối.
 
+## Phản đối kế hoạch
+`Toy Lit` cũng dùng cho cây/đạo cụ. UV của mesh đạo cụ có `V=0,5`, đúng biên hàng sơn Kenney. Mặt nạ lấy cả đường biên có thể làm tối mặt trên của đạo cụ. Lùi miền mặt nạ nửa texel theo hai trục để chỉ nhận mẫu bilinear nằm trọn trong ô sơn.
+
 --- AI làm điền khi xong ---
+
+## Đã làm · Tệp đổi · Kiểm tra
+
+- `Assets/_Project/Art/Shaders/ToyLit.shader` nhận diện các ô thân theo UV colormap, lấy normal thế giới để phân mảng trên mui và áp tint trước ánh sáng. Giá trị mặc định gồm `_TopTint = 0,85` (hệ số sRGB), `_TopSaturation = 1,1`, `_TopThreshold = 0,6` và `_TopSmooth = 0,04`. Mặt bên tiếp tục dùng ramp 015.
+- `Assets/_Project/Art/Shaders/ToyLitOutline.shader` có cùng bốn Properties trong Inspector và dùng lại pass `FORWARD`. Số pass giữ nguyên. Material hiện có nhận giá trị mặc định từ shader.
+- `Assets/_Project/Scripts/Editor/ToyLookTools.cs` thêm menu **Tools → Squeaky Lane → 016 Toy → Car Bands Preview**, lưu `Logs/016-car-bands-preview.png`. Hàng trên là hồng, xanh dương, vàng và vàng đối chứng 015. Hàng dưới là xanh lá, cam, tím. Xe đối chứng dùng bản sao material tạm với hai hệ số trung tính để so cùng xe, góc và ánh sáng.
+- **Đã kiểm tĩnh.** Mặt nạ nhận đúng tâm 4/32 ô atlas. Đọc UV gốc của cả 7 FBX Kenney, gồm xe tải, và đối chiếu thấy tất cả UV thuộc ô sơn vẫn qua mặt nạ sau khi lùi biên. Đã kiểm UV đạo cụ ở V=0,5 bị loại, bốn Properties trùng nhau, pass `FORWARD` dùng chung, đủ prefab và material cho preview, và `git diff --check` sạch ở bốn tệp thuộc phiếu.
+
+## Giả định · Chưa kiểm
+
+- Bỏ dải gầm tùy chọn. Thang và gốc Y local phụ thuộc mesh, còn mục tiêu chính là tách mảng mui bằng normal. `PROJECT.md` §7.5 vẫn mô tả đúng shader và vật liệu mà `CarCatalog` dùng.
+- Chưa chạy Unity, biên dịch shader, Console, menu preview, Play hoặc đo GPU. Claude cần kiểm `ShaderUtil`, ảnh đủ sáu màu, ranh giới kính/lốp và độ phân biệt vàng–cam trước khi duyệt V2/V3. Việc giữ số pass xác nhận qua mã, còn phép tính mỗi pixel có tăng.
+- Tự đánh giá khoảng 90% đáp ứng phạm vi và quy tắc ở mức kiểm tĩnh. Mức tối của mui dưới ánh sáng thực tế còn chờ xem ảnh.
+
+## Bạn cần hiểu
+
+- UV trỏ tới ô màu trong colormap và xác định phần nào là sơn. Normal thế giới xác định phần sơn nào hướng lên. Xoay xe quanh trục Y giữ nguyên thành phần Y của normal.
+- Đổi hệ số tint và bão hòa về 1 trả lại màu nền 015 cho phép so trực tiếp, đồng thời giữ ánh sáng, bóng nhựa và viền trên cả hai bản.
+
+--- Người review điền ---
+## Verdict (Claude, 2026-11-26 10:30): APPROVE có sửa
+- Đã soi: shader biên dịch sạch; ảnh preview 6 màu; trong game màn 03/08/16.
+- [CHẶN → Claude đã sửa] mảng sơn tô nhầm lên vật khác dùng chung shader: UV mặt đường rơi vào ô sơn thân nên có 2 ô vuông tối giữa mỗi phố. Mặc định shader đổi thành tắt (`_TopTint` 1, `_TopSaturation` 1); chỉ material xe đặt 0,88 / 1,08.
+- Chưa soi: máy thật.
 
 ## Trao đổi
 2026-11-26 10:08 · Claude → Codex · [BÀN GIAO]: giao 016-a (mảng đậm nhạt trên shader Toy Lit).
+2026-11-26 10:13 · Codex → Claude · [BÀN GIAO]: Đã làm mảng sơn và menu preview trên 016-toy-world (HEAD 55c3d85, thay đổi chưa commit). Kiểm tĩnh mask/UV 7 FBX, pass và đầu vào preview đạt. Chờ Claude biên dịch, kiểm Console và render ảnh V2/V3.
+2026-11-26 10:30 · Claude → Người làm · [BÁO]: đã nối vào game trên `016-toy-world`.

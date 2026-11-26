@@ -76,6 +76,13 @@ namespace SqueakyLane.Presentation
         [SerializeField, Range(.01f, .12f)] private float pavementHighlightWidth = .035f;
         [SerializeField, Range(0, 1.2f), Tooltip("015: bán kính bo góc khay bãi, ô (0 = góc vuông như 013).")] private float trayCornerRadius = .45f;
         [SerializeField, Range(.2f, 2)] private float groundShadowSpread = 1;
+        [Header("016 · Phố quanh trạm rửa: 2 phố ngang + 2 phố dọc chạy ra ngoài màn hình")]
+        [SerializeField, Tooltip("Bật phố quanh bãi; xe ra cổng chạy lên phố (FeelConfig 016).")] private bool streetsEnabled = false;
+        [SerializeField, Range(.7f, 4), Tooltip("Khoảng từ mép bãi tới mép trong của phố, ô (vỉa hè khay rộng Pavement Width). Càng xa thì bãi càng nhỏ trên màn dọc.")] private float streetInner = .8f;
+        [SerializeField, Range(.6f, 2), Tooltip("Bề rộng mặt đường, ô.")] private float streetWidth = .95f;
+        [SerializeField, Range(0, 1), Tooltip("Phần bề rộng phố hai bên mà camera giữ trong khung (1 = thấy trọn, nhỏ hơn = bãi to hơn).")] private float streetVisible = .9f;
+        [SerializeField, Range(10, 80), Tooltip("Chiều dài mỗi phố tính từ tâm bãi ra mỗi phía, ô (đủ ra khỏi màn hình).")] private float streetLength = 40;
+        [SerializeField, Tooltip("Material mặt đường (U dọc đường theo ô, V ngang đường 0..1).")] private Material roadMaterial = null;
         [SerializeField, Range(.1f, .5f), Tooltip("Độ cao tối đa props dải dưới; S4 giữ ≤0,5 ô.")] private float southPropHeight = .45f;
         [SerializeField, Tooltip("Cỡ lớn nhất của Garage/Office; số khởi điểm chờ vòng ảnh S4.")] private Vector2 buildingSizes = new Vector2(2.8f, 2);
         [SerializeField, Tooltip("Cỡ lớn nhất của cây nhỏ/lớn; số khởi điểm chờ vòng ảnh S4.")] private Vector2 treeSizes = new Vector2(1.1f, 1.5f);
@@ -177,6 +184,12 @@ namespace SqueakyLane.Presentation
         public float PavementHighlightWidth => pavementHighlightWidth;
         public float TrayCornerRadius => trayCornerRadius;
         public float GroundShadowSpread => groundShadowSpread;
+        public bool StreetsEnabled => streetsEnabled && roadMaterial != null;
+        public float StreetInner => streetInner;
+        public float StreetWidth => streetWidth;
+        public float StreetVisible => streetVisible;
+        public float StreetLength => streetLength;
+        public Material RoadMaterial => roadMaterial;
         public float SouthPropHeight => southPropHeight;
         public Vector2 BuildingSizes => buildingSizes;
         public Vector2 TreeSizes => treeSizes;

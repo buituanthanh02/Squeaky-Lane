@@ -51,6 +51,9 @@ namespace SqueakyLane.Presentation
             foreach (var station in washGates.Values) { if (station != null) { station.Cancel(); } }
         }
         public LevelDef Level => level;
+        // 016: khoảng từ mép bãi tới tim phố (ô); âm khi không có phố (theme tắt/thiếu material) để xe ra cổng như cũ.
+        public float StreetCenterOffset => sceneTheme != null && sceneTheme.StreetsEnabled && environmentView != null
+            ? sceneTheme.StreetInner + sceneTheme.StreetWidth * .5f : -1;
         public CarView Car(int index) => cars[index];
         public void SetVisible(bool visible) { if (content != null) content.SetActive(visible); }
         public Vector3 Cell(float r, float c, float y = .32f) => new Vector3(c - (level.Cols - 1) * .5f, y, (level.Rows - 1) * .5f - r);
@@ -354,8 +357,10 @@ namespace SqueakyLane.Presentation
             camera.transform.rotation = Quaternion.Euler(config.TiltDegrees, 0, 0);
             float aspect = camera.pixelRect.width / Mathf.Max(1, camera.pixelRect.height);
             // 015: cạnh có hầm rửa cần thêm chỗ cho cả thân xe ra ngoài bãi (+ thảm), nếu không xe chạy khỏi màn hình.
-            float halfWidth = level.Cols * .5f + Mathf.Max(.9f, WashGateReach(true) + .4f) + config.Padding;
-            float halfHeight = (level.Rows * .5f + Mathf.Max(.9f, WashGateReach(false) + .4f) + config.Padding) * Mathf.Sin(config.TiltDegrees * Mathf.Deg2Rad) + .7f;
+            // 016: có phố quanh bãi thì chừa thêm bề rộng phố để thấy xe chạy đi.
+            float street = StreetCenterOffset > 0 ? sceneTheme.StreetInner + sceneTheme.StreetWidth * sceneTheme.StreetVisible : 0;
+            float halfWidth = level.Cols * .5f + Mathf.Max(.9f, Mathf.Max(WashGateReach(true) + .4f, street)) + config.Padding;
+            float halfHeight = (level.Rows * .5f + Mathf.Max(.9f, Mathf.Max(WashGateReach(false) + .4f, street)) + config.Padding) * Mathf.Sin(config.TiltDegrees * Mathf.Deg2Rad) + .7f;
             camera.orthographicSize = Mathf.Max(halfHeight / Mathf.Max(.001f, viewport.height),
                 halfWidth / (aspect * Mathf.Max(.001f, viewport.width)));
             // Dịch tâm nhìn để bãi vẫn nằm giữa khoảng chơi, kể cả safe area không đối xứng.

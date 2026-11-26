@@ -114,6 +114,38 @@ namespace SqueakyLane.Presentation
                         to.Position += Direction(pose.Yaw) * (ev.Sign * feel.WaterDipCells); to.Mud = 0;
                         Add(selected, cursor, feel.ExitSeconds * .5f, to, true); cursor += feel.ExitSeconds * .5f;
                         pose.Mud = 0; Add(selected, cursor, feel.ExitSeconds * .5f, pose, true); cursor += feel.ExitSeconds * .5f; break;
+                    case MoveEventKind.Exit when feel.StreetExitEnabled && board.StreetCenterOffset > 0:
+                    {
+                        // 016: xe ra cổng chạy thẳng tới tim phố, cua 90° về phía lối ra gần hơn (đầu xe đi trước,
+                        // kể cả khi lùi ra cổng), rồi nhanh dần chạy khuất màn hình. Luật Core không đổi: xe đã ra khỏi bãi.
+                        var exitDir = Direction(pose.Yaw) * ev.Sign;
+                        float radius = feel.StreetTurnRadius;
+                        float straight = board.Car(selected).Length * .5f + board.StreetCenterOffset - radius;
+                        to.Position += exitDir * straight;
+                        // Đang chạy đủ đà khi tới cổng: đi đều ở tốc độ tối đa 1/StepSeconds, không nhanh dần rồi phanh gấp ở cua.
+                        float passSeconds = Mathf.Max(.05f, straight * feel.StepSeconds);
+                        Add(selected, cursor, passSeconds, to, true); cursor += passSeconds;
+                        bool alongX = Mathf.Abs(exitDir.x) < .5f;
+                        float side = alongX ? (to.Position.x >= 0 ? 1 : -1) : (to.Position.z >= 0 ? 1 : -1);
+                        var lateral = alongX ? new Vector3(side, 0, 0) : new Vector3(0, 0, side);
+                        float endYaw = YawOf(lateral);
+                        var turnFrom = to; var centre = turnFrom.Position + lateral * radius;
+                        const int TurnSteps = 3;
+                        for (int k = 1; k <= TurnSteps; k++)
+                        {
+                            float angle = k * 90f / TurnSteps * Mathf.Deg2Rad;
+                            var arc = to;
+                            arc.Position = centre - lateral * (radius * Mathf.Cos(angle)) + exitDir * (radius * Mathf.Sin(angle));
+                            arc.Yaw = Mathf.LerpAngle(turnFrom.Yaw, endYaw, (float)k / TurnSteps);
+                            Add(selected, cursor, feel.StreetTurnSeconds / TurnSteps, arc, true); OffBoard(); cursor += feel.StreetTurnSeconds / TurnSteps;
+                            to = arc;
+                        }
+                        to.Yaw = endYaw;
+                        to.Position += lateral * feel.StreetRunCells;
+                        Add(selected, cursor, feel.StreetRunSeconds, to, true); OffBoard(); cursor += feel.StreetRunSeconds;
+                        to.Scale = 0; to.Alive = false; Add(selected, cursor, 0, to); OffBoard();
+                        break;
+                    }
                     case MoveEventKind.Exit:
                     {
                         to.Position += Direction(pose.Yaw) * (ev.Sign * (board.Car(selected).Length + 1)); to.Scale = 0; to.Alive = false;
@@ -221,6 +253,13 @@ namespace SqueakyLane.Presentation
                 RollDistance = rolling ? Vector3.Dot(to.Position - from.Position, Direction(from.Yaw)) : 0 });
             poses[car] = to; affected[car] = true;
         }
+        // 016: đoạn chạy ngoài bãi (trên phố) không giữ chỗ: xe khác trong bãi không phải chờ xe đã ra.
+        private void OffBoard()
+        {
+            var clip = draft[draft.Count - 1]; clip.Swept = new Rect(1e5f, 1e5f, 0, 0); draft[draft.Count - 1] = clip;
+        }
+        // Góc yaw để đầu xe (Direction(yaw)) chỉ theo `forward` trên mặt bãi.
+        private static float YawOf(Vector3 forward) => Mathf.Atan2(-forward.z, forward.x) * Mathf.Rad2Deg;
         // Đánh dấu đoạn vừa thêm là phần [from, to] ô của đường cong bứt tốc (xem FeelConfig.CellsAtTime).
         private void Curve(float from, float to)
         {

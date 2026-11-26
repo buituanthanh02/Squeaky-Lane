@@ -1,4 +1,4 @@
-# 016 — Thế giới đồ chơi: trạm rửa giữa phố, xe mảng đậm nhạt, cơ chế vẽ lại, chọn màn, main menu     Cỡ: L (chia 6 phần)     Trạng thái: Đang làm
+# 016 — Thế giới đồ chơi: trạm rửa giữa phố, xe mảng đậm nhạt, cơ chế vẽ lại, chọn màn, main menu     Cỡ: L (chia 6 phần)     Trạng thái: Chờ người làm chơi thử
 Đang cầm: Claude        AI tham gia: Claude (code, nối, kiểm), Codex (016-a…d: shader, cơ chế, phố, ảnh IP)
 Liên quan: 015 (hầm rửa, Toy Lit, khay bo góc). Nhánh: `016-toy-world` (rẽ từ `015-toy-look` vì 015 chưa merge).
 
@@ -25,5 +25,26 @@ Liên quan: 015 (hầm rửa, Toy Lit, khay bo góc). Nhánh: `016-toy-world` (r
 ## Cắt nếu trễ (theo thứ tự)
 Props phố phụ → ảnh IP (dùng nền tĩnh có sẵn) → vẽ lại cơ chế ít gặp (portal, trụ) → đường vòng (giữ xe ra thẳng như cũ). **Không cắt:** APK thử máy, main menu tối thiểu.
 
+--- AI làm điền khi xong ---
+## Đã làm (26/11)
+- **Phố quanh trạm rửa:** lưới phố hình # (`SceneThemeView.BuildStreets`, một mesh, `M_ToyRoad`), cách mép bãi `streetInner` 0,8 ô, rộng 0,95; camera chừa `streetInner + streetWidth × streetVisible` mỗi bên (bãi nhỏ hơn trước: bãi 5 cột còn ~60% bề ngang). Khay hạ còn 0,06 để ngang đường. Nhà/cây xếp hàng ngoài hai phố ngang (`SpawnTown`).
+- **Xe ra cổng:** chạy tới tim phố ở tốc độ tối đa, cua 90° (bán kính 0,5, 0,22 s) về phía lối ra gần hơn, chạy 12 ô trong 0,9 s rồi biến mất; đoạn ngoài bãi không giữ chỗ. FeelConfig nhóm "016". Không đổi Core.
+- **Cơ chế vẽ lại:** `MechanicCatalog` trỏ sang `Prefabs/Mechanics/Toy` (cổng barie 6 màu, cọc, đèn, bàn xoay, trụ, portal, bùn). Dải màu trên nền trước cổng bật lại.
+- **Xe:** nóc/mui đậm hơn thân (material xe `_TopTint` 0,88).
+- **Main menu** (`Tools → Squeaky Lane → 016 UI → Build Main Menu`, `MainMenuTools`): ảnh IP, tên game, nút MÀN n, thanh Chọn màn / Trang chủ / Cài đặt, hộp Cài đặt. `NavigationView` thêm các ô 016; để trống thì chạy như cũ.
+- **Chọn màn:** nền ảnh IP phủ tím, ribbon "CHỌN MÀN", khung popup tím, ẩn thanh cuộn, ô màn đang chơi tới màu cam, nút nhà về menu.
+- Scene: chi tiết ở `docs/handoff/016-scene-changes.md` (chỉ thêm object, không mất object nào).
+
+## Test và kết quả (MCP)
+- EditMode **585 · 584 Passed · 0 Failed · 1 Skipped** (thêm `StreetExit016Tests` 2 bài). Console 0 lỗi khi Play.
+- Simulator 1284×2778: ảnh `Logs/016-shots/11-menu, 13-level08, 14-exit-a, 15-exit-b, 17-level16, 18-level03`; màn Chọn màn ở `02-levels`.
+- Chạm nửa xe: 846/846 điểm trên 25 màn đúng xe, đúng nửa. Màn 16: 167 lượt vẽ 3D (như 015), chưa tính UI (UI menu mới không hiện lúc chơi).
+
+## Giả định · Chưa kiểm
+- Chưa kiểm: bấm nút menu bằng tay (mới gọi qua code và chụp), hộp Cài đặt, đèn giao thông/trụ/portal/bùn mới trong Play, xe lùi ra cổng cua trên phố, máy thật/fps, APK.
+- Hầm rửa cạnh trái/phải: thảm đè ngang phố dọc, xe chạy trên phố đó có thể xuyên qua thảm.
+- Tồn tại từ trước: nút "XOAY" che xe trên bàn xoay.
+
 ## Trao đổi
 2026-11-26 10:08 · Claude → Người làm, Codex · [BÁO]: mở nhánh `016-toy-world` từ `015-toy-look`; giao Codex 016-a…d chạy song song (vùng file tách riêng).
+2026-11-26 10:30 · Claude → Người làm · [BÁO]: 016 đã chạy trong game, chờ chơi thử.

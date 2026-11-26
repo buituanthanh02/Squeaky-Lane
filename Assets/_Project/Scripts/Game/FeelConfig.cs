@@ -116,6 +116,12 @@ namespace SqueakyLane.Game
         [SerializeField, Range(0, 1.5f), Tooltip("Xe chạy ra quá mép bãi thêm bao nhiêu ô ngoài chiều dài thân (0 = đuôi xe vừa ra khỏi mép bãi, cả thân đã qua cổng).")] private float washGateExtraCells = .3f;
         [SerializeField, Range(.2f, 3), Tooltip("Thời gian xe bò từ mép bãi xuyên qua hầm ra thảm, giây (chổi quay + xịt bọt trong lúc này).")] private float washGateCrawlSeconds = 1.1f;
         [SerializeField, Range(0, 1), Tooltip("Xe đứng lại trên thảm ngoài hầm trước khi lùi, giây.")] private float washGatePauseSeconds = .15f;
+        [Header("016 — Xe ra cổng chạy theo phố tới lối ra gần nhất (khi UiTheme bật phố)")]
+        [SerializeField, Tooltip("Tắt = xe ra cổng lướt thẳng rồi thu nhỏ như 012.")] private bool streetExitEnabled = true;
+        [SerializeField, Range(.1f, 1), Tooltip("Thời gian rẽ 90° từ làn cổng sang phố, giây.")] private float streetTurnSeconds = .22f;
+        [SerializeField, Range(.2f, 1.5f), Tooltip("Bán kính cua khi rẽ lên phố, ô.")] private float streetTurnRadius = .5f;
+        [SerializeField, Range(3, 30), Tooltip("Quãng chạy trên phố trước khi biến mất, ô (đủ khuất màn hình).")] private float streetRunCells = 12;
+        [SerializeField, Range(.2f, 2), Tooltip("Thời gian chạy hết quãng phố (đều), giây; 12 ô / 0,9 s ≈ tốc độ tối đa.")] private float streetRunSeconds = .9f;
         [SerializeField, Tooltip("Bật giọt bùn rơi sau đuôi mỗi ô xe bẩn chạy qua, và bùn bắn khi lội vũng bùn.")] private bool mudDripsEnabled = true;
         [SerializeField, Tooltip("Giọt bùn mỗi ô xe bẩn chạy: 1 giọt/0,45s, rơi nhanh.")] private ParticleFeel mudDrip = new ParticleFeel(2, .5f, .2f, .5f, 1.2f);
         [SerializeField, Tooltip("Bùn bắn khi xe lội vào vũng bùn.")] private ParticleFeel mudSplash = new ParticleFeel(8, .4f, .16f, 1.6f, 1.2f);
@@ -202,6 +208,11 @@ namespace SqueakyLane.Game
         public float WashMudFadeSeconds => washMudFadeSeconds;
         public float WashRollerSpinDegrees => washRollerSpinDegrees;
         public float WashGateExtraCells => washGateExtraCells;
+        public bool StreetExitEnabled => streetExitEnabled;
+        public float StreetTurnSeconds => streetTurnSeconds;
+        public float StreetTurnRadius => streetTurnRadius;
+        public float StreetRunCells => streetRunCells;
+        public float StreetRunSeconds => streetRunSeconds;
         public float WashGateCrawlSeconds => washGateCrawlSeconds;
         public float WashGatePauseSeconds => washGatePauseSeconds;
         public bool MudDripsEnabled => mudDripsEnabled;
@@ -347,6 +358,10 @@ namespace SqueakyLane.Game
             washMudFadeSeconds = Limit(washMudFadeSeconds, .05f, 1, .4f);
             washRollerSpinDegrees = Limit(washRollerSpinDegrees, 0, 1440, 720);
             washGateExtraCells = Limit(washGateExtraCells, 0, 1.5f, .3f);
+            streetTurnSeconds = Limit(streetTurnSeconds, .1f, 1, .22f);
+            streetTurnRadius = Limit(streetTurnRadius, .2f, 1.5f, .5f);
+            streetRunCells = Limit(streetRunCells, 3, 30, 12);
+            streetRunSeconds = Limit(streetRunSeconds, .2f, 2, .9f);
             washGateCrawlSeconds = Limit(washGateCrawlSeconds, .2f, 3, 1.1f);
             washGatePauseSeconds = Limit(washGatePauseSeconds, 0, 1, .15f);
             mudDrip.Validate();

@@ -4,6 +4,11 @@ Shader "SqueakyLane/Toy Lit"
     {
         _MainTex ("Colormap", 2D) = "white" {}
         _Color ("Tint", Color) = (1,1,1,1)
+        [Header(016 Paint bands)]
+        [Gamma] _TopTint ("Top Value (sRGB multiplier)", Range(0,1)) = 1
+        _TopSaturation ("Top Saturation Multiplier", Range(0,2)) = 1
+        _TopThreshold ("Top Normal Y Threshold", Range(0,1)) = 0.6
+        _TopSmooth ("Top Edge Softness", Range(0.001,0.2)) = 0.04
         [Header(Two Tone Lighting)]
         _ShadowColor ("Shadow Tint", Color) = (0.549,0.525,0.690,1)
         _RampThreshold ("Ramp Threshold", Range(0,1)) = 0.64
@@ -55,11 +60,23 @@ Shader "SqueakyLane/Toy Lit"
             };
 
             sampler2D _MainTex;
-            float4 _MainTex_ST;
+            float4 _MainTex_ST, _MainTex_TexelSize;
             half4 _Color, _ShadowColor, _RimColor; // _SpecColor đã khai báo sẵn trong UnityLightingCommon (Lighting.cginc)
             half _RampThreshold, _RampSmooth, _AmbientStrength;
             half _SpecStrength, _SpecPower, _SpecSize, _SpecSmooth;
             half _RimStrength, _RimMin, _RimMax;
+            half _TopTint, _TopSaturation, _TopThreshold, _TopSmooth;
+
+            half BodyPaintMask(float2 uv)
+            {
+                // Khớp RecolorBody: hàng 2 từ dưới lên, cột 3–4 và 6–7 (đếm từ 0).
+                // Lùi nửa texel để không tô mẫu bilinear trộn qua biên ô sơn.
+                float2 inset = 0.5 * abs(_MainTex_TexelSize.xy);
+                float row = step(0.50 + inset.y, uv.y) * step(uv.y, 0.75 - inset.y);
+                float left = step(0.375 + inset.x, uv.x) * step(uv.x, 0.625 - inset.x);
+                float right = step(0.750 + inset.x, uv.x) * step(uv.x, 1.000 - inset.x);
+                return row * (left + right);
+            }
 
             v2f vert(appdata v)
             {
@@ -76,6 +93,15 @@ Shader "SqueakyLane/Toy Lit"
             {
                 half3 baseColor = tex2D(_MainTex, i.uv).rgb * _Color.rgb;
                 half3 normal = normalize(i.worldNormal);
+                half topBand = BodyPaintMask(i.uv) * smoothstep(_TopThreshold - _TopSmooth,
+                    _TopThreshold + _TopSmooth, normal.y);
+                // Tăng bão hòa theo HSV bằng khoảng cách tới kênh lớn nhất, giữ nguyên hue.
+                half value = max(baseColor.r, max(baseColor.g, baseColor.b));
+                half chroma = value - min(baseColor.r, min(baseColor.g, baseColor.b));
+                half saturationScale = min(_TopSaturation, value / max(chroma, 0.0001h));
+                half3 topColor = (value - (value - baseColor) * saturationScale) * _TopTint;
+                baseColor = lerp(baseColor, topColor, topBand);
+
                 half3 lightDir = normalize(UnityWorldSpaceLightDir(i.worldPos));
                 // Camera trực giao có cùng hướng nhìn ở mọi điểm trên xe.
                 half3 viewDir = normalize(lerp(UnityWorldSpaceViewDir(i.worldPos),

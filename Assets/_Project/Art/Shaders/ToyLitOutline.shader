@@ -4,6 +4,11 @@ Shader "SqueakyLane/Toy Lit Outline"
     {
         _MainTex ("Colormap", 2D) = "white" {}
         _Color ("Tint", Color) = (1,1,1,1)
+        [Header(016 Paint bands)]
+        [Gamma] _TopTint ("Top Value (sRGB multiplier)", Range(0,1)) = 1
+        _TopSaturation ("Top Saturation Multiplier", Range(0,2)) = 1
+        _TopThreshold ("Top Normal Y Threshold", Range(0,1)) = 0.6
+        _TopSmooth ("Top Edge Softness", Range(0.001,0.2)) = 0.04
         [Header(Two Tone Lighting)]
         _ShadowColor ("Shadow Tint", Color) = (0.549,0.525,0.690,1)
         _RampThreshold ("Ramp Threshold", Range(0,1)) = 0.64

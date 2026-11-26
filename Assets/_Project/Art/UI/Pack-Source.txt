@@ -14,3 +14,6 @@ icon_hint.png: dấu hỏi trắng của Kenney Game Icons (CC0), cùng gói đ�
 
 9-slice (border) lấy từ .meta của dự án nguồn; PPU đặt 100; userData của importer lưu lề trong suốt để canh thân nút theo phần nhìn thấy.
 Menu: Tools/Squeaky Lane/013 Theme/S3 Import UI Pack (đặt importer) và S3 Apply UI Pack Skin (dựng HUD/hộp thoại).
+
+016 (26/11): thêm Sprites/Pack/bg_main_nav.png và bg_main_nav_bg.png (thanh điều hướng main menu) từ cùng file _Project.rar.
+Ảnh Art/UI/Menu/menu_ip*.png không thuộc bộ này: Codex tạo bằng công cụ tạo ảnh AI (phiếu 016-d).

@@ -31,6 +31,15 @@ namespace SqueakyLane.Presentation
         [SerializeField] private CanvasGroup messageBubble = null;
         [Header("013 S3 · nút phụ")]
         [SerializeField, Tooltip("Nút phụ cũng là Tiếp tục (vd dấu X ở góc hộp thoại Tạm dừng).")] private Button[] extraResumeButtons = Array.Empty<Button>();
+        [Header("016 · Main menu (để trống = mở thẳng Chọn màn như trước). Menu Editor '016 UI/Build Main Menu' dựng và gán.")]
+        [SerializeField] private CanvasGroup mainMenu = null, menuSettings = null;
+        [SerializeField] private Button menuPlayButton = null, menuLevelsButton = null, menuSettingsButton = null;
+        [SerializeField] private TMP_Text menuPlayLabel = null;
+        [SerializeField, Tooltip("Nút về main menu (ví dụ nút nhà trên màn Chọn màn).")] private Button[] homeButtons = Array.Empty<Button>();
+        [SerializeField, Tooltip("Nút đóng hộp Cài đặt của main menu.")] private Button[] menuSettingsCloseButtons = Array.Empty<Button>();
+        [SerializeField, Tooltip("Sprite nền ô màn đang chơi tới (nổi bật). Trống = giữ sprite prefab.")] private Sprite levelCurrentSprite = null;
+        private int nextLevelIndex;
+        private Sprite levelNormalSprite;
         private float messageAge;
         private Button[] levelButtons;
         private TMP_Text[] levelLabels;
@@ -75,13 +84,52 @@ namespace SqueakyLane.Presentation
                 if (levelLabels[i] == null) throw new InvalidOperationException("Level Button Prefab phải có TextMeshPro con.");
                 button.onClick.AddListener(() => { ButtonClicked?.Invoke(); Navigate?.Invoke(NavigationAction.SelectLevel, index); });
             }
+            // 016: main menu nằm trên màn Chọn màn (cùng trạng thái LevelSelect của Navigator), nên không đổi luồng điều hướng tầng Game.
+            if (menuPlayButton != null) { menuPlayButton.onClick.AddListener(() => { ButtonClicked?.Invoke(); Navigate?.Invoke(NavigationAction.SelectLevel, nextLevelIndex); }); }
+            if (menuLevelsButton != null) { menuLevelsButton.onClick.AddListener(() => { ButtonClicked?.Invoke(); SetMainMenu(false); }); }
+            if (menuSettingsButton != null) { menuSettingsButton.onClick.AddListener(() => { ButtonClicked?.Invoke(); SetMenuSettings(true); }); }
+            foreach (var button in homeButtons) { if (button != null) { button.onClick.AddListener(() => { ButtonClicked?.Invoke(); SetMainMenu(true); }); } }
+            foreach (var button in menuSettingsCloseButtons) { if (button != null) { button.onClick.AddListener(() => { ButtonClicked?.Invoke(); SetMenuSettings(false); }); } }
             RefreshLevels(progress, unlockAll); RefreshSettings(progress); SetFade(0); ShowScreen(ScreenState.LevelSelect); ShowStuck(false); RefreshSafeArea();
+            SetMainMenu(mainMenu != null);
+        }
+        public bool MainMenuOpen => mainMenu != null && mainMenu.alpha > .5f;
+        // Mở/đóng main menu; luôn đóng hộp Cài đặt của menu.
+        public void SetMainMenu(bool open)
+        {
+            if (mainMenu != null) { Group(mainMenu, open); }
+            SetMenuSettings(false);
+        }
+        private void SetMenuSettings(bool open)
+        {
+            if (menuSettings != null) { Group(menuSettings, open && MainMenuOpen); }
+        }
+        // Ô màn đang chơi tới đổi sang sprite nổi bật; các ô khác giữ sprite gốc của prefab.
+        private void HighlightLevel(Button button, bool current)
+        {
+            if (levelCurrentSprite == null || button == null) { return; }
+            var image = button.targetGraphic as Image;
+            if (image == null) { return; }
+            if (levelNormalSprite == null && image.sprite != levelCurrentSprite) { levelNormalSprite = image.sprite; }
+            image.sprite = current ? levelCurrentSprite : levelNormalSprite;
         }
         private void Send(NavigationAction action) { ButtonClicked?.Invoke(); Navigate?.Invoke(action, -1); }
         public void RefreshLevels(ProgressStore progress, bool unlockAll)
         {
+            // Màn "chơi tiếp" = màn mở khóa đầu tiên chưa có sao; hết thì màn mở khóa cuối cùng.
+            nextLevelIndex = -1;
+            int lastUnlocked = 0;
             for (int i = 0; i < ids.Length; i++)
             {
+                bool unlocked = progress.IsUnlocked(ids, i, unlockAll);
+                if (unlocked) { lastUnlocked = i; }
+                if (unlocked && nextLevelIndex < 0 && progress.Stars(ids[i]) == 0) { nextLevelIndex = i; }
+            }
+            if (nextLevelIndex < 0) { nextLevelIndex = lastUnlocked; }
+            if (menuPlayLabel != null && ids.Length > 0) { menuPlayLabel.text = "MÀN " + ids[nextLevelIndex]; }
+            for (int i = 0; i < ids.Length; i++)
+            {
+                HighlightLevel(levelButtons[i], i == nextLevelIndex);
                 levelButtons[i].interactable = progress.IsUnlocked(ids, i, unlockAll);
                 levelLabels[i].text = "Màn " + ids[i] + "\n" + (theme != null ? theme.Stars(progress.Stars(ids[i])) : progress.Stars(ids[i]) + "/3 sao");
             }
@@ -94,6 +142,7 @@ namespace SqueakyLane.Presentation
         public void ShowScreen(ScreenState state)
         {
             Group(levelSelect, state == ScreenState.LevelSelect);
+            if (state != ScreenState.LevelSelect) { SetMainMenu(false); }
             Group(playing, state != ScreenState.LevelSelect); // HUD vẫn thấy sau lớp tối của dialog.
             Group(paused, state == ScreenState.Paused); Group(won, state == ScreenState.Won); Group(lost, state == ScreenState.Lost);
             playing.interactable = playing.blocksRaycasts = state == ScreenState.Playing;

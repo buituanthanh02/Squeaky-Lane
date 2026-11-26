@@ -39,6 +39,10 @@ Material:
     - _SpecSize: 0.9
     - _SpecSmooth: 0.03
     - _SpecStrength: 0.8
+    - _TopSaturation: 1
+    - _TopSmooth: 0.04
+    - _TopThreshold: 0.6
+    - _TopTint: 1
     m_Colors:
     - _Color: {r: 0.49411765, g: 0.8784314, b: 0.47843137, a: 1}
     - _RimColor: {r: 1, g: 0.96, b: 0.87, a: 1}

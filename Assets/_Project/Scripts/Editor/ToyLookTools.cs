@@ -20,6 +20,7 @@ namespace SqueakyLane.EditorTools
         private const string EnvironmentArt = Project + "/Art/Environment/Toy";
         private const string PropPrefabs = Project + "/Prefabs/Environment/Toy";
         private const string PreviewPath = "Logs/015-toy-preview.png";
+        private const string CarBandsPreviewPath = "Logs/016-car-bands-preview.png";
         private static readonly string[] CarColors = { "pink", "blue", "yellow", "green", "orange", "purple" };
 
         // Cùng thứ tự với các slot của mesh props.
@@ -91,6 +92,53 @@ namespace SqueakyLane.EditorTools
             }
 
             Debug.Log($"015-b: Toy Look Assets · {PreviewPath}");
+        }
+
+        [MenuItem("Tools/Squeaky Lane/016 Toy/Car Bands Preview")]
+        public static void CreateCarBandsPreview()
+        {
+            var preview = new PreviewRenderUtility();
+            Material comparison = null;
+            try
+            {
+                const int columns = 4;
+                const float columnSpacing = 2.25f;
+                const float rowSpacing = 2.4f;
+                const float carHeight = .33f;
+                for (int i = 0; i < CarColors.Length; i++)
+                {
+                    string color = CarColors[i];
+                    var prefab = RequireAsset<GameObject>($"{Project}/Prefabs/Cars/Car_{color}.prefab");
+                    var source = RequireAsset<Material>($"{CarSource}/Car_{color}.mat");
+                    var outlined = RequireAsset<Material>($"{CarArt}/M_ToyCarOutline_{color}.mat");
+                    // Chừa ô cuối hàng trên cho xe vàng đối chứng cùng góc quay.
+                    int slot = i < columns - 1 ? i : i + 1;
+                    float x = (slot % columns - 1.5f) * columnSpacing;
+                    float z = (.5f - slot / columns) * rowSpacing;
+                    var position = new Vector3(x, carHeight, z);
+                    AddPreviewCar(preview, prefab, position, source, outlined);
+                    if (color == "yellow")
+                    {
+                        // Khôi phục hình 015 trên bản sao tạm bằng cách đưa hai hệ số về trung tính.
+                        comparison = new Material(outlined) { hideFlags = HideFlags.HideAndDontSave };
+                        comparison.SetFloat("_TopTint", 1f);
+                        comparison.SetFloat("_TopSaturation", 1f);
+                        AddPreviewCar(preview, prefab, position + Vector3.right * columnSpacing, source, comparison);
+                    }
+                }
+
+                ConfigurePreviewCamera(preview, 3.0f, 0f);
+                SavePreviewImage(preview, new Rect(0, 0, 1000, 600), CarBandsPreviewPath);
+                Debug.Log($"016-a · {CarBandsPreviewPath} · Xe vàng ngoài cùng bên phải là đối chứng 015.");
+            }
+            finally
+            {
+                preview.Cleanup();
+                if (comparison != null)
+                {
+                    Object.DestroyImmediate(comparison);
+                }
+            }
         }
 
         private static Texture GetGroundAtlas(Texture source)
@@ -425,42 +473,52 @@ namespace SqueakyLane.EditorTools
                     instance.transform.position = positions[i];
                 }
 
-                preview.ambientColor = new Color32(154, 169, 194, 255);
-                var key = preview.lights[0];
-                key.intensity = 1f;
-                key.shadows = LightShadows.None;
-                key.transform.rotation = Quaternion.Euler(50f, -30f, 0);
-                preview.lights[1].enabled = false;
-                camera.clearFlags = CameraClearFlags.SolidColor;
-                camera.backgroundColor = new Color32(183, 221, 238, 255);
-                camera.renderingPath = RenderingPath.Forward;
-                camera.orthographic = true;
-                camera.orthographicSize = 3.0f;
-                camera.allowHDR = false;
-                var rotation = Quaternion.Euler(58f, 3f, 0);
-                camera.transform.SetPositionAndRotation(new Vector3(0, .15f, 0) + rotation * Vector3.back * 8f, rotation);
-
-                preview.BeginStaticPreview(new Rect(0, 0, 1000, 860));
-                preview.Render();
-                var image = preview.EndStaticPreview();
-                try
-                {
-                    Directory.CreateDirectory("Logs");
-                    var bytes = image.EncodeToPNG();
-                    if (!File.Exists(PreviewPath) || !File.ReadAllBytes(PreviewPath).SequenceEqual(bytes))
-                    {
-                        File.WriteAllBytes(PreviewPath, bytes);
-                    }
-                }
-                finally
-                {
-                    Object.DestroyImmediate(image);
-                }
+                ConfigurePreviewCamera(preview, 3.0f, 3f);
+                SavePreviewImage(preview, new Rect(0, 0, 1000, 860), PreviewPath);
             }
             finally
             {
                 preview.Cleanup();
                 Object.DestroyImmediate(floor);
+            }
+        }
+
+        private static void ConfigurePreviewCamera(PreviewRenderUtility preview, float size, float yaw)
+        {
+            preview.ambientColor = new Color32(154, 169, 194, 255);
+            var key = preview.lights[0];
+            key.intensity = 1f;
+            key.shadows = LightShadows.None;
+            key.transform.rotation = Quaternion.Euler(50f, -30f, 0);
+            preview.lights[1].enabled = false;
+            var camera = preview.camera;
+            camera.clearFlags = CameraClearFlags.SolidColor;
+            camera.backgroundColor = new Color32(183, 221, 238, 255);
+            camera.renderingPath = RenderingPath.Forward;
+            camera.orthographic = true;
+            camera.orthographicSize = size;
+            camera.allowHDR = false;
+            var rotation = Quaternion.Euler(58f, yaw, 0);
+            camera.transform.SetPositionAndRotation(new Vector3(0, .15f, 0) + rotation * Vector3.back * 8f, rotation);
+        }
+
+        private static void SavePreviewImage(PreviewRenderUtility preview, Rect size, string path)
+        {
+            preview.BeginStaticPreview(size);
+            preview.Render();
+            var image = preview.EndStaticPreview();
+            try
+            {
+                Directory.CreateDirectory("Logs");
+                var bytes = image.EncodeToPNG();
+                if (!File.Exists(path) || !File.ReadAllBytes(path).SequenceEqual(bytes))
+                {
+                    File.WriteAllBytes(path, bytes);
+                }
+            }
+            finally
+            {
+                Object.DestroyImmediate(image);
             }
         }
 

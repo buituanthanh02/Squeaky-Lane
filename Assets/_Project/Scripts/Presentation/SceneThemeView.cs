@@ -35,8 +35,108 @@ namespace SqueakyLane.Presentation
                     1, level.Rows + 2 * (theme.PavementWidth + theme.GroundShadowSpread));
                 props.Add(shadow);
             }
-            SpawnProps(level, theme, vehicles);
+            if (theme.StreetsEnabled) { SpawnStreets(level, theme); SpawnTown(level, theme); }
+            else { SpawnProps(level, theme, vehicles); }
         }
+
+        // 016: khi có phố, nhà/cây xếp thành hàng ngoài hai phố ngang (giữa hai phố dọc), không đè đường và thảm hầm rửa.
+        // Danh sách Prop Prefabs = dãy phía trên, South Prop Prefabs = dãy phía dưới (vật thấp, vì nút bấm nằm đó).
+        private const float TownGap = .25f, TownStreetMargin = .2f;
+        private const int TownRows = 2, TownLimit = 12;
+        private void SpawnTown(LevelDef level, UiTheme theme)
+        {
+            float half = level.Cols * .5f + theme.StreetInner - TownStreetMargin;
+            float outerZ = level.Rows * .5f + theme.StreetInner + theme.StreetWidth + TownStreetMargin;
+            int used = TownRow(level, theme, theme.PropPrefabs, half, outerZ, 1, 0);
+            TownRow(level, theme, theme.SouthPropsEnabled ? theme.SouthPropPrefabs : null, half, outerZ, -1, used);
+        }
+        // Xếp lần lượt từ trái sang phải; đầy hàng thì sang hàng xa hơn; mỗi hàng được căn giữa. Trả về số vật đã đặt.
+        private int TownRow(LevelDef level, UiTheme theme, GameObject[] prefabs, float half, float startZ, int direction, int used)
+        {
+            if (prefabs == null) { return used; }
+            int index = 0;
+            float z = startZ;
+            for (int row = 0; row < TownRows && index < prefabs.Length && used < TownLimit; row++)
+            {
+                var line = new List<GameObject>();
+                var sizes = new List<Bounds>();
+                float width = 0, depth = 0;
+                while (index < prefabs.Length && used + line.Count < TownLimit)
+                {
+                    if (prefabs[index] == null) { index++; continue; }
+                    var size = LocalBounds(prefabs[index]);
+                    float next = width + (line.Count > 0 ? TownGap : 0) + size.size.x;
+                    if (line.Count > 0 && next > half * 2) { break; }
+                    line.Add(Instantiate(prefabs[index], transform, false)); sizes.Add(size);
+                    width = next; depth = Mathf.Max(depth, size.size.z); index++;
+                }
+                float x = -width * .5f;
+                for (int i = 0; i < line.Count; i++)
+                {
+                    var item = line[i]; var size = sizes[i];
+                    float zPos = direction > 0 ? z - size.min.z : -z - size.max.z;
+                    item.transform.localPosition = new Vector3(x + size.extents.x - size.center.x, GroundY(theme) - size.min.y, zPos);
+                    x += size.size.x + TownGap;
+                    if (OnWashGatePad(level, item)) { Release(item); continue; }
+                    props.Add(item); used++;
+                }
+                z += depth + TownGap * 2;
+            }
+            return used;
+        }
+
+        // 016: lưới phố hình # quanh bãi: 2 phố ngang chạy suốt, 2 phố dọc bỏ đoạn giao nhau (khỏi chồng mặt).
+        // Một mesh, một material đường; U dọc đường tính bằng ô để vạch giữa lặp đều, V ngang đường 0..1.
+        private Mesh streetMesh;
+        private void SpawnStreets(LevelDef level, UiTheme theme)
+        {
+            if (streetMesh != null) { Release(streetMesh); }
+            streetMesh = BuildStreets(level, theme);
+            var road = new GameObject("016 Streets", typeof(MeshFilter), typeof(MeshRenderer));
+            road.transform.SetParent(transform, false);
+            road.GetComponent<MeshFilter>().sharedMesh = streetMesh;
+            var renderer = road.GetComponent<MeshRenderer>();
+            renderer.sharedMaterial = theme.RoadMaterial;
+            renderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+            renderer.receiveShadows = false;
+            props.Add(road);
+        }
+        public static Mesh BuildStreets(LevelDef level, UiTheme theme)
+        {
+            var v = new List<Vector3>(); var t = new List<int>(); var uv = new List<Vector2>();
+            float y = GroundY(theme) + .004f, w = theme.StreetWidth, length = theme.StreetLength;
+            float nearX = level.Cols * .5f + theme.StreetInner, farX = nearX + w;
+            float nearZ = level.Rows * .5f + theme.StreetInner, farZ = nearZ + w;
+            // Phố ngang trên/dưới: chạy dọc X.
+            Strip(v, t, uv, new Vector3(-length, y, nearZ), new Vector3(length, y, nearZ), new Vector3(0, 0, w));
+            Strip(v, t, uv, new Vector3(-length, y, -farZ), new Vector3(length, y, -farZ), new Vector3(0, 0, w));
+            // Phố dọc trái/phải: chạy dọc Z, chia 3 đoạn để chừa chỗ giao với phố ngang.
+            foreach (float x in new[] { -farX, nearX })
+            {
+                Strip(v, t, uv, new Vector3(x, y, -length), new Vector3(x, y, -farZ), new Vector3(w, 0, 0));
+                Strip(v, t, uv, new Vector3(x, y, -nearZ), new Vector3(x, y, nearZ), new Vector3(w, 0, 0));
+                Strip(v, t, uv, new Vector3(x, y, farZ), new Vector3(x, y, length), new Vector3(w, 0, 0));
+            }
+            var mesh = new Mesh { name = "016 Phố quanh bãi" };
+            mesh.SetVertices(v); mesh.SetUVs(0, uv); mesh.SetTriangles(t, 0);
+            mesh.RecalculateNormals(); mesh.RecalculateBounds();
+            return mesh;
+        }
+        // Dải đường từ a tới b (tim một mép), bề ngang theo `across`; mặt hướng lên.
+        private static void Strip(List<Vector3> v, List<int> t, List<Vector2> uv, Vector3 a, Vector3 b, Vector3 across)
+        {
+            int first = v.Count;
+            float lengthCells = Vector3.Distance(a, b);
+            float startU = Vector3.Dot(a, (b - a).normalized);
+            v.Add(a); v.Add(a + across); v.Add(b + across); v.Add(b);
+            uv.Add(new Vector2(startU, 0)); uv.Add(new Vector2(startU, 1)); uv.Add(new Vector2(startU + lengthCells, 1)); uv.Add(new Vector2(startU + lengthCells, 0));
+            // Chọn chiều tam giác để mặt hướng lên (+Y).
+            var normal = Vector3.Cross(across, b - a);
+            if (normal.y >= 0) { t.Add(first); t.Add(first + 1); t.Add(first + 2); t.Add(first + 2); t.Add(first + 3); t.Add(first); }
+            else { t.Add(first); t.Add(first + 3); t.Add(first + 2); t.Add(first + 2); t.Add(first + 1); t.Add(first); }
+        }
+        // Hàng props cách bãi: có phố thì đặt ngoài mép xa của phố.
+        private static float RowGap(UiTheme theme) => theme.StreetsEnabled ? Mathf.Max(theme.PropGap, theme.StreetInner + theme.StreetWidth + .35f) : theme.PropGap;
 
         private void SpawnProps(LevelDef level, UiTheme theme, CarCatalog vehicles)
         {
@@ -64,14 +164,14 @@ namespace SqueakyLane.Presentation
                     frontRowDepth += theme.PropGap;
                 }
                 root.transform.localPosition = new Vector3(x - bounds.center.x, GroundY(theme) - bounds.min.y,
-                    level.Rows * .5f + theme.PropGap + frontRowDepth - bounds.min.z);
+                    level.Rows * .5f + RowGap(theme) + frontRowDepth - bounds.min.z);
                 if (OnWashGatePad(level, root)) { Release(root); continue; }
                 props.Add(root);
                 used++;
             }
             if (!theme.SouthPropsEnabled) { return; }
             var lower = theme.SouthPropPrefabs;
-            float roadZ = -level.Rows * .5f - theme.PropGap;
+            float roadZ = -level.Rows * .5f - RowGap(theme);
             float roadHeight = 0;
             for (int i = 0; lower != null && i < lower.Length && used < 12; i++)
             {
@@ -79,7 +179,7 @@ namespace SqueakyLane.Presentation
                 var root = Instantiate(lower[i], transform, false);
                 var bounds = LocalBounds(root);
                 float x = i == 0 ? 0 : (i % 2 == 0 ? 1 : -1) * level.Cols * .3f;
-                float z = -level.Rows * .5f - theme.PropGap - bounds.max.z;
+                float z = -level.Rows * .5f - RowGap(theme) - bounds.max.z;
                 root.transform.localPosition = new Vector3(x - bounds.center.x, GroundY(theme) - bounds.min.y, z);
                 if (OnWashGatePad(level, root)) { Release(root); continue; }
                 if (i == 0) { roadZ = z; roadHeight = bounds.size.y; }
@@ -306,6 +406,6 @@ namespace SqueakyLane.Presentation
             if (Application.isPlaying) { Destroy(value); }
             else { DestroyImmediate(value); }
         }
-        private void OnDestroy() { if (ownedMesh != null) { Release(ownedMesh); } }
+        private void OnDestroy() { if (ownedMesh != null) { Release(ownedMesh); } if (streetMesh != null) { Release(streetMesh); } }
     }
 }
