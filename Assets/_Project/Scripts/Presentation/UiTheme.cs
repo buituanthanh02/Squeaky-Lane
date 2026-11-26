@@ -89,6 +89,12 @@ namespace SqueakyLane.Presentation
         [SerializeField, Range(0, 1), Tooltip("Phần bề rộng phố hai bên mà camera giữ trong khung (1 = thấy trọn, nhỏ hơn = bãi to hơn).")] private float streetVisible = .9f;
         [SerializeField, Range(10, 80), Tooltip("Chiều dài mỗi phố tính từ tâm bãi ra mỗi phía, ô (đủ ra khỏi màn hình).")] private float streetLength = 40;
         [SerializeField, Tooltip("Material mặt đường (U dọc đường theo ô, V ngang đường 0..1).")] private Material roadMaterial = null;
+        [Header("016 · Khu phố hoạt hình sinh theo màn (khi bật thì thay nền, phố và props cũ; tạo asset bằng menu 016 Toy → City Setup)")]
+        [SerializeField] private bool cityEnabled = false;
+        [SerializeField, Tooltip("Unlit + palette cho nền/đường.")] private Material cityGroundMaterial = null;
+        [SerializeField, Tooltip("Toy Lit có viền cho vật gần bãi.")] private Material cityPropMaterial = null;
+        [SerializeField, Tooltip("Cảnh xa; đổi sang M_CityToyPlain để bỏ viền nếu máy yếu. Trống = dùng material vật gần.")] private Material cityFillMaterial = null;
+        [SerializeField] private Color cityGrass = Hex("A3C75F"), cityLot = Hex("737CA3"), cityLotLines = Hex("98A0C4"), cityLotCurb = Hex("E4E0F2");
         [SerializeField, Range(.1f, .5f), Tooltip("Độ cao tối đa props dải dưới; S4 giữ ≤0,5 ô.")] private float southPropHeight = .45f;
         [SerializeField, Tooltip("Cỡ lớn nhất của Garage/Office; số khởi điểm chờ vòng ảnh S4.")] private Vector2 buildingSizes = new Vector2(2.8f, 2);
         [SerializeField, Tooltip("Cỡ lớn nhất của cây nhỏ/lớn; số khởi điểm chờ vòng ảnh S4.")] private Vector2 treeSizes = new Vector2(1.1f, 1.5f);
@@ -206,7 +212,15 @@ namespace SqueakyLane.Presentation
         public float PavementHighlightWidth => pavementHighlightWidth;
         public float TrayCornerRadius => trayCornerRadius;
         public float GroundShadowSpread => groundShadowSpread;
-        public bool StreetsEnabled => streetsEnabled && roadMaterial != null;
+        public bool CityEnabled => cityEnabled && cityGroundMaterial != null && cityPropMaterial != null;
+        public Material CityGroundMaterial => cityGroundMaterial;
+        public Material CityPropMaterial => cityPropMaterial;
+        public Material CityFillMaterial => cityFillMaterial != null ? cityFillMaterial : cityPropMaterial;
+        public Color CityGrass => cityGrass;
+        public Color CityLot => cityLot;
+        public Color CityLotLines => cityLotLines;
+        public Color CityLotCurb => cityLotCurb;
+        public bool StreetsEnabled => CityEnabled || streetsEnabled && roadMaterial != null;
         public float StreetInner => streetInner;
         public float StreetWidth => streetWidth;
         public float StreetVisible => streetVisible;

@@ -1,4 +1,4 @@
-# 016-e · Dựng khu phố cartoon 3D theo concept, chụp nhiều góc để người làm duyệt     Cỡ: M–L     Trạng thái: Chờ người làm duyệt ảnh
+# 016-e · Dựng khu phố cartoon 3D theo concept, chụp nhiều góc để người làm duyệt     Cỡ: M–L     Trạng thái: Đã nối game, chờ chơi thử
 Đang cầm: Claude        AI tham gia: Claude (giao, review), Codex (dựng, chụp, tự sửa)
 Liên quan: 016-toy-world (mục "Giao Claude · Dựng khu phố cartoon bằng 3D": bố cục, khoảng trống, nét viền — đọc và làm theo). Concept: `docs/handoff/016-ref/city-3d-topdown.png`. Nhánh `016-toy-world`.
 
@@ -36,7 +36,15 @@ Biên dịch sạch, Console không lỗi mới; menu chạy 2 lần GUID giữ 
 - Ảnh mới `08-devices` (màn 1 ở 9:19,5 · 9:16 · 3:4, màn 19). Menu chạy qua MCP, Console 0 lỗi. Chưa chạy Test, chưa nối game.
 - 11 draw theo thiết kế; tam giác ~39k cụm + ~65k cảnh xa + ~15k nền ≈ 120k (viền vẽ thêm một lượt): **nặng, phải đo trên máy**; cắt trước viền cảnh xa.
 
+## Nối vào game (người làm duyệt 26/11)
+- Sinh lúc nạp màn: `Presentation/City/` (`CityBuilder` + `CityMesh`, `CityProps`, `CityMeshes`); `SceneThemeView.ConfigureCity` dựng khi `UiTheme.cityEnabled`; `BoardView.TintLot` đổi màu bãi bằng property block (xám xanh, chỉnh trong UiTheme). Menu `016 Toy → City Setup` tạo palette/material và bật theme. Bỏ công cụ xem thử `CityDioramaTools`, prefab/mesh City3D và scene CityPreview (menu cũ không còn).
+- Scene `Play.unity` · `Canvas/013 Vignette` · GameObject active 1 → 0 (lớp tối viền làm xỉn màu).
+- Test (MCP) **588 · 587 Passed · 0 Failed · 1 Skipped** (thêm `City016Tests` 3 bài). Play Simulator 1284×2778: Console 0 lỗi; ảnh `Logs/016-game/`; màn 16 chạm nửa xe 42/42 đúng, đếm 154 lượt vẽ 3D, ~144k tam giác trong khung (renderer × pass, chưa tính UI).
+- Dựng khu phố màn 16 trong Editor ~126 ms, ~120k tam giác. **Chưa đo trên máy**: thời gian nạp và fps. Giảm tải: đổi `cityFillMaterial` sang `M_CityToyPlain` (bỏ viền cảnh xa).
+- Còn: xe ra cổng bên hông chỉ thấy một nửa vì `streetVisible` 0,5; hầm rửa trái/phải vẫn đè phố.
+
 ## Trao đổi
 2026-11-26 11:51 · Claude → Codex · [BÀN GIAO]: giao 016-e; Claude không lái Editor trong lúc bạn làm.
 2026-11-26 11:59 · Claude → Người làm · [HỎI]: duyệt ảnh `Logs/016-city`, chọn màu bãi (tối / xám xanh / tím) trước khi nối vào game.
 2026-11-26 12:06 · Claude → Người làm · [HỎI]: duyệt vòng 2 và cho nối vào game.
+2026-11-26 13:54 · Claude → Người làm · [BÁO]: đã nối khu phố vào game trên `016-toy-world`, chờ chơi thử.

@@ -13,9 +13,14 @@ namespace SqueakyLane.Presentation
         private float minimumX, minimumZ, overscan;
         private readonly List<GameObject> props = new List<GameObject>(12);
         public const int GroundColorCount = 11;
+        private readonly List<Mesh> cityMeshes = new List<Mesh>(5);
+        private bool cityMode;
         public void Configure(LevelDef level, UiTheme theme, CarCatalog vehicles = null)
         {
             if (ownedMesh != null) { Release(ownedMesh); }
+            ReleaseCity();
+            cityMode = theme.CityEnabled;
+            if (cityMode) { ConfigureCity(level, theme); return; }
             ownedMesh = BuildGround(level, theme);
             groundVertices = ownedMesh.vertices;
             minimumX = level.Cols * .5f + theme.GroundMargin;
@@ -37,6 +42,44 @@ namespace SqueakyLane.Presentation
             }
             if (theme.StreetsEnabled) { SpawnStreets(level, theme); SpawnTown(level, theme); }
             else { SpawnProps(level, theme, vehicles); }
+        }
+
+        // 016: khu phố hoạt hình thay toàn bộ nền/phố/props cũ. Nền dùng MeshFilter của chính object này.
+        private void ConfigureCity(LevelDef level, UiTheme theme)
+        {
+            for (int i = 0; i < props.Count; i++) { Release(props[i]); }
+            props.Clear();
+            var city = CityBuilder.Build(level, theme.StreetInner, theme.StreetWidth);
+            ownedMesh = city.Ground;
+            GetComponent<MeshFilter>().sharedMesh = ownedMesh;
+            var ground = GetComponent<MeshRenderer>();
+            ground.sharedMaterial = theme.CityGroundMaterial;
+            Flatten(ground);
+            AddCityPart(city.Near, theme.CityPropMaterial);
+            foreach (var mesh in city.Far) { AddCityPart(mesh, theme.CityFillMaterial); }
+        }
+        private void AddCityPart(Mesh mesh, Material material)
+        {
+            cityMeshes.Add(mesh);
+            var part = new GameObject(mesh.name, typeof(MeshFilter), typeof(MeshRenderer));
+            part.transform.SetParent(transform, false);
+            part.GetComponent<MeshFilter>().sharedMesh = mesh;
+            var renderer = part.GetComponent<MeshRenderer>();
+            renderer.sharedMaterial = material;
+            Flatten(renderer);
+            props.Add(part);
+        }
+        private static void Flatten(MeshRenderer renderer)
+        {
+            renderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+            renderer.receiveShadows = false;
+            renderer.lightProbeUsage = UnityEngine.Rendering.LightProbeUsage.Off;
+            renderer.reflectionProbeUsage = UnityEngine.Rendering.ReflectionProbeUsage.Off;
+        }
+        private void ReleaseCity()
+        {
+            foreach (var mesh in cityMeshes) { Release(mesh); }
+            cityMeshes.Clear();
         }
 
         // 016: khi có phố, nhà/cây xếp thành hàng ngoài hai phố ngang (giữa hai phố dọc), không đè đường và thảm hầm rửa.
@@ -251,7 +294,7 @@ namespace SqueakyLane.Presentation
         // Chỉ chạy sau FitCamera/đổi safe area, không mỗi frame. Chỉ nới quad cỏ, không nới vỉa hè/cổng.
         public void EnsureGroundCoverage(Camera camera)
         {
-            if (camera == null || ownedMesh == null) { return; }
+            if (camera == null || ownedMesh == null || cityMode) { return; } // khu phố đã phủ sẵn rộng hơn mọi khung máy
             float x = minimumX, z = minimumZ;
             var plane = new Plane(transform.up, transform.TransformPoint(groundVertices[0]));
             for (int i = 0; i < 4; i++)
@@ -406,6 +449,6 @@ namespace SqueakyLane.Presentation
             if (Application.isPlaying) { Destroy(value); }
             else { DestroyImmediate(value); }
         }
-        private void OnDestroy() { if (ownedMesh != null) { Release(ownedMesh); } if (streetMesh != null) { Release(streetMesh); } }
+        private void OnDestroy() { if (ownedMesh != null) { Release(ownedMesh); } if (streetMesh != null) { Release(streetMesh); } ReleaseCity(); }
     }
 }

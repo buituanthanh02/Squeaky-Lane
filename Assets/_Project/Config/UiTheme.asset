@@ -127,6 +127,14 @@ MonoBehaviour:
   streetVisible: 0.5
   streetLength: 40
   roadMaterial: {fileID: 2100000, guid: baf92a2cbba20dc40a802e6a6806662d, type: 2}
+  cityEnabled: 1
+  cityGroundMaterial: {fileID: 2100000, guid: 01e00a64cee45fd469bbc9e7f2180754, type: 2}
+  cityPropMaterial: {fileID: 2100000, guid: 6c94b9460241ab6488c2ccc95f15c684, type: 2}
+  cityFillMaterial: {fileID: 2100000, guid: 6c94b9460241ab6488c2ccc95f15c684, type: 2}
+  cityGrass: {r: 0.6392157, g: 0.78039217, b: 0.37254903, a: 1}
+  cityLot: {r: 0.4509804, g: 0.4862745, b: 0.6392157, a: 1}
+  cityLotLines: {r: 0.59607846, g: 0.627451, b: 0.76862746, a: 1}
+  cityLotCurb: {r: 0.89411765, g: 0.8784314, b: 0.9490196, a: 1}
   southPropHeight: 0.45
   buildingSizes: {x: 2.8, y: 2}
   treeSizes: {x: 1.1, y: 1.5}

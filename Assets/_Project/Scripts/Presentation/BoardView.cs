@@ -78,6 +78,7 @@ namespace SqueakyLane.Presentation
             if (hasSurface)
             {
                 surface.GetComponent<LotSurfaceView>().Configure(level, mechanicCatalog.Settings);
+                TintLot(surface.GetComponent<MeshRenderer>());
             }
             else
             {
@@ -182,6 +183,18 @@ namespace SqueakyLane.Presentation
                 var environment = Instantiate(sceneTheme.EnvironmentPrefab, content.transform, false);
                 environmentView = environment.GetComponent<SceneThemeView>();
                 environmentView.Configure(level, sceneTheme, carCatalog);
+            }
+        }
+        // 016: mặt bãi theo màu khu phố (nhựa, vạch, bó vỉa) bằng property block, không tạo material lúc chạy.
+        private void TintLot(MeshRenderer renderer)
+        {
+            if (renderer == null || sceneTheme == null || !sceneTheme.CityEnabled) { return; }
+            var colors = new[] { sceneTheme.CityLot, sceneTheme.CityLotLines, sceneTheme.CityLotCurb };
+            var tint = new MaterialPropertyBlock();
+            for (int i = 0; i < colors.Length && i < renderer.sharedMaterials.Length; i++)
+            {
+                tint.SetColor("_Color", colors[i]);
+                renderer.SetPropertyBlock(tint, i);
             }
         }
         private void Edge(GateEdge edge, int index)
@@ -353,7 +366,7 @@ namespace SqueakyLane.Presentation
             // Camera phải xóa nền cả màn: nếu chỉ vẽ vùng bãi, chữ HUD ngoài vùng đó có thể lưu vệt của frame cũ.
             // viewport chỉ dùng để chừa chỗ cho HUD, không giới hạn vùng camera vẽ.
             camera.orthographic = true; camera.rect = new Rect(0, 0, 1, 1);
-            camera.backgroundColor = sceneTheme != null ? sceneTheme.CameraBackground : palette.Background;
+            camera.backgroundColor = sceneTheme == null ? palette.Background : sceneTheme.CityEnabled ? sceneTheme.CityGrass : sceneTheme.CameraBackground;
             camera.clearFlags = CameraClearFlags.SolidColor;
             camera.transform.rotation = Quaternion.Euler(config.TiltDegrees, 0, 0);
             float aspect = camera.pixelRect.width / Mathf.Max(1, camera.pixelRect.height);
