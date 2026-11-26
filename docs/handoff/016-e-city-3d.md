@@ -1,5 +1,5 @@
-# 016-e · Dựng khu phố cartoon 3D theo concept, chụp nhiều góc để người làm duyệt     Cỡ: M–L     Trạng thái: Đang làm
-Đang cầm: Codex        AI tham gia: Claude (giao, review), Codex (dựng, chụp, tự sửa)
+# 016-e · Dựng khu phố cartoon 3D theo concept, chụp nhiều góc để người làm duyệt     Cỡ: M–L     Trạng thái: Chờ người làm duyệt ảnh
+Đang cầm: Claude        AI tham gia: Claude (giao, review), Codex (dựng, chụp, tự sửa)
 Liên quan: 016-toy-world (mục "Giao Claude · Dựng khu phố cartoon bằng 3D": bố cục, khoảng trống, nét viền — đọc và làm theo). Concept: `docs/handoff/016-ref/city-3d-topdown.png`. Nhánh `016-toy-world`.
 
 ## Mục tiêu (người chơi)
@@ -24,5 +24,12 @@ Biên dịch sạch, Console không lỗi mới; menu chạy 2 lần GUID giữ 
 
 --- AI làm điền khi xong ---
 
+- **Claude tự dựng** (người làm yêu cầu 26/11, lượt Codex đã dừng, không để lại file).
+- `CityDioramaTools.cs` (menu `016 Toy → City Diorama`): asset `Art/Environment/City3D`, 4 prefab `Prefabs/Environment/City3D`, scene xem thử `Scenes/CityPreview.unity` (không vào Build Settings), ảnh `Logs/016-city/00…07`. Biên dịch và chạy menu qua MCP: Console 0 lỗi. Chưa chạy Test, chưa nối vào game.
+- 9 draw theo thiết kế (nền 1 + 4 cụm × 2), chưa đo trong game. Khoảng 29,9k tam giác khối + 12,4k nền (hơn mốc 40k một chút).
+- Còn khác concept: cửa hàng thấp/nhỏ hơn; sọc mái hiên cùng tông mái nên kém rõ; cụm hai bên gần như bị cắt ở khung game; bàn ghế, ghế dài đơn giản hơn.
+- Khi nối vào game: thay `SceneThemeView` nền/phố/props bằng mesh sinh theo màn; kiểm màn 4 cột (cụm bị thu nhỏ), hầm rửa trên/dưới (cụm lùi 2,3 ô).
+
 ## Trao đổi
 2026-11-26 11:51 · Claude → Codex · [BÀN GIAO]: giao 016-e; Claude không lái Editor trong lúc bạn làm.
+2026-11-26 11:59 · Claude → Người làm · [HỎI]: duyệt ảnh `Logs/016-city`, chọn màu bãi (tối / xám xanh / tím) trước khi nối vào game.
