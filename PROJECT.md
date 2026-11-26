@@ -178,6 +178,7 @@ Raycast vào xe → lấy điểm trúng → chiếu lên **trục thân xe tron
 - **Chấp nhận thua khi hết giờ** (đã xác nhận lại). `[CHỐT]`
 - **Gợi ý: có**, và phải tốn kém: trừ giờ **hoặc** giới hạn số lần như booster. `[CHỐT]` `[ĐỀ XUẤT]` mặc định nhẹ cả hai: tối đa 3 lần/màn, mỗi lần trừ ~5 s; cả hai là biến trong file config (7.5) để chỉnh hoặc tắt. Dùng solver sẵn có. Màn tutorial không giới hạn.
 - **"Kẹt xe"**: báo khi hết đường thắng (đồng hồ vẫn chạy, người chơi biết cần hoàn tác sớm). **Giữ** `[CHỐT 22/11]`. Cách báo `[CHỐT 26/11]`: **viền đỏ nhấp nháy quanh màn hình** thay cho chữ/hộp (`UiTheme.stuck*`, nhịp 0,9 s, không chặn chạm; menu `016 UI/Build Stuck Edge`), tiếng kẹt giữ nguyên.
+- **Combo `[CHỐT 26/11]`:** xe ra cổng cách xe trước không quá 3 giây (`FeelConfig.comboWindowSeconds`) nối thành chuỗi; từ 2 xe hiện hình "Combo N" dưới ô số nước (thay chữ "Liên tiếp xN"). **Kỷ lục lưu riêng từng màn** (`ProgressStore.BestCombo`), chốt khi thắng hoặc hết giờ; bảng kết quả ghi combo cao nhất của lượt và kỷ lục, phá kỷ lục thì dải "KỶ LỤC MỚI!" lao vào, đập xuống và nhấp nháy. Hoàn tác không xóa combo đã đạt trong lượt; combo không đổi sao hay luật. Hình `Art/UI/Combo` (Codex, `tools/make-combo-art.py`), số chỉnh trong `UiTheme`/`FeelConfig`, gắn scene bằng menu `018 UI/Build Combo`.
 
 ---
 
@@ -480,6 +481,7 @@ namespace SqueakyLane.Game
 | 015 | Hình đồ chơi: cổng rửa xuyên qua, camera 58°, chữ nét, shading xe, theme nền | `015-toy-look` (mở 26/11 từ `014-car-feel`) | Claude, Codex | 5 bước đã làm, Run All 583/582/0/1; chờ người làm chơi thử | 015-a APPROVE, 015-b APPROVE có sửa (Claude) | 013, 014 |
 | 016 | Thế giới đồ chơi: phố quanh trạm rửa, xe chạy theo phố, cơ chế vẽ lại, mảng sơn xe, main menu, chọn màn | `016-toy-world` (mở 26/11 từ `015-toy-look`) | Claude, Codex | Đã chạy trong game, gồm khu phố hoạt hình; Run All 588/587/0/1; chờ người làm chơi thử | 016-a APPROVE có sửa; b, c, d APPROVE (Claude) | 015 |
 | 017 | Dọn dự án trước khi build: xóa tool dùng một lần, HUD gỡ lỗi, Asset Lab; gộp code trùng | `017-cleanup` (mở 26/11 từ `016-toy-world`) | Claude | Chờ người làm chơi thử | — | 016 |
+| 018 | Combo bằng hình, kỷ lục theo màn, hiệu ứng kỷ lục mới ở bảng kết quả | `018-combo` (mở 26/11 từ `017-cleanup`) | Claude, Codex | Chờ người làm chơi thử | APPROVE hình 018-a (Claude 26/11) | 017 |
 
 **Kế hoạch từ 008:** `docs/handoff/play-plan.md` thay `core-plan.md` §7–9; 008 gộp logic phiên chơi + hiển thị + điều khiển, có thể commit theo mốc A/B/C, Claude review một lần cuối. 008 chưa có Navigator/điều hướng; phần đó là 009-A. `[CHỐT 22/11]`
 

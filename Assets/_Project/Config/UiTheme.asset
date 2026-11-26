@@ -127,6 +127,40 @@ MonoBehaviour:
   streetVisible: 0.5
   streetLength: 40
   roadMaterial: {fileID: 2100000, guid: baf92a2cbba20dc40a802e6a6806662d, type: 2}
+  stuckEdgeColor: {r: 1, g: 0.15294118, b: 0.2509804, a: 1}
+  stuckEdgeWidth: 150
+  stuckPulseSeconds: 0.9
+  stuckAlphaMin: 0.2
+  stuckAlphaMax: 1
+  comboWord: {fileID: 21300000, guid: 51ffa9ab82519e94e8735ef191ea7cab, type: 3}
+  comboDigits:
+  - {fileID: 21300000, guid: f7afd2ebc9ebfa84b9f4c81525eb1413, type: 3}
+  - {fileID: 21300000, guid: 82aae19a459b1b74d9148355fd04fe5d, type: 3}
+  - {fileID: 21300000, guid: 96e19f4cdcbf07746a2c3e7f5773ad29, type: 3}
+  - {fileID: 21300000, guid: 535e1461bf14d0b42857827d8d0974f9, type: 3}
+  - {fileID: 21300000, guid: 90784e04fbfdc4741ad7b3db72a1c329, type: 3}
+  - {fileID: 21300000, guid: 6e04f9f50e59c654b8293918dc596714, type: 3}
+  - {fileID: 21300000, guid: 4d1cc5e41fbe4364389b006161d52651, type: 3}
+  - {fileID: 21300000, guid: 041279ed92e88eb4ab9c0e4ddcb2fd4e, type: 3}
+  - {fileID: 21300000, guid: 70a207d0adb29684f880e979fe1b2646, type: 3}
+  - {fileID: 21300000, guid: 12aa50011dd6f8442a1b89528880c824, type: 3}
+  recordBanner: {fileID: 21300000, guid: 7334dac4586019e49903f67804cf3726, type: 3}
+  comboBurst: {fileID: 21300000, guid: 335f48bc977582d49b0bd344a5800663, type: 3}
+  comboSpark: {fileID: 21300000, guid: fef9691dacaccac41bfae71c874133ef, type: 3}
+  comboStreak: {fileID: 21300000, guid: 9dcaac46db5da5c488cf7aa087500e52, type: 3}
+  comboRing: {fileID: 21300000, guid: 1fca35fc9642a8c4db0a87f1c26390d3, type: 3}
+  comboBurstColor: {r: 1, g: 0.9, b: 0.45, a: 0.85}
+  recordFlashColor: {r: 1, g: 0.93, b: 0.55, a: 1}
+  comboDigitOverlap: 16
+  comboWordDrop: 5
+  comboBurstScale: 1.9
+  popupDigitHeight: 175
+  summaryDigitHeight: 150
+  summaryComboHeight: 150
+  summaryBannerHeight: 190
+  summaryLineHeight: 80
+  summaryLineFontSize: 52
+  summaryLineColor: {r: 1, g: 1, b: 1, a: 1}
   cityEnabled: 1
   cityGroundMaterial: {fileID: 2100000, guid: 01e00a64cee45fd469bbc9e7f2180754, type: 2}
   cityPropMaterial: {fileID: 2100000, guid: 6c94b9460241ab6488c2ccc95f15c684, type: 2}

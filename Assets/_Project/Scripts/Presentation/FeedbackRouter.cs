@@ -82,6 +82,13 @@ namespace SqueakyLane.Presentation
             }
         }
 
+        // Cú đập đáng nhớ (kỷ lục mới): tiếng kèm rung mạnh.
+        public void Impact(SoundCue cue)
+        {
+            Play(cue);
+            Pulse(true);
+        }
+
         public void StopAll()
         {
             if (sfx != null)

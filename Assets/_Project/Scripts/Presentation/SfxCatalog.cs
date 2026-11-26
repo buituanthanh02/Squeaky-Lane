@@ -2,7 +2,7 @@ using System;
 using UnityEngine;
 namespace SqueakyLane.Presentation
 {
-    public enum SoundCue { Ui, SelectCar, Move, Step, StopCar, StopWall, Exit, Water, Mud, Spray, Paint, Splash, Push, Tele, Rotate, Pylon, Undo, Hint, Won, Lost, Stuck, Countdown }
+    public enum SoundCue { Ui, SelectCar, Move, Step, StopCar, StopWall, Exit, Water, Mud, Spray, Paint, Splash, Push, Tele, Rotate, Pylon, Undo, Hint, Won, Lost, Stuck, Countdown, RecordWhoosh, RecordSlam }
     [CreateAssetMenu(menuName = "Squeaky Lane/Sfx Catalog")]
     public sealed class SfxCatalog : ScriptableObject
     {

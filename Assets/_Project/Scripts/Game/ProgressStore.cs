@@ -43,6 +43,20 @@ namespace SqueakyLane.Game
             if (stars < 1 || stars > 3) throw new ArgumentOutOfRangeException(nameof(stars));
             if (stars > Stars(levelId)) Write(Prefix + "stars." + levelId, stars);
         }
+        // Combo = số xe ra cổng liên tiếp; từ 2 xe mới gọi là combo. Kỷ lục lưu riêng từng màn.
+        public const int MinCombo = 2;
+        public int BestCombo(int levelId)
+        {
+            CheckId(levelId);
+            return Math.Max(0, storage.GetInt(Prefix + "combo." + levelId, 0));
+        }
+        // true khi vừa phá kỷ lục của màn (lần đầu đạt combo cũng tính).
+        public bool RecordCombo(int levelId, int combo)
+        {
+            if (combo < MinCombo || combo <= BestCombo(levelId)) return false;
+            Write(Prefix + "combo." + levelId, combo);
+            return true;
+        }
         public bool IsUnlocked(IReadOnlyList<int> order, int index, bool unlockAll)
         {
             if (order == null) throw new ArgumentNullException(nameof(order));

@@ -120,6 +120,34 @@ def mud():
     return finish(band(x, 0, 1100), 0.52)
 
 
+def whoosh():
+    """Dải 'Kỷ lục mới' lao vào: gió rít đi lên, to dần rồi dứt ở cú đập."""
+    rng = np.random.default_rng(31)
+    t = clock(0.3)
+    air = band(rng.normal(0, 1, len(t)), 350, 3800)
+    air /= np.abs(air).max()
+    rise = (t / t[-1]) ** 1.6
+    x = air * rise * 0.8 + 0.3 * sweep(t, 220, 900, 1.4) * rise
+    return finish(x * envelope(t, 0.02, 0.05), 0.5)
+
+
+def slam():
+    """Cú đập: 'bụp' trầm rồi chuông ba nốt đi lên."""
+    rng = np.random.default_rng(32)
+    length = 0.7
+    t = clock(length)
+    thump = sweep(t, 190, 55, 0.35) * np.exp(-t / 0.09)
+    crack = band(rng.normal(0, 1, len(t)), 600, 3000)
+    crack *= np.exp(-t / 0.02) / np.abs(crack).max()
+    x = thump + 0.45 * crack
+    for i, f in enumerate([784.0, 987.8, 1318.5]):
+        bell = note(f, 0.45, 0.14)
+        start = int((0.05 + i * 0.07) * SR)
+        end = min(len(x), start + len(bell))
+        x[start:end] += 0.5 * bell[:end - start]
+    return finish(x * np.clip(t / 0.003, 0, 1), 0.62)
+
+
 SOUNDS = {
     'sfx_move': move(),
     'sfx_water_gate': washing(1.2, 500, 3400, 24, 11),
@@ -129,6 +157,8 @@ SOUNDS = {
     'sfx_lost': melody([523.3, 415.3, 329.6], 0.18, 0.42, 0.45),
     'sfx_countdown': tick(),
     'sfx_mud': mud(),
+    'sfx_record_whoosh': whoosh(),
+    'sfx_record_slam': slam(),
 }
 
 if __name__ == '__main__':

@@ -589,6 +589,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 24892874}
+  - component: {fileID: 24892875}
   m_Layer: 0
   m_Name: 013 Card
   m_TagString: Untagged
@@ -618,6 +619,21 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 849.6, y: 928.8}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &24892875
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 24892873}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 623ff6f86ca5eab48b7a47c65ed4ab6c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  card: {fileID: 24892874}
+  buttons: {fileID: 569620478}
+  textTemplate: {fileID: 1426295620}
 --- !u!1 &26193763
 GameObject:
   m_ObjectHideFlags: 0
@@ -7483,6 +7499,58 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: -0, y: -0}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!1 &757345531
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 757345533}
+  - component: {fileID: 757345532}
+  m_Layer: 0
+  m_Name: 018 Combo
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &757345532
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 757345531}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1111190dce6c3fc41b26894556b64bb7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  theme: {fileID: 11400000, guid: 59d381961553b1643b8f8a4623d6d267, type: 2}
+  popupAnchor: {fileID: 757345533}
+  wonSummary: {fileID: 24892875}
+  lostSummary: {fileID: 1995236332}
+--- !u!224 &757345533
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 757345531}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 763685684}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 1}
+  m_AnchorMax: {x: 0.5, y: 1}
+  m_AnchoredPosition: {x: 0, y: -440}
+  m_SizeDelta: {x: 0, y: 0}
+  m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &763685683
 GameObject:
   m_ObjectHideFlags: 0
@@ -7522,6 +7590,7 @@ RectTransform:
   - {fileID: 459169103}
   - {fileID: 1124010805}
   - {fileID: 1648953794}
+  - {fileID: 757345533}
   m_Father: {fileID: 1791389243}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -15327,6 +15396,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 554988848}
     - target: {fileID: 8946588168531518151, guid: f4d0838bef88f4d449e3729e10ecd944, type: 3}
+      propertyPath: comboFeedback
+      value: 
+      objectReference: {fileID: 757345532}
+    - target: {fileID: 8946588168531518151, guid: f4d0838bef88f4d449e3729e10ecd944, type: 3}
       propertyPath: navigationView
       value: 
       objectReference: {fileID: 85747639}
@@ -16111,6 +16184,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1995236331}
+  - component: {fileID: 1995236332}
   m_Layer: 0
   m_Name: 013 Card
   m_TagString: Untagged
@@ -16140,6 +16214,21 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 849.6, y: 475.19998}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &1995236332
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1995236330}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 623ff6f86ca5eab48b7a47c65ed4ab6c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  card: {fileID: 1995236331}
+  buttons: {fileID: 525984726}
+  textTemplate: {fileID: 1426295620}
 --- !u!1 &1997249979
 GameObject:
   m_ObjectHideFlags: 0

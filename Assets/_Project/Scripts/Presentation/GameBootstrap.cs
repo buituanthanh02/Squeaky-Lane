@@ -39,6 +39,8 @@ namespace SqueakyLane.Presentation
         private SfxPlayer sfxPlayer;
         [SerializeField]
         private Haptics haptics;
+        [SerializeField, Tooltip("018: chữ Combo và bảng kỷ lục; trống thì không hiện.")]
+        private ComboFeedback comboFeedback;
         [SerializeField, Tooltip("Prefab hạt dùng chung tạo bởi Tools/Squeaky Lane/Core Feel.")]
         private FeelEffects feelEffectsPrefab = null;
         private FeelEffects feelEffects;
@@ -95,6 +97,11 @@ namespace SqueakyLane.Presentation
                 feelEffects.enabled = true;
                 feelEffects.Initialize(animator, board, boardCamera, feelConfig, palette);
             }
+            if (comboFeedback != null)
+            {
+                comboFeedback.Initialize(animator, feelConfig, feedback);
+            }
+
             navigationView.Navigate += Navigate;
             navigationView.Undo += Undo;
             navigationView.Hint += RequestHint;
@@ -111,6 +118,11 @@ namespace SqueakyLane.Presentation
             input.Command -= Apply;
             tableButtons.Command -= Apply;
             feedback.Disconnect();
+            if (comboFeedback != null)
+            {
+                comboFeedback.Disconnect();
+            }
+
             if (feelEffects != null)
             {
                 feelEffects.enabled = false;
@@ -170,6 +182,11 @@ namespace SqueakyLane.Presentation
             CreateSearch(setup.Hints);
             board.Build(session.Level, session.State, palette, configs.Cars, configs.Mechanics);
             animator.Initialize(board, feelConfig, session.State);
+            if (comboFeedback != null)
+            {
+                comboFeedback.BeginAttempt();
+            }
+
             input.Initialize(boardCamera, board, gameConfig);
             tableButtons.Bind(session, board, boardCamera, gameConfig);
             FitBoardCamera();
@@ -352,14 +369,30 @@ namespace SqueakyLane.Presentation
                 if (winDelayRemaining <= 0)
                 {
                     progress.RecordWin(order[selected], timer.StarsOnWin());
-                    Navigate(NavigationAction.Won, -1);
+                    FinishAttempt(NavigationAction.Won);
                 }
             }
             else if (timer.IsOver)
             {
                 feedback.Result(false);
-                Navigate(NavigationAction.Lost, -1);
+                FinishAttempt(NavigationAction.Lost);
             }
+        }
+
+        private void FinishAttempt(NavigationAction result)
+        {
+            // Navigate bị bỏ qua khi đang chuyển cảnh; chỉ chốt combo khi lượt thật sự kết thúc.
+            if (!CanPlay)
+            {
+                return;
+            }
+
+            if (comboFeedback != null)
+            {
+                comboFeedback.FinishAttempt(progress, order[selected]);
+            }
+
+            Navigate(result, -1);
         }
 
         // Gợi ý và dò kẹt chia nhau một ngân sách thời gian mỗi frame.
@@ -525,6 +558,11 @@ namespace SqueakyLane.Presentation
                     case NavigationCommandKind.ShowScreen:
                         navigationView.ShowScreen(command.Screen);
                         navigationView.RefreshLevels(progress, gameConfig.UnlockAll);
+                        if (comboFeedback != null)
+                        {
+                            comboFeedback.ShowScreen(command.Screen);
+                        }
+
                         break;
                     case NavigationCommandKind.ShowStuck:
                         navigationView.ShowStuck(true);

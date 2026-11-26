@@ -106,9 +106,21 @@ MonoBehaviour:
   popupTextSize: 0.08
   popupSeconds: 1.1
   popupRise: 0.6
-  comboWindowSeconds: 1.6
+  comboWindowSeconds: 3
   comboSemitones: 2
   comboMaxSteps: 5
+  comboPopSeconds: 0.28
+  comboPunchScale: 1.35
+  comboFadeSeconds: 0.3
+  comboBurstDegrees: 40
+  recordIntroSeconds: 0.55
+  recordWhooshSeconds: 0.26
+  recordImpactSeconds: 0.55
+  recordFlyDistance: 620
+  recordSlamScale: 2.4
+  recordShakeDistance: 24
+  recordPulseSeconds: 0.7
+  recordPulseScale: 0.07
   impactFullCells: 5
   impactMaxScale: 1.8
   shakeMinCells: 2

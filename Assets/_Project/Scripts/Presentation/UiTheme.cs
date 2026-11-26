@@ -94,6 +94,19 @@ namespace SqueakyLane.Presentation
         [SerializeField, Range(40, 320), Tooltip("Bề rộng viền, đơn vị Canvas (màn rộng ~980). Đổi xong chạy lại menu Build Stuck Edge.")] private float stuckEdgeWidth = 150;
         [SerializeField, Range(.5f, 2), Tooltip("Một nhịp sáng–mờ, giây (không dưới 0,5 để tránh nháy gắt).")] private float stuckPulseSeconds = .9f;
         [SerializeField, Range(0, 1)] private float stuckAlphaMin = .2f, stuckAlphaMax = 1;
+        [Header("018 · Combo và kỷ lục (hình Codex vẽ ở Art/UI/Combo; menu 018 UI/Build Combo gán)")]
+        [SerializeField] private Sprite comboWord = null;
+        [SerializeField, Tooltip("Đúng 10 hình, theo thứ tự 0–9, cùng chiều cao.")] private Sprite[] comboDigits = new Sprite[0];
+        [SerializeField] private Sprite recordBanner = null, comboBurst = null, comboSpark = null, comboStreak = null, comboRing = null;
+        [SerializeField] private Color comboBurstColor = new Color(1, .9f, .45f, .85f), recordFlashColor = new Color(1, .93f, .55f, 1);
+        [SerializeField, Range(0, 40), Tooltip("Hai chữ số chồng mép nhau bao nhiêu pixel của hình gốc (hình có đệm hai bên).")] private float comboDigitOverlap = 16;
+        [SerializeField, Range(-40, 40), Tooltip("Hạ chữ Combo bao nhiêu pixel hình gốc để chân chữ ngang chân số.")] private float comboWordDrop = 5;
+        [SerializeField, Range(1, 4), Tooltip("Cỡ quầng sáng theo chiều cao chữ số.")] private float comboBurstScale = 1.9f;
+        [SerializeField, Range(60, 400)] private float popupDigitHeight = 175;
+        [SerializeField, Range(60, 300)] private float summaryDigitHeight = 150, summaryComboHeight = 150, summaryBannerHeight = 190;
+        [SerializeField, Range(40, 200)] private float summaryLineHeight = 80;
+        [SerializeField, Range(20, 90)] private float summaryLineFontSize = 52;
+        [SerializeField] private Color summaryLineColor = Color.white;
         [Header("016 · Khu phố hoạt hình sinh theo màn (khi bật thì thay nền, phố và props cũ; tạo asset bằng menu 016 Toy → City Setup)")]
         [SerializeField] private bool cityEnabled = false;
         [SerializeField, Tooltip("Unlit + palette cho nền/đường.")] private Material cityGroundMaterial = null;
@@ -222,6 +235,25 @@ namespace SqueakyLane.Presentation
         public float StuckPulseSeconds => Mathf.Max(.5f, stuckPulseSeconds);
         public float StuckAlphaMin => stuckAlphaMin;
         public float StuckAlphaMax => stuckAlphaMax;
+        public Sprite ComboWord => comboWord;
+        public Sprite ComboDigit(int value) => comboDigits != null && value >= 0 && value < comboDigits.Length ? comboDigits[value] : null;
+        public Sprite RecordBanner => recordBanner;
+        public Sprite ComboBurst => comboBurst;
+        public Sprite ComboSpark => comboSpark;
+        public Sprite ComboStreak => comboStreak;
+        public Sprite ComboRing => comboRing;
+        public Color ComboBurstColor => comboBurstColor;
+        public Color RecordFlashColor => recordFlashColor;
+        public float ComboDigitOverlap => comboDigitOverlap;
+        public float ComboWordDrop => comboWordDrop;
+        public float ComboBurstScale => comboBurstScale;
+        public float PopupDigitHeight => popupDigitHeight;
+        public float SummaryDigitHeight => summaryDigitHeight;
+        public float SummaryComboHeight => summaryComboHeight;
+        public float SummaryBannerHeight => summaryBannerHeight;
+        public float SummaryLineHeight => summaryLineHeight;
+        public float SummaryLineFontSize => summaryLineFontSize;
+        public Color SummaryLineColor => summaryLineColor;
         public bool CityEnabled => cityEnabled && cityGroundMaterial != null && cityPropMaterial != null;
         public Material CityGroundMaterial => cityGroundMaterial;
         public Material CityPropMaterial => cityPropMaterial;

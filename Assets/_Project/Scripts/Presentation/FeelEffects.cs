@@ -25,7 +25,6 @@ namespace SqueakyLane.Presentation
         // Chữ nổi "Sạch bóng!": pool nhỏ tạo một lần, tái dùng; không Instantiate theo sự kiện.
         private const int PopupPool = 4;
         private static readonly string[] Praise = { "Sạch bóng!", "Bóng loáng!", "Thơm tho!" };
-        private static readonly string[] ComboText = { "", "", "Liên tiếp x2!", "Liên tiếp x3!", "Liên tiếp x4!", "Liên tiếp x5!", "Liên tiếp x6!", "Liên tiếp x7!", "Liên tiếp x8!" };
         private Popup[] popups;
         private Font popupFont;
         private int praiseIndex;
@@ -146,12 +145,6 @@ namespace SqueakyLane.Presentation
             local.y = 1.1f;
             Pop(Praise[praiseIndex], local, Color.white);
             praiseIndex = (praiseIndex + 1) % Praise.Length;
-            int combo = animator.ExitCombo;
-            if (combo >= 2)
-            {
-                local.z = Mathf.Min(local.z + .55f, limitZ + .55f);
-                Pop(ComboText[Mathf.Min(combo, ComboText.Length - 1)], local, new Color32(255, 229, 138, 255));
-            }
         }
 
         private void Pop(string text, Vector3 localStart, Color color)
@@ -204,7 +197,7 @@ namespace SqueakyLane.Presentation
             var font = board.LabelFont;
             if (popups != null && popupFont == font) { return; }
             popupFont = font;
-            font.RequestCharactersInTexture("Sạch bóng! Bóng loáng! Thơm tho! Liên tiếp x0123456789", 36, FontStyle.Normal);
+            font.RequestCharactersInTexture("Sạch bóng! Bóng loáng! Thơm tho!", 36, FontStyle.Normal);
             if (popups == null)
             {
                 popups = new Popup[PopupPool];
