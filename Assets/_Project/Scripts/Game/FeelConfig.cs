@@ -107,7 +107,8 @@ namespace SqueakyLane.Game
         [SerializeField, Tooltip("Prefab cục bùn khối (Prefabs/VFX/MudBlob), thay tấm bùn phẳng của prefab xe; trống = giữ tấm cũ.")] private GameObject mudBlobPrefab = null;
         [SerializeField, Tooltip("Material vệt bánh khi xe dính bùn (Art/VFX/Materials/M_MudTrail); trống = vệt trắng như thường.")] private Material mudTrailMaterial = null;
         [SerializeField, Tooltip("Các kiểu vẩy bùn (Prefabs/VFX/MudSplat_N), mỗi xe lấy theo chỉ số xe; có thì dùng thay cho Mud Blob Prefab.")] private GameObject[] mudSplatPrefabs = System.Array.Empty<GameObject>();
-        [SerializeField, Range(.5f, 2.5f), Tooltip("Phóng to vẩy bùn trên mui (giữ nguyên bố cục); to hơn thì dễ thấy trên điện thoại, nhưng giọt chảy sẽ thòng ra ngoài thân.")] private float mudSplatScale = 1.3f;
+        private const float DefaultMudSplatScale = 1.5f;
+        [SerializeField, Range(.5f, 2.5f), Tooltip("Phóng to vẩy bùn trên mui (giữ nguyên bố cục); to hơn thì dễ thấy trên điện thoại, nhưng giọt chảy sẽ thòng ra ngoài thân.")] private float mudSplatScale = DefaultMudSplatScale;
         [Header("014 — Trạm rửa: xe bò chậm qua ô vòi xịt, chổi quay, xịt bọt")]
         [SerializeField, Range(0, 1.5f), Tooltip("Thời gian xe bò qua ô vòi xịt khi đang dính bùn, giây (bình thường 1 ô mất Step Seconds). 0 = tắt, chạy thường.")] private float washCrawlSeconds = .7f;
         [SerializeField, Range(0, 1), Tooltip("Bùn bắt đầu trôi sau bao nhiêu giây kể từ lúc xe vào ô rửa (chổi cần chạm xe trước).")] private float washMudDelaySeconds = .2f;
@@ -354,7 +355,7 @@ namespace SqueakyLane.Game
             sparkles.Validate();
             impact.Validate();
             confetti.Validate();
-            mudSplatScale = Limit(mudSplatScale, .5f, 2.5f, 1.3f);
+            mudSplatScale = Limit(mudSplatScale, .5f, 2.5f, DefaultMudSplatScale);
             washCrawlSeconds = Limit(washCrawlSeconds, 0, 1.5f, .7f);
             washMudDelaySeconds = Limit(washMudDelaySeconds, 0, 1, .2f);
             washMudFadeSeconds = Limit(washMudFadeSeconds, .05f, 1, .4f);

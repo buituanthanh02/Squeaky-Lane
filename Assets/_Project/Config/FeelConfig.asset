@@ -24,6 +24,7 @@ MonoBehaviour:
   winDialogDelaySeconds: 0.9
   sfxVolume: 0.7
   sfxVoices: 8
+  sfxFadeSeconds: 0.05
   hapticGapSeconds: 0.12
   shortVibrationMs: 20
   resultVibrationMs: 90
@@ -136,10 +137,19 @@ MonoBehaviour:
   - {fileID: 5056864148731796829, guid: b0027dac2d5e26642b2b3fdbff971821, type: 3}
   - {fileID: 7974592799048176571, guid: 45bd058e78765df42a6d266f1fc62c0e, type: 3}
   - {fileID: 580561552060222473, guid: 8f29ed741dc1f3d4ba4d8fcb7e1ea13d, type: 3}
+  mudSplatScale: 1.5
   washCrawlSeconds: 0.7
   washMudDelaySeconds: 0.2
   washMudFadeSeconds: 0.4
   washRollerSpinDegrees: 720
+  washGateExtraCells: 0.3
+  washGateCrawlSeconds: 1.1
+  washGatePauseSeconds: 0.15
+  streetExitEnabled: 1
+  streetTurnSeconds: 0.22
+  streetTurnRadius: 0.5
+  streetRunCells: 12
+  streetRunSeconds: 0.9
   mudDripsEnabled: 1
   mudDrip:
     count: 2

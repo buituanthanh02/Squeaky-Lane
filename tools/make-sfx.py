@@ -55,7 +55,9 @@ def move():
     phase = 2 * np.pi * np.cumsum(f) / SR
     tone = np.sin(phase) + 0.5 * np.sin(2 * phase) + 0.22 * np.sin(3 * phase) + 0.1 * np.sin(4 * phase)
     tone *= 1 + 0.28 * np.sin(2 * np.pi * 30 * t)
-    return finish(band(tone * envelope(t, 0.025, 0.13), 0, 800), 0.55)
+    # Đầu tiếng có thêm họa âm ngắn để loa điện thoại tái tạo được ngay khi xe lăn.
+    onset = (0.55 * np.sin(5 * phase) + 0.35 * np.sin(7 * phase)) * np.exp(-t / 0.04)
+    return finish(band((tone + onset) * envelope(t, 0.006, 0.13), 0, 1200), 0.55)
 
 
 def washing(seconds, low, high, bubbles, seed):

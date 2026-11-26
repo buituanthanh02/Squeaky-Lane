@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -680,9 +680,10 @@ namespace SqueakyLane.EditorTools
             {
                 X = x;
                 Z = z;
-                RadiusX = radiusX;
-                RadiusZ = radiusZ;
-                Height = height;
+                // 016-f: từng mảng bùn to và dày hơn bố cục gốc để đọc rõ trên điện thoại.
+                RadiusX = radiusX * 1.6f;
+                RadiusZ = radiusZ * 1.6f;
+                Height = height * 1.45f;
                 Drip = drip;
             }
         }

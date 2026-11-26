@@ -93,7 +93,7 @@ MonoBehaviour:
   propGap: 1.5
   propCount: 6
   propSpacing: 2.8
-  hideCarNumbers: 0
+  hideCarNumbers: 1
   gateStrips: 1
   gateStripDepth: 0.5
   lightIntensity: 1

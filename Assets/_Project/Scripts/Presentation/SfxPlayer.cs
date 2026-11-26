@@ -17,11 +17,28 @@ namespace SqueakyLane.Presentation
         {
             feel = settings; progress = store;
             if (voices != null) return;
+            // Nạp ba tiếng cần khớp chuyển động khi dựng GameRoot, trước lượt chạm đầu.
+            Preload(SoundCue.Move);
+            Preload(SoundCue.StopCar);
+            Preload(SoundCue.StopWall);
             int count = settings.SfxVoices;
             voices = new AudioSource[count]; voiceCue = new SoundCue[count]; remaining = new float[count]; fadeRate = new float[count];
             nextCue = new float[System.Enum.GetValues(typeof(SoundCue)).Length];
             for (int i = 0; i < voices.Length; i++)
             { var go = new GameObject("SFX voice " + i); go.transform.SetParent(transform, false); var voice = go.AddComponent<AudioSource>(); voice.playOnAwake = false; voice.spatialBlend = 0; voices[i] = voice; }
+        }
+        private void Preload(SoundCue cue)
+        {
+            if (!Application.isPlaying || catalog == null) { return; }
+            var entry = catalog.Find(cue);
+            if (entry == null || entry.clips == null) { return; }
+            foreach (var clip in entry.clips)
+            {
+                if (clip != null && clip.loadState == AudioDataLoadState.Unloaded)
+                {
+                    clip.LoadAudioData();
+                }
+            }
         }
         // pitchScale > 1 nâng cao độ (chuỗi ra cổng liên tiếp); nhân với khoảng ngẫu nhiên của catalog.
         public void Play(SoundCue cue, float pitchScale = 1f)

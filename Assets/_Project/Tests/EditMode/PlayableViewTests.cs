@@ -1,5 +1,6 @@
 using System.Reflection;
 using NUnit.Framework;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
 using SqueakyLane.Core.Model;
@@ -182,6 +183,90 @@ namespace SqueakyLane.Tests.EditMode
                 camera.targetTexture = null;
                 Object.DestroyImmediate(texture);
                 Object.DestroyImmediate(config);
+            }
+        }
+
+        [TestCase(1, -1)]
+        [TestCase(3, 0)]
+        [TestCase(16, 1)]
+        [TestCase(19, 1)]
+        [TestCase(29, -1)]
+        public void PhoneCameraAdaptsButKeepsGateFramesAndBothCarHalves(int levelId, int zoomDirection)
+        {
+            var json = AssetDatabase.LoadAssetAtPath<TextAsset>($"Assets/_Project/Resources/Levels/level_{levelId:00}.json");
+            var level = LevelJsonLoader.Load(json.text, json.name);
+            var theme = AssetDatabase.LoadAssetAtPath<UiTheme>("Assets/_Project/Config/UiTheme.asset");
+            var mechanics = AssetDatabase.LoadAssetAtPath<MechanicCatalog>("Assets/_Project/Config/MechanicCatalog.asset");
+            var cars = AssetDatabase.LoadAssetAtPath<CarCatalog>("Assets/_Project/Config/CarCatalog.asset");
+            typeof(BoardView).GetField("sceneTheme", BindingFlags.Instance | BindingFlags.NonPublic).SetValue(board, theme);
+            board.Build(level, new GameSession(level).State, palette, cars, mechanics);
+
+            var cameraObject = new GameObject("016-f iPhone camera", typeof(Camera));
+            cameraObject.transform.SetParent(root.transform);
+            var camera = cameraObject.GetComponent<Camera>();
+            var texture = new RenderTexture(1284, 2778, 0);
+            camera.targetTexture = texture;
+            const float safeHeight = 2535f / 2778f;
+            var config = AssetDatabase.LoadAssetAtPath<CameraConfig>("Assets/_Project/Config/CameraConfig.asset");
+            var viewport = new Rect(0, 102f / 2778f + safeHeight * config.PlayingBottomInset,
+                1, safeHeight * (.86f - config.PlayingBottomInset));
+            var baseline = Object.Instantiate(config);
+            int cells = level.Cols * level.Rows;
+            typeof(CameraConfig).GetField("wideBoardCells", BindingFlags.Instance | BindingFlags.NonPublic).SetValue(baseline, cells - 1);
+            typeof(CameraConfig).GetField("tightBoardCells", BindingFlags.Instance | BindingFlags.NonPublic).SetValue(baseline, cells + 1);
+            try
+            {
+                board.FitCamera(camera, baseline, viewport);
+                float before = texture.height / (2 * camera.orthographicSize);
+                board.FitCamera(camera, config, viewport);
+                float after = texture.height / (2 * camera.orthographicSize);
+                TestContext.WriteLine($"{levelId:00}: {before:0.0} → {after:0.0} px/ô");
+                if (zoomDirection == 0) { Assert.That(after / before, Is.InRange(.99f, 1.01f)); }
+                else { Assert.That(zoomDirection * (after - before), Is.GreaterThan(1f)); }
+
+                AssertInViewport(camera, viewport, new Bounds(Vector3.zero, new Vector3(level.Cols, 0, level.Rows)));
+                foreach (var view in board.GetComponentsInChildren<MechanicView>())
+                {
+                    if (view.Kind != MechanicKind.ColorGate && view.Kind != MechanicKind.WaterGate && view.Kind != MechanicKind.WashGate) { continue; }
+                    foreach (var mesh in view.GetComponentsInChildren<MeshRenderer>())
+                    {
+                        if (mesh.name == "Pad" || mesh.name == "Pad Rim" || mesh.GetComponentInParent<ContactShadowView>() != null) { continue; }
+                        AssertInViewport(camera, viewport, mesh.bounds);
+                    }
+                }
+
+                Physics.SyncTransforms();
+                for (int i = 0; i < level.Cars.Count; i++)
+                {
+                    var car = board.Car(i);
+                    var box = car.GetComponent<BoxCollider>();
+                    for (int sign = -1; sign <= 1; sign += 2)
+                    {
+                        Vector3 sample = box.center + new Vector3(sign * box.size.x * .25f, box.size.y * .5f, 0);
+                        Vector3 world = box.transform.TransformPoint(sample);
+                        AssertInViewport(camera, viewport, new Bounds(world, Vector3.zero));
+                        Assert.That(Physics.Raycast(camera.ScreenPointToRay(camera.WorldToScreenPoint(world)), out var hit, 100), Is.True);
+                        Assert.That(hit.collider.GetComponentInParent<CarView>(), Is.SameAs(car));
+                        Assert.That(sign * Vector3.Dot(hit.point - car.transform.position, car.PositiveDirection), Is.GreaterThan(0));
+                    }
+                }
+            }
+            finally
+            {
+                camera.targetTexture = null;
+                Object.DestroyImmediate(texture);
+                Object.DestroyImmediate(baseline);
+            }
+        }
+
+        private static void AssertInViewport(Camera camera, Rect viewport, Bounds bounds)
+        {
+            for (int i = 0; i < 8; i++)
+            {
+                var corner = new Vector3((i & 1) == 0 ? bounds.min.x : bounds.max.x,
+                    (i & 2) == 0 ? bounds.min.y : bounds.max.y, (i & 4) == 0 ? bounds.min.z : bounds.max.z);
+                var point = camera.WorldToViewportPoint(corner);
+                Assert.That(viewport.Contains(point) && point.z > 0, Is.True, $"{corner} → {point}, khung {viewport}");
             }
         }
 

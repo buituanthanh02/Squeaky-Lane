@@ -370,11 +370,11 @@ namespace SqueakyLane.Presentation
             camera.clearFlags = CameraClearFlags.SolidColor;
             camera.transform.rotation = Quaternion.Euler(config.TiltDegrees, 0, 0);
             float aspect = camera.pixelRect.width / Mathf.Max(1, camera.pixelRect.height);
-            // 015: cạnh có hầm rửa cần thêm chỗ cho cả thân xe ra ngoài bãi (+ thảm), nếu không xe chạy khỏi màn hình.
-            // 016: có phố quanh bãi thì chừa thêm bề rộng phố để thấy xe chạy đi.
             float street = StreetCenterOffset > 0 ? sceneTheme.StreetInner + sceneTheme.StreetWidth * sceneTheme.StreetVisible : 0;
-            float halfWidth = level.Cols * .5f + Mathf.Max(.9f, Mathf.Max(WashGateReach(true) + .4f, street)) + config.Padding;
-            float halfHeight = (level.Rows * .5f + Mathf.Max(.9f, Mathf.Max(WashGateReach(false) + .4f, street)) + config.Padding) * Mathf.Sin(config.TiltDegrees * Mathf.Deg2Rad) + .7f;
+            float framing = config.SceneryFraming(level.Cols * level.Rows);
+            float halfWidth = level.Cols * .5f + FramedMargin(config, street, WashGateReach(true), framing);
+            float halfDepth = level.Rows * .5f + FramedMargin(config, street, WashGateReach(false), framing);
+            float halfHeight = halfDepth * Mathf.Sin(config.TiltDegrees * Mathf.Deg2Rad) + .7f;
             camera.orthographicSize = Mathf.Max(halfHeight / Mathf.Max(.001f, viewport.height),
                 halfWidth / (aspect * Mathf.Max(.001f, viewport.width)));
             // Dịch tâm nhìn để bãi vẫn nằm giữa khoảng chơi, kể cả safe area không đối xứng.
@@ -385,6 +385,15 @@ namespace SqueakyLane.Presentation
                 - camera.transform.right * offsetX - camera.transform.up * offsetY;
             if (environmentView != null) { environmentView.EnsureGroundCoverage(camera); }
             RefreshOcclusion();
+        }
+        private static float FramedMargin(CameraConfig config, float street, float washReach, float framing)
+        {
+            const float GateMargin = .9f;
+            // Bãi lớn cho phép cắt phố hoặc thảm ngoài hầm, nhưng giữ cả khung hầm (tới ~1,03 ô).
+            float minimum = washReach > 0 ? config.WashGateFrameReach : GateMargin;
+            float scenic = Mathf.Max(minimum, Mathf.Max(street, washReach > 0 ? Mathf.Min(washReach + .4f, config.WashGateSceneryReach) : 0));
+            float margin = framing > 0 ? Mathf.Lerp(scenic, minimum, framing) : scenic - framing * config.WideBoardPadding;
+            return margin + config.Padding;
         }
         private void LateUpdate() { RefreshOcclusion(); }
         public void RefreshOcclusion()
