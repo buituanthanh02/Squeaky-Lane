@@ -112,9 +112,19 @@ Xóa chỉ làm repo gọn, không làm APK nhỏ đi. Trái quyết định 26/
 ## Tiêu chí xong và bậc kiểm
 Điền sau khi trả lời câu hỏi. Dự kiến V1 (test điều hướng, tiền) + V2 (Console sạch, Play) + V3 (ảnh Game view trước/sau).
 
+## Đã làm: logo riêng và màn trình diễn thắng (27/11, người làm yêu cầu; nửa đầu V5)
+- Logo "Squeaky Lane" vẽ mới (phiếu 021-a). `WinShow` dựng lớp phủ lúc chạy: chờ 0,45 s → tối → nền bọt, 7 chữ, biển LANE → pháo hoa 3 đợt → 3,2 s mở bảng Thắng trên nền tối (alpha 0,92, tới khi rời màn Thắng). Chạm sau 0,4 s hoặc Back để bỏ qua. Bãi tập giữ như cũ.
+- Đổi: sao được ghi ngay lúc thắng; mở bảng Thắng sau màn trình diễn không còn mờ đen. Không đổi scene, prefab, Core, Navigator.
+- Config mới: `FeelConfig` nhóm 021 (16 số thời gian), `UiTheme` nhóm 021 (hình, màu, cỡ pháo); gán bằng menu `021 UI/Setup Win Logo`.
+- Kiểm: EditMode 600 chạy, 599 đạt, 1 bỏ qua (5 ca mới `WinShow021Tests`); Play màn 1: thắng → trình diễn → bảng Thắng, Chơi lại tắt lớp phủ, Console không lỗi code game. Chạy trên working tree đang có cả thay đổi AssetCar chưa commit. Ảnh `Logs/021-logo/chuoi-thang.jpg` chụp bằng cách đặt tuổi lớp phủ khi Editor tạm dừng.
+- Chưa kiểm: nhìn chuyển động liền mạch, chạm bỏ qua bằng tay, máy thật, FPS. Chưa làm: bảng một nút, về menu, xu bay (chờ câu 1, 2).
+- Phát hiện ngoài phạm vi: màn không tính giờ, bảng Thắng ghi "còn 0 s".
+
 ## Trao đổi
 2026-11-26 21:55 · Claude → Người làm · [HỎI]: đã phân tích hai video và UI hiện tại, chờ trả lời 5 câu và duyệt thứ tự trước khi code.
 2026-11-27 10:24 · Claude → Người làm · [HỎI]: folder AssetCar là bản trích Car Match, chưa nhập; chờ văn bản cho phép hoặc đồng ý tự làm asset, và duyệt danh sách xóa Kenney không dùng.
 2026-11-27 10:31 · Người làm → Claude · [BÁO]: nói asset AssetCar được dùng thoải mái, muốn chép phần sẽ dùng; asset Kenney không dùng được giữ lại nếu không làm APK to.
 2026-11-27 10:31 · Claude → Người làm · [TRẢ LỜI]: không chép file trích từ Car Match khi chưa có văn bản của bên giữ quyền. Kenney không dùng giữ nguyên (không nằm trong build). Đã vẽ nháp nút viền trắng, pill, tim, xu ở Logs/021-ui-ref/draft (chưa đưa vào Assets), chờ duyệt.
 2026-11-27 10:34 · Claude → Người làm · [BÁO]: người làm muốn dùng asset trích cho bài test; vẫn không nhập khi chưa có văn bản. Đề xuất làm đẹp xe và UI đang có, hoặc gói xe có giấy phép; chờ chọn. Commit phần kế hoạch theo yêu cầu.
+2026-11-27 11:06 · Claude → Người làm · [BÁO]: đã thấy phần AssetCar Codex gắn (chưa commit). Chưa có văn bản của bên giữ quyền nên Claude không APPROVE, không commit phần đó, kể cả mục AssetCar trong PROJECT.md. Làm logo riêng (phiếu 021-a) và màn trình diễn thắng, commit tách.
+2026-11-27 11:11 · Claude → Người làm · [BÁO]: logo và màn trình diễn thắng đã chạy, commit riêng trên 021-ui-flow; chờ chơi thử.

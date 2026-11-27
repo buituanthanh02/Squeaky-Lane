@@ -46,6 +46,10 @@ namespace SqueakyLane.Presentation
         public RectTransform EffectsLayer => playing != null ? (RectTransform)playing.transform : null;
         // 019: đang ở bãi tập thì ô tên màn ghi chữ này thay cho "Màn N".
         public string PracticeTitle { get; set; }
+        // 021: màn trình diễn thắng chèn ngay dưới bảng Thắng để bảng hiện đè lên nền tối.
+        public UiTheme Theme => theme;
+        public RectTransform DialogLayer => won != null ? (RectTransform)won.transform.parent : null;
+        public int DialogIndex => won != null ? won.transform.GetSiblingIndex() : 0;
         public RectTransform PauseRect => pauseButton != null ? (RectTransform)pauseButton.transform : null;
         public RectTransform UndoRect => (RectTransform)undoButton.transform;
         public RectTransform HintRect => (RectTransform)hintButton.transform;

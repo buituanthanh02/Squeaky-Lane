@@ -1,0 +1,102 @@
+{
+  "width": 1024,
+  "height": 760,
+  "pieces": [
+    {
+      "sprite": "logo_back",
+      "role": "back",
+      "x": 0.0,
+      "y": -35.0,
+      "w": 944,
+      "h": 690
+    },
+    {
+      "sprite": "logo_letter_0",
+      "role": "letter",
+      "x": -380.0,
+      "y": -71.5,
+      "w": 150,
+      "h": 195
+    },
+    {
+      "sprite": "logo_letter_1",
+      "role": "letter",
+      "x": -257.5,
+      "y": -64.5,
+      "w": 181,
+      "h": 229
+    },
+    {
+      "sprite": "logo_letter_2",
+      "role": "letter",
+      "x": -122.5,
+      "y": -42.0,
+      "w": 163,
+      "h": 196
+    },
+    {
+      "sprite": "logo_letter_3",
+      "role": "letter",
+      "x": 3.0,
+      "y": -36.0,
+      "w": 144,
+      "h": 192
+    },
+    {
+      "sprite": "logo_letter_4",
+      "role": "letter",
+      "x": 124.5,
+      "y": -38.0,
+      "w": 169,
+      "h": 194
+    },
+    {
+      "sprite": "logo_letter_5",
+      "role": "letter",
+      "x": 257.5,
+      "y": -48.5,
+      "w": 159,
+      "h": 197
+    },
+    {
+      "sprite": "logo_letter_6",
+      "role": "letter",
+      "x": 385.0,
+      "y": -69.5,
+      "w": 162,
+      "h": 191
+    },
+    {
+      "sprite": "logo_lane",
+      "role": "word",
+      "x": 8.5,
+      "y": -196.0,
+      "w": 565,
+      "h": 212
+    },
+    {
+      "sprite": "deco_bubble_a",
+      "role": "deco",
+      "x": -455.0,
+      "y": 85.0,
+      "w": 114,
+      "h": 114
+    },
+    {
+      "sprite": "deco_bubble_b",
+      "role": "deco",
+      "x": 470.0,
+      "y": 27.0,
+      "w": 84,
+      "h": 84
+    },
+    {
+      "sprite": "deco_spark",
+      "role": "deco",
+      "x": 327.0,
+      "y": 308.0,
+      "w": 128,
+      "h": 144
+    }
+  ]
+}

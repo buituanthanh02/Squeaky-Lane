@@ -234,6 +234,44 @@ namespace SqueakyLane.Presentation
         public float PraiseTilt => praiseTilt;
         public float PraiseSparkSize => praiseSparkSize;
         public Color PraiseSparkColor => praiseSparkColor;
+        [Header("021 · Màn thắng: logo và pháo hoa (menu '021 UI/Setup Win Logo' gán hình)")]
+        [SerializeField, Tooltip("logo_layout.json: vị trí từng mảnh logo. Trống thì thắng mở bảng như cũ.")] private TextAsset winLogoLayout = null;
+        [SerializeField] private Sprite[] winLogoSprites = new Sprite[0];
+        [SerializeField] private Sprite winFxDot = null, winFxTrail = null;
+        [SerializeField, Tooltip("Project dùng không gian màu Linear nên alpha phải rất cao mới ra gần đen.")] private Color winDimColor = new Color(.008f, .006f, .025f, .985f);
+        [SerializeField, Range(0, 1), Tooltip("Độ tối còn lại phía sau bảng Thắng.")] private float winBackdropAlpha = .92f;
+        [SerializeField, Range(.4f, 1), Tooltip("Bề ngang logo so với bề ngang màn.")] private float winLogoWidth = .86f;
+        [SerializeField, Range(-.3f, .3f), Tooltip("Tâm logo cao hơn giữa màn bao nhiêu (tỉ lệ chiều cao).")] private float winLogoLift = .08f;
+        [SerializeField, Tooltip("Điểm nổ pháo hoa, tỉ lệ màn tính từ tâm; tối đa 5.")]
+        private Vector2[] winFireworkSpots = { new Vector2(-.27f, .27f), new Vector2(.26f, .31f), new Vector2(.02f, -.17f) };
+        [SerializeField] private Color[] winFireworkColors = { new Color(1, .84f, .25f), new Color(.37f, .85f, .94f), new Color(.95f, .34f, .54f) };
+        [SerializeField, Range(100, 800)] private float winBurstRadius = 400;
+        [SerializeField, Range(0, 600), Tooltip("Tia pháo rơi xuống bao xa cuối đời.")] private float winSparkDrop = 170;
+        [SerializeField, Range(8, 100)] private float winSparkSize = 54;
+        public bool HasWinShow => winLogoLayout != null && winLogoSprites != null && winLogoSprites.Length > 0;
+        public TextAsset WinLogoLayout => winLogoLayout;
+        public Sprite WinLogoSprite(string spriteName)
+        {
+            for (int i = 0; winLogoSprites != null && i < winLogoSprites.Length; i++)
+            {
+                if (winLogoSprites[i] != null && winLogoSprites[i].name == spriteName) { return winLogoSprites[i]; }
+            }
+
+            return null;
+        }
+
+        public Sprite WinFxDot => winFxDot;
+        public Sprite WinFxTrail => winFxTrail;
+        public Color WinDimColor => winDimColor;
+        public float WinBackdropAlpha => winBackdropAlpha;
+        public float WinLogoWidth => winLogoWidth;
+        public float WinLogoLift => winLogoLift;
+        public int WinFireworkSpotCount => winFireworkSpots != null ? winFireworkSpots.Length : 0;
+        public Vector2 WinFireworkSpot(int index) => winFireworkSpots[index];
+        public Color WinFireworkColor(int index) => winFireworkColors != null && winFireworkColors.Length > 0 ? winFireworkColors[index % winFireworkColors.Length] : Color.white;
+        public float WinBurstRadius => winBurstRadius;
+        public float WinSparkDrop => winSparkDrop;
+        public float WinSparkSize => winSparkSize;
         public Color ClockColor => clockColor;
         public Color LowClock => lowClock;
         public Color Shade => shade;

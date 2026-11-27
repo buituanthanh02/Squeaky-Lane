@@ -425,12 +425,50 @@ namespace SqueakyLane.Game
             washGatePauseSeconds = Limit(washGatePauseSeconds, 0, 1, .15f);
             mudDrip.Validate();
             mudSplash.Validate();
+            winShowDelaySeconds = Limit(winShowDelaySeconds, 0, 2, .45f);
+            winShowSeconds = Limit(winShowSeconds, 1, 6, 3.2f);
+            winShowSkipAfter = Limit(winShowSkipAfter, 0, 2, .4f);
+            winShowFadeSeconds = Limit(winShowFadeSeconds, 0, 1, .25f);
         }
 
         private static float Limit(float value, float min, float max, float fallback)
         {
             return Mathf.Clamp(GameConfig.Clean(value, min, fallback), min, max);
         }
+
+        [Header("021 — Màn thắng: logo và pháo hoa (giây tính từ lúc lớp phủ bắt đầu)")]
+        [SerializeField, Range(0, 2), Tooltip("Chờ sau khi xe cuối ra hết (thấy pháo giấy trên bãi) rồi mới phủ tối.")] private float winShowDelaySeconds = .45f;
+        [SerializeField, Range(1, 6), Tooltip("Hết ngần này thì mở bảng thắng.")] private float winShowSeconds = 3.2f;
+        [SerializeField, Range(0, 2), Tooltip("Trước mốc này chạm không bỏ qua.")] private float winShowSkipAfter = .4f;
+        [SerializeField, Range(0, 1)] private float winShowFadeSeconds = .25f;
+        [SerializeField, Range(0, 1)] private float winDimStart = .05f;
+        [SerializeField, Range(.05f, 1.5f)] private float winDimSeconds = .5f;
+        [SerializeField, Range(0, 2)] private float winBackStart = .15f;
+        [SerializeField, Range(.05f, 1)] private float winBackSeconds = .3f;
+        [SerializeField, Range(0, 2)] private float winLetterStart = .3f;
+        [SerializeField, Range(.02f, .3f), Tooltip("Cách nhau giữa hai chữ rời.")] private float winLetterStep = .08f;
+        [SerializeField, Range(.05f, .8f)] private float winLetterSeconds = .24f;
+        [SerializeField, Range(.05f, .8f)] private float winWordSeconds = .22f;
+        [SerializeField, Range(0, 3)] private float winFireworkStart = 1.2f;
+        [SerializeField, Range(.1f, 1)] private float winFireworkStep = .4f;
+        [SerializeField, Range(.1f, 1)] private float winRocketSeconds = .35f;
+        [SerializeField, Range(.2f, 2)] private float winSparkSeconds = .8f;
+        public float WinShowDelaySeconds => winShowDelaySeconds;
+        public float WinShowSeconds => winShowSeconds;
+        public float WinShowSkipAfter => winShowSkipAfter;
+        public float WinShowFadeSeconds => winShowFadeSeconds;
+        public float WinDimStart => winDimStart;
+        public float WinDimSeconds => winDimSeconds;
+        public float WinBackStart => winBackStart;
+        public float WinBackSeconds => winBackSeconds;
+        public float WinLetterStart => winLetterStart;
+        public float WinLetterStep => winLetterStep;
+        public float WinLetterSeconds => winLetterSeconds;
+        public float WinWordSeconds => winWordSeconds;
+        public float WinFireworkStart => winFireworkStart;
+        public float WinFireworkStep => winFireworkStep;
+        public float WinRocketSeconds => winRocketSeconds;
+        public float WinSparkSeconds => winSparkSeconds;
 
         [System.Serializable]
         public sealed class ParticleFeel

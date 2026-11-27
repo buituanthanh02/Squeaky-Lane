@@ -56,6 +56,9 @@ namespace SqueakyLane.Presentation
         private bool transitioning, clockPaused;
         private bool winCelebrating;
         private float winDelayRemaining;
+        // 021: lớp logo + pháo hoa giữa lúc thắng và bảng thắng; showPending = còn chờ tới lúc chiếu.
+        private WinShow winShow;
+        private bool winShowPending;
         private int lastCountdownSecond = -1;
         private ConfigProvider configs;
         private GameSession session;
@@ -152,7 +155,9 @@ namespace SqueakyLane.Presentation
             transition = null;
             transitioning = false;
             winCelebrating = false;
+            winShowPending = false;
             winDelayRemaining = 0;
+            HideWinShow();
             input.Accepting = false;
             tableButtons.SetAccepting(false);
             if (hints != null)
@@ -185,6 +190,7 @@ namespace SqueakyLane.Presentation
             tableButtons.Initialize(canvas);
             navigator = new Navigator(order.Length);
             navigationView.Initialize(order, progress, gameConfig.UnlockAll);
+            winShow = new WinShow(navigationView.DialogLayer, navigationView.DialogIndex, navigationView.Theme, feelConfig);
             ApplyPlayGate();
             SetBoardVisible(false);
         }
@@ -192,7 +198,9 @@ namespace SqueakyLane.Presentation
         private void LoadLevel(int position)
         {
             winCelebrating = false;
+            winShowPending = false;
             winDelayRemaining = 0;
+            HideWinShow();
             DisposeSearch();
             selected = (position % order.Length + order.Length) % order.Length;
             var json = configs.Level(order[selected]);
@@ -335,9 +343,22 @@ namespace SqueakyLane.Presentation
                 FitBoardCamera();
             }
 
+            if (winShow != null)
+            {
+                winShow.Advance(Time.unscaledDeltaTime);
+            }
+
             if (Input.GetKeyDown(KeyCode.Escape))
             {
-                Navigate(NavigationAction.Back, -1);
+                // Đang chiếu logo thắng thì nút Back chỉ bỏ qua phần trình diễn.
+                if (winShow != null && winShow.Playing)
+                {
+                    winShow.Skip();
+                }
+                else
+                {
+                    Navigate(NavigationAction.Back, -1);
+                }
             }
 
             ApplyPlayGate();
@@ -394,7 +415,14 @@ namespace SqueakyLane.Presentation
                 if (session.IsWin && !winCelebrating)
                 {
                     winCelebrating = true;
-                    winDelayRemaining = feelConfig.WinDialogDelaySeconds;
+                    winShowPending = !tutorial.Active && winShow != null && winShow.Available;
+                    winDelayRemaining = winShowPending ? feelConfig.WinShowDelaySeconds : feelConfig.WinDialogDelaySeconds;
+                    // Ghi sao ngay khi thắng: thoát game giữa lúc trình diễn vẫn giữ kết quả.
+                    if (!tutorial.Active)
+                    {
+                        progress.RecordWin(order[selected], timer.StarsOnWin());
+                    }
+
                     feedback.Result(true);
                     if (feelEffects != null)
                     {
@@ -414,7 +442,18 @@ namespace SqueakyLane.Presentation
                         return;
                     }
 
-                    progress.RecordWin(order[selected], timer.StarsOnWin());
+                    if (winShowPending)
+                    {
+                        winShowPending = false;
+                        winShow.Play();
+                        return;
+                    }
+
+                    if (winShow != null && winShow.Playing)
+                    {
+                        return;
+                    }
+
                     FinishAttempt(NavigationAction.Won);
                 }
             }
@@ -422,6 +461,14 @@ namespace SqueakyLane.Presentation
             {
                 feedback.Result(false);
                 FinishAttempt(NavigationAction.Lost);
+            }
+        }
+
+        private void HideWinShow()
+        {
+            if (winShow != null)
+            {
+                winShow.Hide();
             }
         }
 
@@ -613,13 +660,18 @@ namespace SqueakyLane.Presentation
                 feedback.StopAll();
             }
 
-            transition = StartCoroutine(Transition(commands));
+            // Sau màn trình diễn thắng, bảng hiện thẳng trên nền tối: không chớp đen thêm lần nữa.
+            bool overShow = action == NavigationAction.Won && winShow != null && winShow.Visible;
+            transition = StartCoroutine(Transition(commands, overShow));
         }
 
-        private IEnumerator Transition(IReadOnlyList<NavigationCommand> commands)
+        private IEnumerator Transition(IReadOnlyList<NavigationCommand> commands, bool overShow)
         {
             transitioning = true;
-            yield return Fade(0, 1);
+            if (!overShow)
+            {
+                yield return Fade(0, 1);
+            }
             for (int i = 0; i < commands.Count; i++)
             {
                 var command = commands[i];
@@ -645,6 +697,12 @@ namespace SqueakyLane.Presentation
                         break;
                     case NavigationCommandKind.ShowScreen:
                         navigationView.ShowScreen(command.Screen);
+                        // Nền tối của màn thắng chỉ ở lại phía sau bảng Thắng.
+                        if (command.Screen != ScreenState.Won)
+                        {
+                            HideWinShow();
+                        }
+
                         navigationView.RefreshLevels(progress, gameConfig.UnlockAll);
                         if (comboFeedback != null)
                         {
@@ -661,7 +719,15 @@ namespace SqueakyLane.Presentation
                 }
             }
 
-            yield return Fade(1, 0);
+            if (overShow)
+            {
+                winShow.Dismiss();
+            }
+            else
+            {
+                yield return Fade(1, 0);
+            }
+
             transitioning = false;
             transition = null;
             animator.Paused = navigator.Screen == ScreenState.Paused;
