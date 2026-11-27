@@ -146,7 +146,7 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 12aa50011dd6f8442a1b89528880c824, type: 3}
   recordBadge: {fileID: 21300000, guid: ab942c062fe72124091bba14a3dae870, type: 3}
   comboBurst: {fileID: 21300000, guid: 335f48bc977582d49b0bd344a5800663, type: 3}
-  comboSpark: {fileID: 21300000, guid: fef9691dacaccac41bfae71c874133ef, type: 3}
+  comboSpark: {fileID: 21300000, guid: 18e19e55738eac84e9549e1d76cec4d7, type: 3}
   comboRing: {fileID: 21300000, guid: 1fca35fc9642a8c4db0a87f1c26390d3, type: 3}
   comboBurstColor: {r: 1, g: 0.9, b: 0.45, a: 0.85}
   recordFlashColor: {r: 1, g: 0.93, b: 0.55, a: 1}

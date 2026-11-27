@@ -99,6 +99,8 @@ Người làm đã tạo project 3D trống và sẽ bổ sung thông tin sau. *
 
 **Bộ UI từ Sand Puzzle Clone `[CHỐT 25/11]`:** người làm quyết định lấy một phần sprite UI (khung nút, holder, popup, switch, icon) từ dự án cá nhân "Sand Puzzle Clone" vào `Art/UI/Sprites/Pack` và `Art/UI/Library` để khỏi vẽ lại; đây là bài thực tập nội bộ, không phát hành, không thương mại, không sao chép nguyên game. Quyết định này **ghi đè** dòng V2 "không đục asset từ game thương mại" và danh sách "3 gói đã duyệt" ở phiếu 013 cho phần UI. Không có giấy phép đi kèm nên **không đưa vào bản phát hành**; nguồn, phần lọc bỏ (logo, nhân vật, ảnh minh họa) và cách thay bằng asset CC0 nằm ở `Assets/_Project/Art/UI/Pack-Source.txt`. Gói Kenney (UI Pack, Game Icons) và Baloo 2 vẫn dùng như cũ.
 
+**AssetCar `[CHỐT 27/11]`:** người làm xác nhận được dùng các asset đã chọn từ thư mục nguồn AssetCar cho bài thực tập và duyệt đưa vào nhánh `021-ui-flow`. `[FILE]` Scene Play dùng sprite mới cho nút chính, nút hộp thoại, đóng và hoàn tác. Sáu màu xe 2 ô dùng thân và bánh từ AssetCar, bỏ mesh mắt. Xe tải 3 ô giữ mẫu Kenney. `SfxCatalog` dùng chín clip từ nguồn này, còn `CoreFeel` và `UiTheme` dùng một số texture cho hạt và sao UI. File mới nằm ở các thư mục `AssetCar` dưới `Assets/_Project/Art`. Bảng đối chiếu nguồn và kết quả kiểm có trong phiếu 021.
+
 **Ghi chú về asset và IP** `[ĐỀ XUẤT, cần bàn]`: người làm nghiêng về IP nhân vật kiểu phim *Cars*. Dùng nhân vật/asset thật của *Cars* thì vi phạm bản quyền; cho bài thực tập nội bộ có thể chấp nhận để minh hoạ, nhưng **không nên đưa vào build chính thức**. Nên làm nhân vật riêng "lấy cảm hứng" (xe có tính cách qua chuyển động). Hiện chưa có cốt truyện, làm lõi trước. `[CHỐT]` Quyết định cũ "không vẽ mặt lên kính xe" (bị đánh giá creepy) **vẫn giữ**: chỉ dùng ngôn ngữ cơ thể (nhún, chúi, nảy, rũ bùn). `[CHỐT]`
 
 ---
@@ -500,7 +502,7 @@ namespace SqueakyLane.Game
 | 018 | Combo bằng hình, kỷ lục theo màn, hiệu ứng kỷ lục mới ở bảng kết quả | `018-combo` (mở 26/11 từ `017-cleanup`) | Claude, Codex | Chờ người làm chơi thử | APPROVE hình 018-a (Claude 26/11) | 017 |
 | 019 | Hướng dẫn: bãi tập theo cơ chế, vùng sáng, bàn tay, Bỏ qua/Xem lại, gợi ý bằng tay | `019-tutorial` (mở 26/11 từ `018-combo`) | Claude | Chờ người làm chơi thử | — | 018 |
 | 020 | Chữ khen khi xe sạch ra cổng vẽ trên HUD cho dễ đọc | `020-praise-text` (mở 26/11 từ `019-tutorial`) | Claude | Chờ người làm chơi thử | — | 012, 019 |
-| 021 | Bố cục UI và luồng chuyển màn theo góp ý anh lead | `021-ui-flow` (mở 27/11 từ `020-praise-text`) | Claude | Logo và màn trình diễn thắng chờ chơi thử; phần còn lại chờ duyệt | APPROVE logo 021-a (Claude 27/11) | 016, 019, 020 |
+| 021 | Bố cục UI, luồng chuyển màn và thay asset theo góp ý anh lead | `021-ui-flow` (mở 27/11 từ `020-praise-text`) | Claude, Codex | Asset chờ review. Kế hoạch luồng UI chờ duyệt | — | 016, 019, 020 |
 
 **Kế hoạch từ 008:** `docs/handoff/play-plan.md` thay `core-plan.md` §7–9; 008 gộp logic phiên chơi + hiển thị + điều khiển, có thể commit theo mốc A/B/C, Claude review một lần cuối. 008 chưa có Navigator/điều hướng; phần đó là 009-A. `[CHỐT 22/11]`
 

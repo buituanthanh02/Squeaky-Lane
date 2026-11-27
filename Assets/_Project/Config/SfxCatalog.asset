@@ -15,14 +15,14 @@ MonoBehaviour:
   entries:
   - cue: 0
     clips:
-    - {fileID: 8300000, guid: 9a84a0f35beb1a240bb96e506bbd73d2, type: 3}
+    - {fileID: 8300000, guid: 3fa9ede413c2f6147a70ac76a472d2a9, type: 3}
     volume: 0.6
     pitchMin: 0.95
     pitchMax: 1.05
     cooldown: 0.08
   - cue: 1
     clips:
-    - {fileID: 8300000, guid: 4ceda95f8c022a74eb4d71a183cd6b31, type: 3}
+    - {fileID: 8300000, guid: 8edfc2a6946ae3e42916c1f75a6e5ccd, type: 3}
     volume: 0.6
     pitchMin: 0.95
     pitchMax: 1.05
@@ -49,14 +49,14 @@ MonoBehaviour:
     cooldown: 0.08
   - cue: 5
     clips:
-    - {fileID: 8300000, guid: ab16d2629591a2447b9793188c11806a, type: 3}
+    - {fileID: 8300000, guid: 79b69f12a8e38894a98410c1e8749920, type: 3}
     volume: 0.6
     pitchMin: 0.95
     pitchMax: 1.05
     cooldown: 0.08
   - cue: 6
     clips:
-    - {fileID: 8300000, guid: 56381dba4553a4343ab5b1514d9b5d4a, type: 3}
+    - {fileID: 8300000, guid: d5eba05d68ad2c14f9b91c4207d9501b, type: 3}
     volume: 0.6
     pitchMin: 0.95
     pitchMax: 1.05
@@ -126,7 +126,7 @@ MonoBehaviour:
     cooldown: 0.08
   - cue: 16
     clips:
-    - {fileID: 8300000, guid: 034058fe742b655479701855ce477bb3, type: 3}
+    - {fileID: 8300000, guid: d8c8773e744235743b835954c35440cc, type: 3}
     volume: 0.6
     pitchMin: 0.95
     pitchMax: 1.05
@@ -140,7 +140,7 @@ MonoBehaviour:
     cooldown: 0.08
   - cue: 19
     clips:
-    - {fileID: 8300000, guid: 7dd7c5cd31c0efc42ad4efc794d439c2, type: 3}
+    - {fileID: 8300000, guid: 0ac20d6a62654b14f90e30e758b95f5b, type: 3}
     volume: 0.6
     pitchMin: 1
     pitchMax: 1
@@ -161,7 +161,7 @@ MonoBehaviour:
     cooldown: 0.08
   - cue: 18
     clips:
-    - {fileID: 8300000, guid: 74cd6023caea3a54299ee6dd0020abd4, type: 3}
+    - {fileID: 8300000, guid: 5032a125f93e3e44b953c9f779b81a8d, type: 3}
     volume: 0.6
     pitchMin: 0.95
     pitchMax: 1.05
@@ -182,14 +182,14 @@ MonoBehaviour:
     cooldown: 0.1
   - cue: 24
     clips:
-    - {fileID: 8300000, guid: c0edfca6dab66974f938f061f02d9418, type: 3}
+    - {fileID: 8300000, guid: 61c490a8133544b479c69df0c9f89c23, type: 3}
     volume: 0.6
     pitchMin: 1
     pitchMax: 1
     cooldown: 0.05
   - cue: 25
     clips:
-    - {fileID: 8300000, guid: 07a1b4e908140bd46844aabbad5dec12, type: 3}
+    - {fileID: 8300000, guid: 2e5e0c47378ae074281130e2f3742a69, type: 3}
     volume: 0.68
     pitchMin: 1
     pitchMax: 1

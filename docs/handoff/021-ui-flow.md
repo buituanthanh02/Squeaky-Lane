@@ -1,6 +1,6 @@
-# 021 — Bố cục UI và luồng chuyển màn theo game mẫu     Cỡ: L (chia 4 phần)     Trạng thái: Plan (chờ người làm duyệt)
-Đang cầm: Claude        AI tham gia: Claude
-Liên quan: 016 (main menu), 019, 020. Nhánh `021-ui-flow` mở 27/11 từ `020-praise-text`. Chưa sửa code/scene/asset.
+# 021 — Bố cục UI và luồng chuyển màn theo game mẫu     Cỡ: L (chia 4 phần)     Trạng thái: Asset chờ review, luồng UI chờ duyệt
+Đang cầm: Claude        AI tham gia: Claude, Codex
+Liên quan: 016 (main menu), 019, 020. Nhánh `021-ui-flow` mở 27/11 từ `020-praise-text`.
 
 ## Góp ý nhận được (anh lead, người làm chuyển lại 26/11)
 Làm artstyle theo game Car Match (Grand Games) về xe và cách bố trí UI; **làm UI trước**. Main menu có logo, khung tiền, ô máu; nút có viền trắng (người làm đưa asset). Cần theo đúng logic Cài đặt, lúc thắng, lúc từ main menu vào bãi. Xe: người làm nói có thể xin asset có giấy phép.
@@ -95,7 +95,7 @@ S ≤ 1 giờ · M ≤ nửa ngày · L ≤ 1 ngày.
 ## Asset cần người làm đưa
 PNG nền trong, ghi nguồn: logo game (không dùng logo Car Match), nút viền trắng (xanh, thêm đỏ nếu có) và nút vuông, icon tim (repo chưa có), khung pill tiền/tim nếu khác `bg_coin_holder`.
 
-## Folder asset người làm đưa (27/11)
+## Khảo sát folder asset trước khi bàn giao (27/11)
 `AssetCar/Assets` (ngoài repo). `PlayerSettings.json` ghi Grand Games / Car Match, bản 0.0.1112; cấu trúc thư mục theo loại đối tượng Unity: đây là **bản trích từ game đã phát hành**, không thấy file giấy phép hay văn bản cho phép. **Không chép gì vào repo.** Chỉ nhập khi có văn bản của Grand Games (hoặc bên giữ quyền) nêu rõ được dùng trong bài này. Trong lúc chờ: asset tự làm theo tinh thần bố cục (nút viền trắng, pill, tim), không dùng logo hay nhân vật của họ.
 
 ### Asset Kenney trong repo (kiểm bằng AssetDatabase, gốc: scene build + Resources)
@@ -112,6 +112,29 @@ Xóa chỉ làm repo gọn, không làm APK nhỏ đi. Trái quyết định 26/
 ## Tiêu chí xong và bậc kiểm
 Điền sau khi trả lời câu hỏi. Dự kiến V1 (test điều hướng, tiền) + V2 (Console sạch, Play) + V3 (ảnh Game view trước/sau).
 
+## AssetCar đã gắn trên 021 (27/11)
+
+Người làm xác nhận được dùng các asset này trong bài thực tập và bàn giao phần thay asset cho Codex trên `021-ui-flow`. Phạm vi gồm hình UI hiện có, xe, SFX và texture hạt. Luồng UI mới và các câu hỏi về tiền, máu, tab vẫn ở kế hoạch của Claude.
+
+| Nhóm | File nguồn đã chọn | Điểm gắn trong Squeaky Lane |
+| --- | --- | --- |
+| UI | `bg_bttn_activate`, `bg_bttn_chat`, `bg_bttn_facebook`, `closeIconGameplay`, `rew_booster01_stroke` từ `Texture2D` | `Play.unity` đổi đúng 13 trường `Image.sprite`. Nút vào màn, xem lại hướng dẫn, tiếp tục và màn kế dùng xanh lá viền kem. Chơi lại dùng cam. Chọn màn trong các hộp thoại dùng xanh dương. Hai nút đóng và một biểu tượng hoàn tác dùng ảnh mới. |
+| Xe | `CarVersion-1/2/3/4/5/6-V3.glb` lần lượt cho xanh dương, vàng, xanh lá, tím, cam, hồng | Sáu prefab xe 2 ô trong `Prefabs/Cars`. Mỗi xe có một mesh thân và bốn mesh bánh. Kích thước hình, collider và vị trí bùn lấy theo prefab cũ. Sáu material trên `CarCatalog` dùng atlas với UV riêng cho xe mới. Xe tải 3 ô dùng phần colormap Kenney ở UV cũ. |
+| SFX | `UI Button 5`, `Active Car Click 4`, `Passive Car Click 1`, `Correct Answer 2fast 2`, `Super Undo 4 wush-pop fun`, `win_screen`, `level_lose`, `magic_streak_up`, `magic_streak_full` từ `AudioClip` | `SfxCatalog` đổi lần lượt `Ui`, `SelectCar`, `StopWall`, `Exit`, `Undo`, `Won`, `Lost`, `ComboUp`, `ComboBig`. Các ô volume, cooldown, pitch giữ theo catalog. |
+| VFX | `small_shine`, ô đầu của `smoke dissolve3`, `sparkle3`, `star` từ `Texture2D` | Trong `CoreFeel.prefab`, đổi `ParticleSystemRenderer.sharedMaterial` cho Nước, Hơi và bụi, Sao, Pháo giấy. `UiTheme.comboSpark` dùng `sparkle3`. Số hạt và cách phát theo prefab và `FeelConfig` đang có. |
+
+Các GLB hiệu ứng xe tìm thấy chỉ chứa tên node. Texture được nối với hệ hạt đang chạy của Squeaky Lane. Âm rửa đặc trưng vẫn dùng asset hiện tại. Mặc định chọn sơn nguồn cho xe, giữ sáu màu theo cổng, giữ asset Kenney cũ để dễ đối chiếu. `StopWall`, `Exit`, `Won`, `Lost`, `ComboUp` được cắt và vuốt đuôi lần lượt còn 0,40 / 0,43 / 1,20 / 1,14 / 1,10 giây theo ngưỡng test âm thanh hiện có.
+
+- **V2 qua Unity MCP.** EditMode 594 đạt, 0 lỗi, 1 bài Profiler thủ công bỏ qua theo cấu hình test. Sau khi sửa thứ tự mặt tam giác đã vào lại Play. Màn 19 dựng 13 xe đủ sáu màu và mở được Tạm dừng. Màn 20 dựng xe tải xanh dương 3 ô. Màn 1 chơi thắng sau hai nước với tiến trình tạm trong bộ nhớ, ghi nhận tiếng xe ra cổng và tiếng thắng đang phát, 40 hạt ở đỉnh và một lời khen hiện cùng lúc. Console không có lỗi/cảnh báo khi kiểm sau Play.
+- **V3 qua Simulator.** Ảnh iPhone 1284 × 2778 được lấy trực tiếp từ tab Simulator. Ảnh tổng hợp menu, bãi, tạm dừng ở `Logs/021-assetcar/simulation-review.jpg`. Ảnh riêng màn thắng và xe tải ở `Logs/021-assetcar/simulation-win.jpg` và `Logs/021-assetcar/simulation-truck.jpg`. Chưa chạy APK, chưa đo FPS và chưa nghe đối chiếu trên điện thoại thật.
+- **AssetDatabase.** Cả 40 asset mới đều là dependency của Play, có GUID và có `.meta`. Codex không sửa các thay đổi có sẵn ở ProjectSettings và nhóm props City. `PROJECT.md` cập nhật mục 3.1 và sổ việc.
+
+**Bạn cần hiểu**
+
+- `CarView` tách collider khỏi hình. Lưới thân và bánh có thể thay qua prefab mà vùng chạm và logic chiếm ô vẫn theo dữ liệu gốc.
+- Hai phần texture trên cùng một atlas cho phép car catalog dùng chung material cho xe 2 ô và xe tải cùng màu mà UV xe tải vẫn đọc đúng colormap Kenney.
+- `SfxCatalog` và các material trong `CoreFeel` đổi đầu vào của hệ phản hồi hiện có, nên test kiểm được cả clip ngắn lẫn việc phát đúng sự kiện.
+
 ## Đã làm: logo riêng và màn trình diễn thắng (27/11, người làm yêu cầu; nửa đầu V5)
 - Logo "Squeaky Lane" vẽ mới (phiếu 021-a). `WinShow` dựng lớp phủ lúc chạy: chờ 0,45 s → tối → nền bọt, 7 chữ, biển LANE → pháo hoa 3 đợt → 3,2 s mở bảng Thắng trên nền tối (alpha 0,92, tới khi rời màn Thắng). Chạm sau 0,4 s hoặc Back để bỏ qua. Bãi tập giữ như cũ.
 - Đổi: sao được ghi ngay lúc thắng; mở bảng Thắng sau màn trình diễn không còn mờ đen. Không đổi scene, prefab, Core, Navigator.
@@ -126,5 +149,6 @@ Xóa chỉ làm repo gọn, không làm APK nhỏ đi. Trái quyết định 26/
 2026-11-27 10:31 · Người làm → Claude · [BÁO]: nói asset AssetCar được dùng thoải mái, muốn chép phần sẽ dùng; asset Kenney không dùng được giữ lại nếu không làm APK to.
 2026-11-27 10:31 · Claude → Người làm · [TRẢ LỜI]: không chép file trích từ Car Match khi chưa có văn bản của bên giữ quyền. Kenney không dùng giữ nguyên (không nằm trong build). Đã vẽ nháp nút viền trắng, pill, tim, xu ở Logs/021-ui-ref/draft (chưa đưa vào Assets), chờ duyệt.
 2026-11-27 10:34 · Claude → Người làm · [BÁO]: người làm muốn dùng asset trích cho bài test; vẫn không nhập khi chưa có văn bản. Đề xuất làm đẹp xe và UI đang có, hoặc gói xe có giấy phép; chờ chọn. Commit phần kế hoạch theo yêu cầu.
+2026-11-27 10:58 · Codex → Claude · [BÀN GIAO]: trả phần asset cho Claude trên nhánh 021-ui-flow (HEAD 367f578, thay đổi tại working tree). Đã gắn UI, sáu xe 2 ô, chín SFX, bốn texture VFX. V2: Play màn 19/20/1, Console sạch, EditMode 594 đạt/1 bỏ qua theo cấu hình. V3: ảnh Simulator trong Logs/021-assetcar. Còn review phần asset và kiểm trên điện thoại thật.
 2026-11-27 11:06 · Claude → Người làm · [BÁO]: đã thấy phần AssetCar Codex gắn (chưa commit). Chưa có văn bản của bên giữ quyền nên Claude không APPROVE, không commit phần đó, kể cả mục AssetCar trong PROJECT.md. Làm logo riêng (phiếu 021-a) và màn trình diễn thắng, commit tách.
 2026-11-27 11:11 · Claude → Người làm · [BÁO]: logo và màn trình diễn thắng đã chạy, commit riêng trên 021-ui-flow; chờ chơi thử.
