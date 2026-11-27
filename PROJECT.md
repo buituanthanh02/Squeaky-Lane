@@ -499,6 +499,7 @@ namespace SqueakyLane.Game
 | 018 | Combo bằng hình, kỷ lục theo màn, hiệu ứng kỷ lục mới ở bảng kết quả | `018-combo` (mở 26/11 từ `017-cleanup`) | Claude, Codex | Chờ người làm chơi thử | APPROVE hình 018-a (Claude 26/11) | 017 |
 | 019 | Hướng dẫn: bãi tập theo cơ chế, vùng sáng, bàn tay, Bỏ qua/Xem lại, gợi ý bằng tay | `019-tutorial` (mở 26/11 từ `018-combo`) | Claude | Chờ người làm chơi thử | — | 018 |
 | 020 | Chữ khen khi xe sạch ra cổng vẽ trên HUD cho dễ đọc | `020-praise-text` (mở 26/11 từ `019-tutorial`) | Claude | Chờ người làm chơi thử | — | 012, 019 |
+| 021 | Bố cục UI và luồng chuyển màn theo góp ý anh lead | `021-ui-flow` (mở 27/11 từ `020-praise-text`) | Claude | Plan, chờ người làm duyệt | — | 016, 019, 020 |
 
 **Kế hoạch từ 008:** `docs/handoff/play-plan.md` thay `core-plan.md` §7–9; 008 gộp logic phiên chơi + hiển thị + điều khiển, có thể commit theo mốc A/B/C, Claude review một lần cuối. 008 chưa có Navigator/điều hướng; phần đó là 009-A. `[CHỐT 22/11]`
 
